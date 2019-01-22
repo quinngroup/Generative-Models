@@ -8,29 +8,28 @@ from torchvision import datasets, transforms
 from torchsummary import summary
 
 class Net (nn.Module) :
-    
-    def __init__(self): 
-        super(Net,self).__init__()
-        self.conv1 = nn.Conv2d(1, 16, 3)
-        self.conv2 = nn.Conv2d(16, 32, 2)
-        self.conv3 = nn.Conv2d(32, 64, 3)
-        self.fc1 = nn.Linear(1024, 512)
-        self.dropout = nn.Dropout(.5)
-        self.fc2 = nn.Linear(512, 128)
-        self.fc3 = nn.Linear(128, 64)
-        self.fc4 = nn.Linear(64, 10)
+
+	def __init__(self):
+		super(Net, self).__init__()
+		self.conv1 = nn.Conv2d(1, 16, 3)
+		self.conv2 = nn.Conv2d(16, 32, 2)
+		self.conv3 = nn.Conv2d(32, 64, 3)
+		self.fc1 = nn.Linear(256, 512)
+		self.dropout = nn.Dropout(.5)
+		self.fc2 = nn.Linear(512, 128)
+		self.fc3 = nn.Linear(256, 64)
+		self.fc4 = nn.Linear(64, 10)
 	def forward(self, x):
 		x = F.max_pool2d(F.relu(self.conv1(x)), (2,2))
 		x = F.max_pool2d(F.relu(self.conv2(x)), (2,2))
-		x = F.relu(self.conv3(x))
-		#x = F.max_pool2d(F.relu(self.conv3(x)), (2,2))
-		x = x.view(-1, 1024)
+		x = F.max_pool2d(F.relu(self.conv3(x)), (2,2))
+		x = x.view(-1, 256)
 		x = F.relu(self.fc1(x))
 		x = self.dropout(x)
 		x = F.relu(self.fc2(x))
 		x = F.relu(self.fc3(x))
-		x=self.fc4(x)
-		return F.log_softmax(x,dim=1)
+		x = self.fc4(x)
+		return F.log_softmax(x, dim=1)
 		
 def train(args,model,device,train_loader,optimizer,epoch):
 	model.train()
