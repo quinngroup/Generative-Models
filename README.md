@@ -24,4 +24,4 @@ testNet2.py - Successful CNN using the MNIST data set
 
 
 1/23/19: Covered basic VAE [3], and beta-vae [5], started implementation of a simple FF-VAE. Discussed goals for next month.
-
+  February Goals: Establish potential model architectures, run initial tests.
