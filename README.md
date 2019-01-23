@@ -13,3 +13,10 @@ Repository for the JWZ group.
 ```
 (https://arxiv.org/pdf/1705.07120.pdf) VAE with a modified mixture of variationals prior (VampPrior)
 (https://github.com/jmtomczak/vae_vampprior) VAE with a modified mixture of variationals prior (VampPrior) github page
+
+
+Descriptions of Uploads:
+CNN_T.py  - Uploaded base code from Meekail on a basic Convolution Net using the MNIST Data set
+neg-inf-loss-model.py - Early attempt at reproducing CNN from CNN_T.py, resulting in a negative ifinite loss.
+testNet2.py - Successful CNN using the MNIST data set
+
