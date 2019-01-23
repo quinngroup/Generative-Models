@@ -12,8 +12,10 @@ Repository for the JWZ group.
     --pytorch-summary-master
 ```
 (https://arxiv.org/pdf/1705.07120.pdf) VAE with a modified mixture of variationals prior (VampPrior)
+
 (https://github.com/jmtomczak/vae_vampprior) VAE with a modified mixture of variationals prior (VampPrior) github page
 
+(https://openreview.net/pdf?id=Sy2fzU9gl) Beta-VAE paper. Also discussing the notions of disentanglement
 
 Descriptions of Uploads:
 CNN_T.py  - Uploaded base code from Meekail on a basic Convolution Net using the MNIST Data set
