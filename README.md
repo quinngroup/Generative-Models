@@ -21,6 +21,7 @@ Descriptions of Uploads:
 CNN_T.py  - Uploaded base code from Meekail on a basic Convolution Net using the MNIST Data set
 neg-inf-loss-model.py - Early attempt at reproducing CNN from CNN_T.py, resulting in a negative ifinite loss.
 testNet2.py - Successful CNN using the MNIST data set
+vaeTest1.py - First attempt at implementing a Variational Auto Encoder on  a very basic neural net, using the MNIST data.
 
 
 1/23/19: Covered basic VAE [3], and beta-vae [5], started implementation of a simple FF-VAE. Discussed goals for next month.
