@@ -17,6 +17,15 @@ Repository for the JWZ group.
 
 [5](https://openreview.net/pdf?id=Sy2fzU9gl) Beta-VAE paper. Also discussing the notions of disentanglement
 
+[6](https://arxiv.org/pdf/1706.02262.pdf) InfoVAE paper covering maximization of mutual information between inputs and intermediate codes a la InfoGAN techniques.
+
+[7](https://arxiv.org/pdf/1701.03077.pdf) "A General and Adaptive Robust Loss Function." Worth a read. Seems like a very interesting dynamic loss function to use. It can be altered and scheduled to smoothly interpolate between various loss functions which occur as special cases of this one.
+
+[8](http://colah.github.io/posts/2015-08-Backprop/) A very good explanation of computational graphs. 
+
+[9](https://github.com/rszeto/moving-symbols) Github repository for generating moving digits. We will use these scripts to generate train/test data for our video based generative models. We will be able to control key independent generative features and hence be able to see if our model *truly* captures critical features.
+
+
 Descriptions of Uploads:
 CNN_T.py  - Uploaded base code from Meekail on a basic Convolution Net using the MNIST Data set
 neg-inf-loss-model.py - Early attempt at reproducing CNN from CNN_T.py, resulting in a negative ifinite loss.
