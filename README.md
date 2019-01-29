@@ -25,6 +25,7 @@ Repository for the JWZ group.
 
 [9](https://github.com/rszeto/moving-symbols) Github repository for generating moving digits. We will use these scripts to generate train/test data for our video based generative models. We will be able to control key independent generative features and hence be able to see if our model *truly* captures critical features.
 
+[10](https://github.com/pytorch/examples/blob/master/vae/main.py) Basic VAE example in PyTorch
 
 Descriptions of Uploads:
 CNN_T.py  - Uploaded base code from Meekail on a basic Convolution Net using the MNIST Data set
