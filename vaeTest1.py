@@ -7,35 +7,69 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from torchsummary import summary
 
+"""
+First attempt at Vanilla Variational Autoencoder
+1 Hidden layer encoder, 1 Hidden layer decoder.
+"""
+
 class Net (nn.Module) :
 
 	def __init__(self):
 		super(Net, self).__init__()
+		
+		#encoder hidden layer
 		self.hiddenEncode1 = nn.Linear(784, 512)
 		
+		#mean and log-variance encoding layers
 		self.mu = nn.Linear(512, 2)
 		self.sigma = nn.Linear(512,2)
 		
+		#decoder hidden layer
 		self.hiddenDecode1 = nn.Linear(2, 512)
+		
+		#output layer
 		self.output = nn.Linear(512, 784)
 		
 	def forward(self, x):
+		#flatten 28-28 image
 		x = x.view(-1, 784)
+		
+		#run input through encoder hidden layer and apply relu
 		x = F.relu(self.hiddenEncode1(x))
 		
+		#get mean and log-variance for input
 		mean = self.mu(x)
 		logvar = self.sigma(x)
+		
+		#calculate standard deviation from log-variance
 		stdDev = torch.exp(.5 * logvar)
+		
+		#get a random variable for pulling from Gaussian distribution
 		epsilon = torch.randn_like(stdDev)
 		
+		#transform random variable with mean and standard deviation to generate code
 		z = epsilon.mul(stdDev).add_(mean)
 		
+		#run code through decoder hidden layer and apply relu
 		z = F.relu(self.hiddenDecode1(z))
+		
+		#run code through output layer and apply sigmoid
 		z = F.sigmoid(self.output(z))
+		
+		#transform output to image dimensions
 		z = z.view(-1, 28, 28)
+		
+		#return output point, mean, and log-variance
 		return z, mean, logvar
 		
+def lossCalc(data, output, mean, logvar):
+	MSE = F.mse_loss(data, output)
+	
+	KLD = -0.5 * torch.sum(1 + logvar - mean.pow(2) - logvar.exp())
 		
+	return MSE + KLD
+	
+
 def train(args,model,device,train_loader,optimizer,epoch):
 	model.train()
 	for batch_idx, (data,target) in enumerate(train_loader):
@@ -43,13 +77,8 @@ def train(args,model,device,train_loader,optimizer,epoch):
 		optimizer.zero_grad()
 		
 		output, mean, logvar = model(data)
+		loss = lossCalc(data, output, mean, logvar)
 		
-		difference = data - output
-		magnitude = torch.norm(difference)
-		
-		KLD = -0.5 * torch.sum(1 + logvar - mean.pow(2) - logvar.exp())
-		
-		loss = magnitude + KLD
 		loss.backward()
 		optimizer.step()
 		if batch_idx % args.log_interval ==0:
