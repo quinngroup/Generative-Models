@@ -27,7 +27,14 @@ Repository for the JWZ group.
 
 [10](https://github.com/pytorch/examples/blob/master/vae/main.py) Basic VAE example in PyTorch
 
+[11](https://towardsdatascience.com/up-sampling-with-transposed-convolution-9ae4f2df52d0) Basic intro to Transpose Conv
+
+[12](https://towardsdatascience.com/transpose-convolution-77818e55a123) Basic intro to Transpose Conv
+
+
+
 Descriptions of Uploads:
+
 CNN_T.py  - Uploaded base code from Meekail on a basic Convolution Net using the MNIST Data set
 neg-inf-loss-model.py - Early attempt at reproducing CNN from CNN_T.py, resulting in a negative ifinite loss.
 testNet2.py - Successful CNN using the MNIST data set
