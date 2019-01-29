@@ -31,7 +31,7 @@ Repository for the JWZ group.
 
 [12](https://towardsdatascience.com/transpose-convolution-77818e55a123) Basic intro to Transpose Conv
 
-
+[13](http://deeplearning.net/software/theano/tutorial/conv_arithmetic.html) Basic intro to Conv arithmatic of all forms
 
 Descriptions of Uploads:
 
