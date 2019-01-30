@@ -9,6 +9,10 @@ from torchvision import datasets, transforms
 from torchvision.utils import save_image
 from torchsummary import summary
 
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.cbook as cbook
+
 startTime = time.time()
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
@@ -37,6 +41,8 @@ test_loader = torch.utils.data.DataLoader(
     datasets.MNIST('../data', train=False, transform=transforms.ToTensor()),
     batch_size=args.batch_size, shuffle=True, **kwargs)
 
+colors = dict({0:'#e6194B', 1:'#3cb44b', 2:'#ffe119', 3:'#4363d8', 4:'#f58231', 5:'#911eb4', 6:'#42d4f4', 7:'#f032e6', 8:'#bfef45', 9:'#fabebe'})
+	
 """
 First Convolutional Neural Network Variational Autoencoder
 Uses 4 convolutional hidden layers in the encoder before encoding a distribution
@@ -106,7 +112,7 @@ class VAE(nn.Module):
 		z = self.reparameterize(mu, logvar)
 
 		#decode code
-		return self.decode(z), mu, logvar
+		return self.decode(z), mu, logvar, z
 
 
 model = VAE().to(device)
@@ -132,7 +138,7 @@ def train(epoch):
     for batch_idx, (data, _) in enumerate(train_loader):
         data = data.to(device)
         optimizer.zero_grad()
-        recon_batch, mu, logvar = model(data)
+        recon_batch, mu, logvar, z = model(data)
         loss = loss_function(recon_batch, data, mu, logvar)
         loss.backward()
         train_loss += loss.item()
@@ -150,17 +156,28 @@ def train(epoch):
 def test(epoch, max, startTime):
 	model.eval()
 	test_loss = 0
+	zTensor = torch.empty(0,2).to(device)
+	labelTensor = torch.empty(0, dtype = torch.long)
 	with torch.no_grad():
 		for i, (data, _) in enumerate(test_loader):
 			data = data.to(device)
-			recon_batch, mu, logvar = model(data)
+			recon_batch, mu, logvar, z = model(data)
 			test_loss += loss_function(recon_batch, data, mu, logvar).item()
-            
-
+			zTensor = torch.cat((zTensor, z), 0)
+			labelTensor = torch.cat((labelTensor, _), 0)
+			#print(zTensor.size())
+	print(zTensor.size())
 	test_loss /= len(test_loader.dataset)
 	print('====> Test set loss: {:.4f}'.format(test_loss))
 	if(epoch == max):
 		print("--- %s seconds ---" % (time.time() - startTime))
+		z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
+		z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
+		colorArray = np.empty(labelTensor.size()[0], dtype='|U7')
+		for i in range(0, labelTensor.size()[0]):
+			colorArray[i] = colors[labelTensor[i].item()]
+		scatterPlot = plt.scatter(z1, z2, c = colorArray)
+		plt.show()
 
 if __name__ == "__main__":
 	summary(model,(1,28,28))
