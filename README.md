@@ -39,7 +39,13 @@ CNN_T.py  - Uploaded base code from Meekail on a basic Convolution Net using the
 neg-inf-loss-model.py - Early attempt at reproducing CNN from CNN_T.py, resulting in a negative ifinite loss.
 testNet2.py - Successful CNN using the MNIST data set
 vaeTest1.py - First attempt at implementing a Variational Auto Encoder on  a very basic neural net, using the MNIST data.
+vaeTest2.py - First SUCCESSFUL attempt at implementing a Variational Auto Encoder on a very basic neural net, using the MNIST data.
+vae4LayerConv.py - A Variational Auto Encoder with 4 hidden convolutional layers in the encoder and 1 hidden fully-connected layer in the decoder, as well as graphical embedding after 10 epochs
+vae10LayerConv.py - A Variational Auto Encoder with 10 hidden convolutional layers in the encoder and 1 hidden fully-connected layer in the decoder, as well as graphical embedding after 10 epochs
+
 
 
 1/23/19: Covered basic VAE [3], and beta-vae [5], started implementation of a simple FF-VAE. Discussed goals for next month.
   February Goals: Establish potential model architectures, run initial tests.
+  
+1/30/19: Uploaded vaeTest2.py, the first successful Feet-Forward Variational Auto Encoder. Finished vae4LayerConv.py and vae10LayerConv.py, 2 Variational Auto Encoders with 4 and 10 hidden convolutional layers in their encoders, respectively. Added graphical embedding functionality to vae4LayerConv.py and vae10LayerConv.py to visualize the constructed latent spaces after 10 epochs. Began attempting to determine how to add legends to the scatter plots used to present the graphical embeddings.
