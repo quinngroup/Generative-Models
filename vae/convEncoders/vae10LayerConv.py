@@ -54,6 +54,8 @@ Has 493,844 trainable parameters, 402,192 of which are between the hidden fully-
 
 Gives a .4593 loss improvement in return for 65,344 more parameters and 30.830 seconds
 This provides a loss reduction of 1.185% its previous value, but increases the parameters by 16.247% and runtime by 21.967%.
+
+@author Davis Jackson and Quinn Wyner
 """
 	
 	
