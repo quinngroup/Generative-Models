@@ -36,7 +36,7 @@ test_loader = torch.utils.data.DataLoader(
     batch_size=args.batch_size, shuffle=True, **kwargs)
 
 """
-First Feet-Forward Variational Autoencoder with Convolutional hidden layers
+First Convolutional Neural Network Variational Autoencoder
 Uses 4 convolutional hidden layers in the encoder before encoding a distribution
 Applies 1 hidden fully-connected layer to code before output layer.
 
