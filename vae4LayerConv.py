@@ -2,12 +2,14 @@ from __future__ import print_function
 import argparse
 import torch
 import torch.utils.data
+import time
 from torch import nn, optim
 from torch.nn import functional as F
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
+from torchsummary import summary
 
-
+startTime = time.time()
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                     help='input batch size for training (default: 128)')
@@ -40,7 +42,9 @@ First Convolutional Neural Network Variational Autoencoder
 Uses 4 convolutional hidden layers in the encoder before encoding a distribution
 Applies 1 hidden fully-connected layer to code before output layer.
 
-Gave test set loss of 38.7094, where loss is MSE + KLD between the encoded distribution and unit Gaussian.
+Gave test set loss of 38.7562 after 10 epochs, where loss is MSE + KLD between the encoded distribution and unit Gaussian.
+Has 428,500 trainable parameters, 402,192 of which are between the hidden fully-connected layer of the decoder to the output layer
+10 epochs trained in 140.349 seconds
 """
 	
 	
@@ -143,20 +147,23 @@ def train(epoch):
           epoch, train_loss / len(train_loader.dataset)))
 
 
-def test(epoch):
-    model.eval()
-    test_loss = 0
-    with torch.no_grad():
-        for i, (data, _) in enumerate(test_loader):
-            data = data.to(device)
-            recon_batch, mu, logvar = model(data)
-            test_loss += loss_function(recon_batch, data, mu, logvar).item()
+def test(epoch, max, startTime):
+	model.eval()
+	test_loss = 0
+	with torch.no_grad():
+		for i, (data, _) in enumerate(test_loader):
+			data = data.to(device)
+			recon_batch, mu, logvar = model(data)
+			test_loss += loss_function(recon_batch, data, mu, logvar).item()
             
 
-    test_loss /= len(test_loader.dataset)
-    print('====> Test set loss: {:.4f}'.format(test_loss))
+	test_loss /= len(test_loader.dataset)
+	print('====> Test set loss: {:.4f}'.format(test_loss))
+	if(epoch == max):
+		print("--- %s seconds ---" % (time.time() - startTime))
 
 if __name__ == "__main__":
-    for epoch in range(1, args.epochs + 1):
-        train(epoch)
-        test(epoch)
+	summary(model,(1,28,28))
+	for epoch in range(1, args.epochs + 1):
+		train(epoch)
+		test(epoch, args.epochs, startTime)
