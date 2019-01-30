@@ -51,6 +51,8 @@ Applies 1 hidden fully-connected layer to code before output layer.
 Gave test set loss of 38.7562 after 10 epochs, where loss is MSE + KLD between the encoded distribution and unit Gaussian.
 Has 428,500 trainable parameters, 402,192 of which are between the hidden fully-connected layer of the decoder to the output layer
 10 epochs trained in 140.349 seconds
+
+@author Davis Jackson and Quinn Wyner
 """
 	
 	
