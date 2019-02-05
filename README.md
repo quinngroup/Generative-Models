@@ -34,6 +34,7 @@ Repository for the JWZ group.
 [13](http://deeplearning.net/software/theano/tutorial/conv_arithmetic.html) Basic intro to Conv arithmatic of all forms
 
 [14](https://arxiv.org/pdf/1710.04019.pdf) Introduction to data topology
+
 Descriptions of Uploads:
 
 CNN_T.py  - Uploaded base code from Meekail on a basic Convolution Net using the MNIST Data set
