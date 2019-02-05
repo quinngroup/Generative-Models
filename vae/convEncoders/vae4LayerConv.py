@@ -183,6 +183,12 @@ def test(epoch, max, startTime):
 
 if __name__ == "__main__":
 	summary(model,(1,28,28))
-	for epoch in range(1, args.epochs + 1):
-		train(epoch)
-		test(epoch, args.epochs, startTime)
+	if(args.load == ''):
+		for epoch in range(1, args.epochs + 1):
+			train(epoch)
+			test(epoch, args.epochs, startTime)
+	else:
+		model.load_state_dict(torch.load(args.load))
+		test(args.epochs, args.epochs, startTime)
+	if(args.save != ''):
+		torch.save(model.state_dict(), args.save)
