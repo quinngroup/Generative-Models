@@ -12,6 +12,7 @@ from torchsummary import summary
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
+import matplotlib.colors as colors
 
 startTime = time.time()
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
@@ -25,6 +26,10 @@ parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
 parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                     help='how many batches to wait before logging training status')
+parser.add_argument('--save', type=str, default='', metavar='s',
+					help='saves the weights to a given filepath')
+parser.add_argument('--load', type=str, default='', metavar='l',
+					help='loads the weights from a given filepath')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -41,8 +46,6 @@ test_loader = torch.utils.data.DataLoader(
     datasets.MNIST('../data', train=False, transform=transforms.ToTensor()),
     batch_size=args.batch_size, shuffle=True, **kwargs)
 	
-colors = dict({0:'#e6194B', 1:'#3cb44b', 2:'#ffe119', 3:'#4363d8', 4:'#f58231', 5:'#911eb4', 6:'#42d4f4', 7:'#f032e6', 8:'#bfef45', 9:'#fabebe'})
-	
 """
 Second Convolutional Neural Network Variational Autoencoder
 Uses 10 convolutional hidden layers in the encoder before encoding a distribution
@@ -55,7 +58,7 @@ Has 493,844 trainable parameters, 402,192 of which are between the hidden fully-
 Gives a .4593 loss improvement in return for 65,344 more parameters and 30.830 seconds
 This provides a loss reduction of 1.185% its previous value, but increases the parameters by 16.247% and runtime by 21.967%.
 
-@author Davis Jackson and Quinn Wyner
+@author Davis Jackson & Quinn Wyner
 """
 	
 	
@@ -206,7 +209,6 @@ def test(epoch, max, startTime):
 			test_loss += loss_function(recon_batch, data, mu, logvar).item()
 			zTensor = torch.cat((zTensor, z), 0)
 			labelTensor = torch.cat((labelTensor, _), 0)
-			#print(zTensor.size())
 	print(zTensor.size())
 	test_loss /= len(test_loader.dataset)
 	print('====> Test set loss: {:.4f}'.format(test_loss))
@@ -214,10 +216,9 @@ def test(epoch, max, startTime):
 		print("--- %s seconds ---" % (time.time() - startTime))
 		z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
 		z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-		colorArray = np.empty(labelTensor.size()[0], dtype='|U7')
-		for i in range(0, labelTensor.size()[0]):
-			colorArray[i] = colors[labelTensor[i].item()]
-		scatterPlot = plt.scatter(z1, z2, c = colorArray)
+		cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
+		scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap)
+		plt.colorbar()
 		plt.show()
 
 if __name__ == "__main__":
