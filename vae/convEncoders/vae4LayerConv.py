@@ -25,6 +25,10 @@ parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
 parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                     help='how many batches to wait before logging training status')
+parser.add_argument('--save', type=str, default='', metavar='s',
+					help='saves the weights to a given filepath')
+parser.add_argument('--load', type=str, default='', metavar='l',
+					help='loads the weights from a given filepath')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -40,8 +44,6 @@ train_loader = torch.utils.data.DataLoader(
 test_loader = torch.utils.data.DataLoader(
     datasets.MNIST('../data', train=False, transform=transforms.ToTensor()),
     batch_size=args.batch_size, shuffle=True, **kwargs)
-
-colors = dict({0:'#e6194B', 1:'#3cb44b', 2:'#ffe119', 3:'#4363d8', 4:'#f58231', 5:'#911eb4', 6:'#42d4f4', 7:'#f032e6', 8:'#bfef45', 9:'#fabebe'})
 	
 """
 First Convolutional Neural Network Variational Autoencoder
@@ -167,18 +169,15 @@ def test(epoch, max, startTime):
 			test_loss += loss_function(recon_batch, data, mu, logvar).item()
 			zTensor = torch.cat((zTensor, z), 0)
 			labelTensor = torch.cat((labelTensor, _), 0)
-			#print(zTensor.size())
-	print(zTensor.size())
 	test_loss /= len(test_loader.dataset)
 	print('====> Test set loss: {:.4f}'.format(test_loss))
 	if(epoch == max):
 		print("--- %s seconds ---" % (time.time() - startTime))
 		z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
 		z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-		colorArray = np.empty(labelTensor.size()[0], dtype='|U7')
-		for i in range(0, labelTensor.size()[0]):
-			colorArray[i] = colors[labelTensor[i].item()]
-		scatterPlot = plt.scatter(z1, z2, c = colorArray)
+		cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
+		scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap)
+		plt.colorbar()
 		plt.show()
 
 if __name__ == "__main__":
