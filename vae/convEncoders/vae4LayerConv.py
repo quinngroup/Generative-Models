@@ -30,6 +30,8 @@ parser.add_argument('--save', type=str, default='', metavar='s',
 					help='saves the weights to a given filepath')
 parser.add_argument('--load', type=str, default='', metavar='l',
 					help='loads the weights from a given filepath')
+parser.add_argument('--beta', type=float, default=1.0, metavar='b',
+					help='sets the value of beta for a beta-vae implementation')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -134,7 +136,7 @@ def loss_function(recon_x, x, mu, logvar):
     # 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
-    return MSE + KLD
+    return MSE + args.beta*KLD
 
 
 def train(epoch):
