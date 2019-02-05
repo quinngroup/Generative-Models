@@ -12,6 +12,7 @@ from torchsummary import summary
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
+import matplotlib.colors as colors
 
 startTime = time.time()
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
