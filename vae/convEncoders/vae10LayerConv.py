@@ -30,6 +30,8 @@ parser.add_argument('--save', type=str, default='', metavar='s',
 					help='saves the weights to a given filepath')
 parser.add_argument('--load', type=str, default='', metavar='l',
 					help='loads the weights from a given filepath')
+parser.add_argument('--beta', type=float, default=1.0, metavar='b',
+					help='sets the value of beta for a beta-vae implementation')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -51,12 +53,9 @@ Second Convolutional Neural Network Variational Autoencoder
 Uses 10 convolutional hidden layers in the encoder before encoding a distribution
 Applies 1 hidden fully-connected layer to code before output layer.
 
-Gave test set loss of 38.2969 after 10 epochs, where loss is MSE + KLD between the encoded distribution and unit Gaussian.
+Gave test set loss of 38.7888 after 10 epochs, where loss is MSE + KLD between the encoded distribution and unit Gaussian.
 Has 493,844 trainable parameters, 402,192 of which are between the hidden fully-connected layer of the decoder to the output layer
-10 epochs trained in 171.179 seconds
-
-Gives a .4593 loss improvement in return for 65,344 more parameters and 30.830 seconds
-This provides a loss reduction of 1.185% its previous value, but increases the parameters by 16.247% and runtime by 21.967%.
+10 epochs trained in 172.500 seconds
 
 @author Davis Jackson & Quinn Wyner
 """
@@ -173,7 +172,7 @@ def loss_function(recon_x, x, mu, logvar):
     # 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
-    return MSE + KLD
+    return MSE + args.beta*KLD
 
 
 def train(epoch):
@@ -222,6 +221,12 @@ def test(epoch, max, startTime):
 
 if __name__ == "__main__":
 	summary(model,(1,28,28))
-	for epoch in range(1, args.epochs + 1):
-		train(epoch)
-		test(epoch, args.epochs, startTime)
+	if(args.load == ''):
+		for epoch in range(1, args.epochs + 1):
+			train(epoch)
+			test(epoch, args.epochs, startTime)
+	else:
+		model.load_state_dict(torch.load(args.load))
+		test(args.epochs, args.epochs, startTime)
+	if(args.save != ''):
+		torch.save(model.state_dict(), args.save)
