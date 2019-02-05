@@ -209,7 +209,6 @@ def test(epoch, max, startTime):
 			test_loss += loss_function(recon_batch, data, mu, logvar).item()
 			zTensor = torch.cat((zTensor, z), 0)
 			labelTensor = torch.cat((labelTensor, _), 0)
-	print(zTensor.size())
 	test_loss /= len(test_loader.dataset)
 	print('====> Test set loss: {:.4f}'.format(test_loss))
 	if(epoch == max):
