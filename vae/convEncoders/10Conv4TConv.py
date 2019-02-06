@@ -47,16 +47,13 @@ test_loader = torch.utils.data.DataLoader(
     batch_size=args.batch_size, shuffle=True, **kwargs)
     
 """
-Second Convolutional Neural Network Variational Autoencoder
+First Convolutional Neural Network Variational Autoencoder with Transpose Convolutional Decoder
 Uses 10 convolutional hidden layers in the encoder before encoding a distribution
-Applies 1 hidden fully-connected layer to code before output layer.
+Applies 1 fully-connected and 3 transpose convolutional hidden layers to code before output layer.
 
-Gave test set loss of 38.2969 after 10 epochs, where loss is MSE + KLD between the encoded distribution and unit Gaussian.
-Has 493,844 trainable parameters, 402,192 of which are between the hidden fully-connected layer of the decoder to the output layer
-10 epochs trained in 171.179 seconds
-
-Gives a .4593 loss improvement in return for 65,344 more parameters and 30.830 seconds
-This provides a loss reduction of 1.185% its previous value, but increases the parameters by 16.247% and runtime by 21.967%.
+Gave test set loss of 37.7987 after 10 epochs, where loss is MSE + KLD between the encoded distribution and unit Gaussian.
+Has 131,025 trainable parameters
+10 epochs trained in 197.164 seconds
 
 @author Davis Jackson & Quinn Wyner
 """
@@ -105,7 +102,7 @@ class VAE(nn.Module):
         #reshape elsewhere
         
         #(1,2,2) -> (32,7,7)
-        self.convt1 = nn.ConvTranspose2d(2, 32, 6)
+        self.convt1 = nn.ConvTranspose2d(1, 32, 6)
         
         #(32,7,7) -> (16, 14, 14)
         self.convt2 = nn.ConvTranspose2d(32, 16, 8)
@@ -128,11 +125,8 @@ class VAE(nn.Module):
     def decode(self, z):
         #implement
         d1 = F.relu(self.fc1(z))
-        print("d1 shape = " , d1.shape)
-        d1r = torch.unsqueeze(d1, 1,2,2)
-        print("d1 shape post reshape",d1r)
+        d1r = d1.view(-1,1,2,2)
         d2 = F.relu(self.convt1(d1r))
-        print("d2 shape " , d2.shape)
         d3 = F.relu(self.convt2(d2))
         d4 = F.relu(self.convt3(d3))
         d5 = F.relu(self.convt4(d4))
@@ -190,7 +184,7 @@ optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 # Reconstruction + KL divergence losses summed over all elements and batch
 def loss_function(recon_x, x, mu, logvar):
-    MSE = F.mse_loss(recon_x, x.view(-1, 784), reduction = 'sum')
+    MSE = F.mse_loss(recon_x.view(-1,784), x.view(-1, 784), reduction = 'sum')
 
     # see Appendix B from VAE paper:
     # Kingma and Welling. Auto-Encoding Variational Bayes. ICLR, 2014
