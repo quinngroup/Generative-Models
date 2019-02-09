@@ -134,10 +134,6 @@ class VAE(nn.Module):
         d5 = F.relu(self.convt4(d4))
         return d5
         
-    
-
-    '''h3 = F.relu(self.fc3(z))
-        return torch.sigmoid(self.fc4(h3))'''
 
     def forward(self, x):
         #(1,28,28) -> (8,26,26) -> (8,13,13)
