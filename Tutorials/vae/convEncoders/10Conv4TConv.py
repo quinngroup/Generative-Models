@@ -242,8 +242,11 @@ def test(epoch, max, startTime):
         plt.show()
         
 def dplot(x):
-    img = decode(x)
-    plt.imshow(img)
+    with torch.no_grad():
+        img = model.decode(x).cpu().view(28,28)
+        print(img.shape)
+        plt.imshow(img)
+        plt.show()
 
 if __name__ == "__main__":
     summary(model,(1,28,28))
@@ -256,3 +259,4 @@ if __name__ == "__main__":
         test(args.epochs, args.epochs, startTime)
     if(args.save != ''):
         torch.save(model.state_dict(), args.save)
+    dplot(torch.tensor([1,1],dtype=torch.float).to(device))
