@@ -230,8 +230,12 @@ def test(epoch, max, startTime):
     print('====> Test set loss: {:.4f}'.format(test_loss))
     if(epoch == max):
         print("--- %s seconds ---" % (time.time() - startTime))
-        z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
-        z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
+        if device == torch.device("cuda"):
+            z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
+            z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
+        else:
+            z1 = zTensor[:, 0].numpy()
+            z2 = zTensor[:, 0].numpy()
         cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
         scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap)
         plt.colorbar()
