@@ -35,7 +35,7 @@ Repository for the JWZ group.
 
 [14](https://arxiv.org/pdf/1710.04019.pdf) Introduction to data topology
 
-[15](http://colah.github.io/posts/2015-08-Understanding-LSTMs/)
+[15](http://colah.github.io/posts/2015-08-Understanding-LSTMs/) LSTM tutorial
 
 Descriptions of Uploads:
 
