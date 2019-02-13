@@ -244,7 +244,6 @@ def test(epoch, max, startTime):
 def dplot(x):
     with torch.no_grad():
         img = model.decode(x).cpu().view(28,28)
-        print(img.shape)
         plt.imshow(img)
         plt.show()
 
