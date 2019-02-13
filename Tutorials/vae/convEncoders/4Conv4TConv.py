@@ -49,13 +49,9 @@ test_loader = torch.utils.data.DataLoader(
     batch_size=args.batch_size, shuffle=True, **kwargs)
     
 """
-First Convolutional Neural Network Variational Autoencoder with Transpose Convolutional Decoder
-Uses 10 convolutional hidden layers in the encoder before encoding a distribution
+Secpmd Convolutional Neural Network Variational Autoencoder with Transpose Convolutional Decoder
+Uses 4 convolutional hidden layers in the encoder before encoding a distribution
 Applies 1 fully-connected and 3 transpose convolutional hidden layers to code before output layer.
-
-Gave test set loss of 37.7987 after 10 epochs, where loss is MSE + KLD between the encoded distribution and unit Gaussian.
-Has 131,025 trainable parameters
-10 epochs trained in 197.164 seconds
 
 @author Davis Jackson & Quinn Wyner
 """
@@ -71,33 +67,15 @@ class VAE(nn.Module):
         #(8,13,13) -> (16,12,12)
         self.conv2 = nn.Conv2d(8, 16, 2)
         
-        #(16,12,12) -> (24,11,11)
-        self.conv3 = nn.Conv2d(16, 24, 2)
+        #(16,6,6) -> (32,4,4)
+        self.conv3 = nn.Conv2d(16, 32, 3)
         
-        #(24,11,11) -> (32,10,10)
-        self.conv4 = nn.Conv2d(24, 32, 2)
-        
-        #(32,10,10) -> (40,9,9)
-        self.conv5 = nn.Conv2d(32, 40, 2)
-        
-        #(40,9,9) -> (48,8,8)
-        self.conv6 = nn.Conv2d(40, 48, 2)
-        
-        #(48,8,8) -> (56,7,7)
-        self.conv7 = nn.Conv2d(48, 56, 2)
-        
-        #(56,7,7) -> (64,6,6)
-        self.conv8 = nn.Conv2d(56, 64, 2)
-        
-        #(64,6,6) -> (72,5,5)
-        self.conv9 = nn.Conv2d(64, 72, 2)
-        
-        #(72,5,5) -> (80,4,4)
-        self.conv10 = nn.Conv2d(72, 80, 2)
+        #(32,4,4) -> (64,2,2)
+        self.conv4 = nn.Conv2d(32, 64, 3)
 
         #(80,4,4) -> 2-dim mean and logvar
-        self.mean = nn.Linear(80*4*4, 2)
-        self.variance = nn.Linear(80*4*4, 2)
+        self.mean = nn.Linear(64*2*2, 2)
+        self.variance = nn.Linear(64*2*2, 2)
 
         #(2 -> 4)
         self.fc1 = nn.Linear(2, 4)
@@ -138,36 +116,18 @@ class VAE(nn.Module):
     def forward(self, x):
         #(1,28,28) -> (8,26,26) -> (8,13,13)
         x = F.max_pool2d(F.relu(self.conv1(x)), (2,2))
-
-        #(8,13,13) -> (16,12,12)
-        x = F.relu(self.conv2(x))
         
-        #(16,12,12) -> (24,11,11)
+        #(8,13,13) -> (16,12,12) -> (16,6,6)
+        x = F.max_pool2d(F.relu(self.conv2(x)), (2,2))
+        
+        #(16,6,6) -> (32,4,4)
         x = F.relu(self.conv3(x))
         
-        #(24,11,11) -> (32,10,10)
+        #(32,4,4) -> (64,2,2)
         x = F.relu(self.conv4(x))
-        
-        #(32,10,10) -> (40,9,9)
-        x = F.relu(self.conv5(x))
-        
-        #(40,9,9) -> (48,8,8)
-        x = F.relu(self.conv6(x))
-        
-        #(48,8,8) -> (56,7,7)
-        x = F.relu(self.conv7(x))
-        
-        #(56,7,7) -> (64,6,6)
-        x = F.relu(self.conv8(x))
-        
-        #(64,6,6) -> (72,5,5)
-        x = F.relu(self.conv9(x))
-        
-        #(72,5,5) -> (80,4,4)
-        x = F.relu(self.conv10(x))
 
         #(64,2,2) -> 2-dim mean and logvar
-        mu, logvar = self.encode(x.view(-1, 80*4*4))
+        mu, logvar = self.encode(x.view(-1, 64*2*2))
 
         #get code
         z = self.reparameterize(mu, logvar)
