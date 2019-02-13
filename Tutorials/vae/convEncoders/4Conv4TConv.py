@@ -53,10 +53,6 @@ Secpmd Convolutional Neural Network Variational Autoencoder with Transpose Convo
 Uses 4 convolutional hidden layers in the encoder before encoding a distribution
 Applies 1 fully-connected and 3 transpose convolutional hidden layers to code before output layer.
 
-Gave test set loss of 37.7987 after 10 epochs, where loss is MSE + KLD between the encoded distribution and unit Gaussian.
-Has 131,025 trainable parameters
-10 epochs trained in 197.164 seconds
-
 @author Davis Jackson & Quinn Wyner
 """
     
