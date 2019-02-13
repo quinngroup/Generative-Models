@@ -35,6 +35,8 @@ Repository for the JWZ group.
 
 [14](https://arxiv.org/pdf/1710.04019.pdf) Introduction to data topology
 
+[15](http://colah.github.io/posts/2015-08-Understanding-LSTMs/)
+
 Descriptions of Uploads:
 
 CNN_T.py  - Uploaded base code from Meekail on a basic Convolution Net using the MNIST Data set
