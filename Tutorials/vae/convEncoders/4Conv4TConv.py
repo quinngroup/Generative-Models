@@ -8,7 +8,6 @@ from torch.nn import functional as F
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 from torchsummary import summary
-from sklearn.manifold import TSNE
 
 import numpy as np
 import matplotlib.pyplot as plt
