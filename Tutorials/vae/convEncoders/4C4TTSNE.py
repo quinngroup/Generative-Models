@@ -34,8 +34,9 @@ parser.add_argument('--load', type=str, default='', metavar='l',
 parser.add_argument('--beta', type=float, default=1.0, metavar='b',
                     help='sets the value of beta for a beta-vae implementation')
 parser.add_argument('--lsdim', type = int, default=2, metavar='l',
-                    help='sets the number of dimensions in the latent space')
+                    help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
                     #current implementation may not be optimal for dims above 4
+
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -81,7 +82,7 @@ class VAE(nn.Module):
         self.mean = nn.Linear(64*2*2, args.lsdim)
         self.variance = nn.Linear(64*2*2, args.lsdim)
 
-        #(2 -> 4)
+        #(args.lsdim -> 4)
         self.fc1 = nn.Linear(args.lsdim, 4)
         #reshape elsewhere
         
@@ -195,11 +196,13 @@ def test(epoch, max, startTime):
     print('====> Test set loss: {:.4f}'.format(test_loss))
     if(epoch == max):
         print("--- %s seconds ---" % (time.time() - startTime))
-        Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())
-        print(Z_embedded.shape)
-        
-        z1 = Z_embedded[:, 0]
-        z2 = Z_embedded[:, 1]
+        if (args.lsdim < 3) :
+            z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
+            z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
+        else:    
+            Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())        
+            z1 = Z_embedded[:, 0]
+            z2 = Z_embedded[:, 1]
         cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
         scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap)
         plt.colorbar()
