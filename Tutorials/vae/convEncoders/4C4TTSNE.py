@@ -203,11 +203,11 @@ def test(epoch, max, startTime):
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
             scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #Regular 2dim plot
-        else if (args.lsdim == 3) :
+        elif (args.lsdim == 3) :
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
             z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
-            scatterPlot = plt.scatter(z1, z2, z3 s = 4, c = labelTensor, cmap = cmap) #Regular 3dim plot
+            scatterPlot = plt.scatter(z1, z2, z3, s = 4, c = labelTensor, cmap = cmap) #Regular 3dim plot
         else:    
             Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())        
             z1 = Z_embedded[:, 0]
