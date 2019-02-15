@@ -9,6 +9,7 @@ from torchvision import datasets, transforms
 from torchvision.utils import save_image
 from torchsummary import summary
 from sklearn.manifold import TSNE
+from mpl_toolkits.mplot3d import Axes3D
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -144,7 +145,6 @@ class VAE(nn.Module):
 model = VAE().to(device)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
-
 # Reconstruction + KL divergence losses summed over all elements and batch
 def loss_function(recon_x, x, mu, logvar):
     MSE = F.mse_loss(recon_x.view(-1,784), x.view(-1, 784), reduction = 'sum')
@@ -203,18 +203,21 @@ def test(epoch, max, startTime):
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
             scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #Regular 2dim plot
+            plt.colorbar()
         elif (args.lsdim == 3) :
+            fig=plt.figure()
+            ax=fig.gca(projection='3d')
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
             z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
-            scatterPlot = plt.scatter(z1, z2, z3, s = 4, c = labelTensor, cmap = cmap) #Regular 3dim plot
+            scatterPlot = ax.scatter(z1, z2, z3, s = 4, c = labelTensor, cmap = cmap) #Regular 3dim plot
         else:    
             Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())        
             z1 = Z_embedded[:, 0]
             z2 = Z_embedded[:, 1]
             scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #TSNE projection for >3dim 
-        
-        plt.colorbar()
+            plt.colorbar()
+
         plt.show()
          
 def dplot(x):
