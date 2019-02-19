@@ -37,6 +37,8 @@ Repository for the JWZ group.
 
 [15](http://colah.github.io/posts/2015-08-Understanding-LSTMs/) LSTM tutorial
 
+[16](https://arxiv.org/pdf/0711.0189.pdf) Spectral clustering tutorial
+
 Descriptions of Uploads:
 
 CNN_T.py  - Uploaded base code from Meekail on a basic Convolution Net using the MNIST Data set
