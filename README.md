@@ -60,3 +60,7 @@ vae10LayerConv.py - A Variational Auto Encoder with 10 hidden convolutional laye
   February Goals: Establish potential model architectures, run initial tests.
   
 1/30/19: Uploaded vaeTest2.py, the first successful Feet-Forward Variational Auto Encoder. Finished vae4LayerConv.py and vae10LayerConv.py, 2 Variational Auto Encoders with 4 and 10 hidden convolutional layers in their encoders, respectively. Added graphical embedding functionality to vae4LayerConv.py and vae10LayerConv.py to visualize the constructed latent spaces after 10 epochs. Began attempting to determine how to add legends to the scatter plots used to present the graphical embeddings.
+
+2/6/19: Uploaded 10Conv4TConv.py, the first tutorial model to implement transpose convolutional layers in the decoder. Uploaded more graphical embeddings. Updated models with colorbars to display which color corresponds to which number in the graphical embeddings.
+
+2/13/19: Uploaded 4Conv4TConv.py, which uses 4 convolutional layers instead of 10 in the encoder to increase training rate with minimal change in final result. Uploaded 4C4TTSNE.py, which uses TSNE projection to display a 2-dimensional projection of the graphical embedding of higher-dimensional latent spaces.
