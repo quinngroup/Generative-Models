@@ -39,6 +39,9 @@ Repository for the JWZ group.
 
 [16](https://arxiv.org/pdf/0711.0189.pdf) Spectral clustering tutorial
 
+[17](https://papers.nips.cc/paper/2183-half-lives-of-eigenflows-for-spectral-clustering.pdf)
+
+
 Descriptions of Uploads:
 
 CNN_T.py  - Uploaded base code from Meekail on a basic Convolution Net using the MNIST Data set
