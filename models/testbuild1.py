@@ -39,7 +39,7 @@ parser.add_argument('--beta', type=float, default=1.0, metavar='b',
 parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                     help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
                     #current implementation may not be optimal for dims above 4
-parser.add_argument('--clalg' type=str, default='dbscan', metavar='cl',
+parser.add_argument('--clalg', type=str, default='dbscan', metavar='cl',
                     help='determines which clustering algorithm to use')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
