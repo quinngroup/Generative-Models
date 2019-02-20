@@ -39,8 +39,8 @@ parser.add_argument('--beta', type=float, default=1.0, metavar='b',
 parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                     help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
                     #current implementation may not be optimal for dims above 4
-parser.add_argument('--clalg', type=str, default='dbscan', metavar='cl',
-                    help='determines which clustering algorithm to use')
+parser.add_argument('--dbscan', type= bool, default= False, metavar='db',
+                    help='to run dbscan clustering')                    
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -195,9 +195,10 @@ def test(epoch, max, startTime):
             zTensor = torch.cat((zTensor, z), 0)
             labelTensor = torch.cat((labelTensor, _), 0)
     
-    if (args.clalg == 'dbscan') :
-        zScaled = StandardScaler().fit_transform(torch.Tensor.cpu(zTensor).numpy())
-        db = DBSCAN(eps=0.3, min_samples=10).fit(zScaled)
+    if (args.dbscan == True) :
+        zScaled = StandardScaler().fit_transform((torch.Tensor.cpu(zTensor).numpy())) #re-add StandardScaler().fit_transform
+        db = DBSCAN(eps= 0.7, min_samples= 3).fit(zScaled)
+        print(db.labels_)
         labelTensor = db.labels_
     test_loss /= len(test_loader.dataset)
     print('====> Test set loss: {:.4f}'.format(test_loss))
@@ -209,7 +210,7 @@ def test(epoch, max, startTime):
         if (args.lsdim < 3) :
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-            scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #Regular 2dim plot
+            scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor) #Regular 2dim plot, RE-ADD CMAP = CMAP
             plt.colorbar()
         elif (args.lsdim == 3) :
             fig=plt.figure()
@@ -237,8 +238,11 @@ if __name__ == "__main__":
         for epoch in range(1, args.epochs + 1):
             train(epoch)
             test(epoch, args.epochs, startTime)
-    else:
+    elif(args.cuda == True):
         model.load_state_dict(torch.load(args.load))
+        test(args.epochs, args.epochs, startTime)
+    else:
+        model.load_state_dict(torch.load(args.load, map_location= device))
         test(args.epochs, args.epochs, startTime)
     if(args.save != ''):
         torch.save(model.state_dict(), args.save)
