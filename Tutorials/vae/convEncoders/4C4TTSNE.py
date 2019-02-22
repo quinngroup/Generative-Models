@@ -55,7 +55,7 @@ test_loader = torch.utils.data.DataLoader(
     batch_size=args.batch_size, shuffle=True, **kwargs)
     
 """
-Secpmd Convolutional Neural Network Variational Autoencoder with Transpose Convolutional Decoder
+Second Convolutional Neural Network Variational Autoencoder with Transpose Convolutional Decoder
 Uses 4 convolutional hidden layers in the encoder before encoding a distribution
 Applies 1 fully-connected and 3 transpose convolutional hidden layers to code before output layer.
 
