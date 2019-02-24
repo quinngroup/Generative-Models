@@ -236,7 +236,7 @@ def dbplots (zTensor, epsmin, epsmax, epsteps, minmin, minmax, minstep) :
     for eps in np.arange(epsmin, epsmax, epsteps) :
         for min in np.arange(minmin, minmax, minstep) :
             zScaled = StandardScaler().fit_transform((torch.Tensor.cpu(zTensor).numpy())) #re-add StandardScaler().fit_transform
-            db = DBSCAN(eps= 0.7, min_samples= 3).fit(zScaled)
+            db = DBSCAN(eps=eps, min_samples= min).fit(zScaled)
             labelTensor = db.labels_
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
