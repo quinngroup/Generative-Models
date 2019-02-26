@@ -43,6 +43,7 @@ Repository for the JWZ group.
 
 [18](https://github.com/ncullen93/torchsample/blob/master/README.md) Utility package we ought to implement
 
+[19](https://arxiv.org/pdf/1706.06982.pdf) Two-stream dynamic texture synthesis
 
 Descriptions of Uploads:
 
