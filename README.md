@@ -41,6 +41,8 @@ Repository for the JWZ group.
 
 [17](https://papers.nips.cc/paper/2183-half-lives-of-eigenflows-for-spectral-clustering.pdf)
 
+[18](https://github.com/ncullen93/torchsample/blob/master/README.md) Utility package we ought to implement
+
 
 Descriptions of Uploads:
 
