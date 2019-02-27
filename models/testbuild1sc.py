@@ -11,6 +11,7 @@ from torchsummary import summary
 from sklearn.manifold import TSNE
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import SpectralClustering
 from mpl_toolkits.mplot3d import Axes3D
 
 import numpy as np
@@ -40,7 +41,9 @@ parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                     help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
                     #current implementation may not be optimal for dims above 4
 parser.add_argument('--dbscan', type= bool, default= False, metavar='db',
-                    help='to run dbscan clustering')                    
+                    help='to run dbscan clustering') 
+parser.add_argument('--sprectral', type= bool, default= False, metavar='spc',
+                    help='to run sprectral clustering')                     
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -197,8 +200,13 @@ def test(epoch, max, startTime):
     
     if (args.dbscan == True) :
         zScaled = StandardScaler().fit_transform((torch.Tensor.cpu(zTensor).numpy())) #re-add StandardScaler().fit_transform
-        db = DBSCAN(eps= 0.3, min_samples= 3).fit(zScaled)
+        db = DBSCAN(eps= 0.7, min_samples= 3).fit(zScaled)
+        print(db.labels_)
         labelTensor = db.labels_
+    if (args.spectral == True) :
+        spectral = SpectralClustering().fit(torch.Tensor.cpu(zTensor).numpy())
+        print(spectral)
+        labelTensor = spectral.labels_
     test_loss /= len(test_loader.dataset)
     print('====> Test set loss: {:.4f}'.format(test_loss))
     if(epoch == max):
@@ -226,24 +234,10 @@ def test(epoch, max, startTime):
             plt.colorbar()
 
         plt.show()
-        dbplots(zTensor, 0.01, 2, .05, 2, 36, 4)
-        
+         
 def dplot(x):
     img = decode(x)
     plt.imshow(img)
-    
-def dbplots (zTensor, epsmin, epsmax, epsteps, minmin, minmax, minstep) :
-    for eps in np.arange(epsmin, epsmax, epsteps) :
-        for min in np.arange(minmin, minmax, minstep) :
-            zScaled = StandardScaler().fit_transform((torch.Tensor.cpu(zTensor).numpy())) #re-add StandardScaler().fit_transform
-            db = DBSCAN(eps=eps, min_samples= min).fit(zScaled)
-            labelTensor = db.labels_
-            z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
-            z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-            scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor) #Regular 2dim plot, RE-ADD CMAP = CMAP
-            filename = "dbplots\Epsilon_ " + str(eps) + "MinSamples_" + str(min) + ".png"
-            print(filename)
-            plt.savefig(filename)
 
 if __name__ == "__main__":
     summary(model,(1,28,28))
