@@ -42,7 +42,7 @@ parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                     #current implementation may not be optimal for dims above 4
 parser.add_argument('--dbscan', type= bool, default= False, metavar='db',
                     help='to run dbscan clustering') 
-parser.add_argument('--sprectral', type= bool, default= False, metavar='spc',
+parser.add_argument('--spectral', type= bool, default= False, metavar='spc',
                     help='to run sprectral clustering')                     
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -204,7 +204,7 @@ def test(epoch, max, startTime):
         print(db.labels_)
         labelTensor = db.labels_
     if (args.spectral == True) :
-        spectral = SpectralClustering().fit(torch.Tensor.cpu(zTensor).numpy())
+        spectral = SpectralClustering(affinity='nearest_neighbors', n_neighbors=10).fit(torch.Tensor.cpu(zTensor).numpy())
         print(spectral)
         labelTensor = spectral.labels_
     test_loss /= len(test_loader.dataset)
