@@ -35,21 +35,6 @@ parser.add_argument('--filename', type=str, default='', metavar='F',
 parser.add_argument('--source', type=str, default='../data/mnist_test_seq.npy', metavar='S',
                     help = 'path to moving MNIST dataset (default: \'../data/mnist_test_seq.npy\')')
 args = parser.parse_args()
-args.cuda = not args.no_cuda and torch.cuda.is_available()
-kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
-torch.manual_seed(args.seed)
-
-#Loads moving MNIST dataset
-mnist = np.load(args.source)
-
-#Saves video as mp4 or raises Exception if invalid index and filename are provided
-if(args.index >= 0 and args.index < 10000):
-    if(args.filename != ''):
-        imageio.mimwrite(args.filename, mnist[:,args.index], fps=10)
-    else:
-        raise Exception('filename must be defined')
-elif(args.filename != ''):
-    raise Exception('valid index between 0 and 9999 must be defined')
 
 #movingMNISTDataset class    
 class movingMNISTDataset(Dataset):
@@ -80,17 +65,38 @@ class movingMNISTDataset(Dataset):
             obs = self.transform(obs)
         return obs
 
-#Constructs Pytorch Dataset from moving MNIST data
-data = movingMNISTDataset(npArray=mnist, transform=transforms.ToTensor())
-length = data.__len__()
+def loaderGen(batch_size=128, no_cuda=False, seed=1, testSplit=.2, index=-1, filename='', source='../data/mnist_test_seq.npy'):
+    cuda = not no_cuda and torch.cuda.is_available()
+    kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+    torch.manual_seed(seed)
+    
+    #Loads moving MNIST dataset
+    mnist = np.load(source)
 
-#Splits data into training and testing data
-if(args.testSplit <= 0 or args.testSplit >= 1):
-    raise Exception('testSplit must be between 0 and 1 (exclusively)')
-testSize = ceil(args.testSplit * length)
-trainSize = length - testSize
-trainSet, testSet = random_split(data, [trainSize, testSize])
+    #Saves video as mp4 or raises Exception if invalid index and filename are provided
+    if(index >= 0 and index < 10000):
+        if(filename != ''):
+            imageio.mimwrite(filename, mnist[:,index], fps=10)
+        else:
+            raise Exception('filename must be defined')
+    elif(filename != ''):
+        raise Exception('valid index between 0 and 9999 must be defined')
 
-#Constructs DataLoaders for training and testing data
-train_loader = DataLoader(trainSet, batch_size=args.batch_size, shuffle=True, **kwargs)
-test_loader = DataLoader(testSet, batch_size=args.batch_size, shuffle=True, **kwargs)
+    #Constructs Pytorch Dataset from moving MNIST data
+    data = movingMNISTDataset(npArray=mnist, transform=transforms.ToTensor())
+    length = data.__len__()
+
+    #Splits data into training and testing data
+    if(testSplit <= 0 or testSplit >= 1):
+        raise Exception('testSplit must be between 0 and 1 (exclusively)')
+    testSize = ceil(testSplit * length)
+    trainSize = length - testSize
+    trainSet, testSet = random_split(data, [trainSize, testSize])
+
+    #Constructs DataLoaders for training and testing data
+    train_loader = DataLoader(trainSet, batch_size=batch_size, shuffle=True, **kwargs)
+    test_loader = DataLoader(testSet, batch_size=batch_size, shuffle=True, **kwargs)
+
+    return train_loader, test_loader
+
+loaderGen(args.batch_size, args.no_cuda, args.seed, args.testSplit, args.index, args.filename, args.source)
