@@ -21,6 +21,8 @@ import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
 
+import hdbscan
+
 startTime = time.time()
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
@@ -45,7 +47,9 @@ parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
 parser.add_argument('--dbscan', type= bool, default= False, metavar='db',
                     help='to run dbscan clustering') 
 parser.add_argument('--spectral', type= bool, default= False, metavar='spc',
-                    help='to run sprectral clustering')         
+                    help='to run spectral clustering')     
+parser.add_argument('--hdbscan', type=bool, default=False, metavar='hdb',
+                    help='to run hdbscan clustering')
 parser.add_argument('--eps', type=float, default=.0001, metavar='e',
                     help='small number to prevent divide by zero errors (default: .0001)')
 args = parser.parse_args()
@@ -204,7 +208,11 @@ def inverse_distance(z1, z2):
     dst = distance.euclidean(z1, z2)
     return 1/(args.eps + dst)"""
     dst = np.linalg.norm(z1-z2)
-    return 1/(args.eps + dst)
+    value = 1/(args.eps + dst)
+    if (1/(args.eps + dst) > 1):
+        return 1/(args.eps + dst)
+    else:
+        return 0
 
 def test(epoch, max, startTime):
     model.eval()
@@ -238,7 +246,7 @@ def test(epoch, max, startTime):
         if (args.lsdim < 3) :
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-            scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor) #Regular 2dim plot, RE-ADD CMAP = CMAP
+            scatterPlot = plt.scatter(z1, z2, s = 2, c = labelTensor) #Regular 2dim plot, RE-ADD CMAP = CMAP
             plt.colorbar()
         elif (args.lsdim == 3) :
             fig=plt.figure()
@@ -246,12 +254,12 @@ def test(epoch, max, startTime):
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
             z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
-            scatterPlot = ax.scatter(z1, z2, z3, s = 4, c = labelTensor, cmap = cmap) #Regular 3dim plot
+            scatterPlot = ax.scatter(z1, z2, z3, s = 2, c = labelTensor, cmap = cmap) #Regular 3dim plot
         else:    
             Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())
             z1 = Z_embedded[:, 0]
             z2 = Z_embedded[:, 1]
-            scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #TSNE projection for >3dim 
+            scatterPlot = plt.scatter(z1, z2, s = 2, c = labelTensor, cmap = cmap) #TSNE projection for >3dim 
             plt.colorbar()
 
         plt.show()
