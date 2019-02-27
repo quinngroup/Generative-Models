@@ -204,7 +204,7 @@ def test(epoch, max, startTime):
         print(db.labels_)
         labelTensor = db.labels_
     if (args.spectral == True) :
-        spectral = SpectralClustering().fit(torch.Tensor.cpu(zTensor).numpy())
+        spectral = SpectralClustering(affinity='nearest_neighbors', n_neighbors=10).fit(torch.Tensor.cpu(zTensor).numpy())
         print(spectral)
         labelTensor = spectral.labels_
     test_loss /= len(test_loader.dataset)
