@@ -8,16 +8,20 @@ from torch.nn import functional as F
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 from torchsummary import summary
+from scipy.spatial import distance
 from sklearn.manifold import TSNE
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import SpectralClustering
+from sklearn.metrics.pairwise import paired_euclidean_distances
 from mpl_toolkits.mplot3d import Axes3D
 
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
+
+import hdbscan
 
 startTime = time.time()
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
@@ -43,7 +47,11 @@ parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
 parser.add_argument('--dbscan', type= bool, default= False, metavar='db',
                     help='to run dbscan clustering') 
 parser.add_argument('--spectral', type= bool, default= False, metavar='spc',
-                    help='to run sprectral clustering')                     
+                    help='to run spectral clustering')     
+parser.add_argument('--hdbscan', type=bool, default=False, metavar='hdb',
+                    help='to run hdbscan clustering')
+parser.add_argument('--eps', type=float, default=.0001, metavar='e',
+                    help='small number to prevent divide by zero errors (default: .0001)')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -61,9 +69,7 @@ test_loader = torch.utils.data.DataLoader(
     batch_size=args.batch_size, shuffle=True, **kwargs)
     
 """
-Secpmd Convolutional Neural Network Variational Autoencoder with Transpose Convolutional Decoder
-Uses 4 convolutional hidden layers in the encoder before encoding a distribution
-Applies 1 fully-connected and 3 transpose convolutional hidden layers to code before output layer.
+Spectral Clustering test on the MNIST dataset
 
 @author Davis Jackson & Quinn Wyner
 """
@@ -184,6 +190,29 @@ def train(epoch):
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
 
+"""
+Defines a metric for use with spectral clustering based on the inverse euclidean distance
+
+@param z1 First data point
+@param z2 Second data point
+@return inverse euclidean distance
+"""
+def inverse_distance(z1, z2):
+    '''print(z1.shape)
+    print(z2.shape)
+    print((z1-z2).reshape(2).shape)
+    print()'''
+    """x1 = torch.from_numpy(z1)
+    x2 = torch.from_numpy(z2)
+    distance = torch.dist(x1, x2)
+    dst = distance.euclidean(z1, z2)
+    return 1/(args.eps + dst)"""
+    dst = np.linalg.norm(z1-z2)
+    value = 1/(args.eps + dst)
+    if (1/(args.eps + dst) > 1):
+        return 1/(args.eps + dst)
+    else:
+        return 0
 
 def test(epoch, max, startTime):
     model.eval()
@@ -198,18 +227,18 @@ def test(epoch, max, startTime):
             zTensor = torch.cat((zTensor, z), 0)
             labelTensor = torch.cat((labelTensor, _), 0)
     
-    if (args.dbscan == True) :
-        zScaled = StandardScaler().fit_transform((torch.Tensor.cpu(zTensor).numpy())) #re-add StandardScaler().fit_transform
-        db = DBSCAN(eps= 0.7, min_samples= 3).fit(zScaled)
-        print(db.labels_)
-        labelTensor = db.labels_
-    if (args.spectral == True) :
-        spectral = SpectralClustering(affinity='nearest_neighbors', n_neighbors=10).fit(torch.Tensor.cpu(zTensor).numpy())
-        print(spectral)
-        labelTensor = spectral.labels_
     test_loss /= len(test_loader.dataset)
     print('====> Test set loss: {:.4f}'.format(test_loss))
     if(epoch == max):
+        if (args.dbscan == True) :
+            zScaled = StandardScaler().fit_transform((torch.Tensor.cpu(zTensor).numpy())) #re-add StandardScaler().fit_transform
+            db = DBSCAN(eps= 0.7, min_samples= 3).fit(zScaled)
+            print(db.labels_)
+            labelTensor = db.labels_
+        if (args.spectral == True) :
+            spectral = SpectralClustering(affinity=inverse_distance).fit(torch.Tensor.cpu(zTensor).numpy())
+            print(spectral)
+            labelTensor = spectral.labels_
         print("--- %s seconds ---" % (time.time() - startTime))
         cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
         
@@ -217,7 +246,7 @@ def test(epoch, max, startTime):
         if (args.lsdim < 3) :
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-            scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor) #Regular 2dim plot, RE-ADD CMAP = CMAP
+            scatterPlot = plt.scatter(z1, z2, s = 2, c = labelTensor) #Regular 2dim plot, RE-ADD CMAP = CMAP
             plt.colorbar()
         elif (args.lsdim == 3) :
             fig=plt.figure()
@@ -225,12 +254,12 @@ def test(epoch, max, startTime):
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
             z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
-            scatterPlot = ax.scatter(z1, z2, z3, s = 4, c = labelTensor, cmap = cmap) #Regular 3dim plot
+            scatterPlot = ax.scatter(z1, z2, z3, s = 2, c = labelTensor, cmap = cmap) #Regular 3dim plot
         else:    
-            Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())        
+            Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())
             z1 = Z_embedded[:, 0]
             z2 = Z_embedded[:, 1]
-            scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #TSNE projection for >3dim 
+            scatterPlot = plt.scatter(z1, z2, s = 2, c = labelTensor, cmap = cmap) #TSNE projection for >3dim 
             plt.colorbar()
 
         plt.show()
