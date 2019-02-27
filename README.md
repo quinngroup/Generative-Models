@@ -72,3 +72,5 @@ vae10LayerConv.py - A Variational Auto Encoder with 10 hidden convolutional laye
 2/6/19: Uploaded 10Conv4TConv.py, the first tutorial model to implement transpose convolutional layers in the decoder. Uploaded more graphical embeddings. Updated models with colorbars to display which color corresponds to which number in the graphical embeddings.
 
 2/13/19: Uploaded 4Conv4TConv.py, which uses 4 convolutional layers instead of 10 in the encoder to increase training rate with minimal change in final result. Uploaded 4C4TTSNE.py, which uses TSNE projection to display a 2-dimensional projection of the graphical embedding of higher-dimensional latent spaces.
+
+2/22/19: Uploaded mnist_test_seq.npy, a numpy array containing 10,000 observations of 20-frame 64x64 videos of moving handwritten digits, called hereafter by the moving MNIST dataset. Uploaded movingMNISTExploration.py, which allows conversion between an observation of the moving MNIST dataset and an mp4 file and constructs training and testing DataLoaders from the moving MNIST dataset.
