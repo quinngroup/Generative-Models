@@ -8,13 +8,16 @@ from torch.nn import functional as F
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 from torchsummary import summary
+from sklearn.manifold import TSNE
+from sklearn.cluster import DBSCAN
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import SpectralClustering
+from mpl_toolkits.mplot3d import Axes3D
 
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
-from matplotlib.colors import ListedColormap
-from mpl_toolkits.mplot3d import Axes3D
-
+import matplotlib.colors as colors
 
 startTime = time.time()
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
@@ -34,6 +37,13 @@ parser.add_argument('--load', type=str, default='', metavar='l',
                     help='loads the weights from a given filepath')
 parser.add_argument('--beta', type=float, default=1.0, metavar='b',
                     help='sets the value of beta for a beta-vae implementation')
+parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
+                    help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
+                    #current implementation may not be optimal for dims above 4
+parser.add_argument('--dbscan', type= bool, default= False, metavar='db',
+                    help='to run dbscan clustering') 
+parser.add_argument('--spectral', type= bool, default= False, metavar='spc',
+                    help='to run sprectral clustering')                     
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -51,13 +61,9 @@ test_loader = torch.utils.data.DataLoader(
     batch_size=args.batch_size, shuffle=True, **kwargs)
     
 """
-First Convolutional Neural Network Variational Autoencoder with Transpose Convolutional Decoder
-Uses 10 convolutional hidden layers in the encoder before encoding a distribution
+Secpmd Convolutional Neural Network Variational Autoencoder with Transpose Convolutional Decoder
+Uses 4 convolutional hidden layers in the encoder before encoding a distribution
 Applies 1 fully-connected and 3 transpose convolutional hidden layers to code before output layer.
-
-Gave test set loss of 37.7987 after 10 epochs, where loss is MSE + KLD between the encoded distribution and unit Gaussian.
-Has 131,025 trainable parameters
-10 epochs trained in 197.164 seconds
 
 @author Davis Jackson & Quinn Wyner
 """
@@ -73,36 +79,18 @@ class VAE(nn.Module):
         #(8,13,13) -> (16,12,12)
         self.conv2 = nn.Conv2d(8, 16, 2)
         
-        #(16,12,12) -> (24,11,11)
-        self.conv3 = nn.Conv2d(16, 24, 2)
+        #(16,6,6) -> (32,4,4)
+        self.conv3 = nn.Conv2d(16, 32, 3)
         
-        #(24,11,11) -> (32,10,10)
-        self.conv4 = nn.Conv2d(24, 32, 2)
-        
-        #(32,10,10) -> (40,9,9)
-        self.conv5 = nn.Conv2d(32, 40, 2)
-        
-        #(40,9,9) -> (48,8,8)
-        self.conv6 = nn.Conv2d(40, 48, 2)
-        
-        #(48,8,8) -> (56,7,7)
-        self.conv7 = nn.Conv2d(48, 56, 2)
-        
-        #(56,7,7) -> (64,6,6)
-        self.conv8 = nn.Conv2d(56, 64, 2)
-        
-        #(64,6,6) -> (72,5,5)
-        self.conv9 = nn.Conv2d(64, 72, 2)
-        
-        #(72,5,5) -> (80,4,4)
-        self.conv10 = nn.Conv2d(72, 80, 2)
+        #(32,4,4) -> (64,2,2)
+        self.conv4 = nn.Conv2d(32, 64, 3)
 
-        #(80,4,4) -> 3-dim mean and logvar
-        self.mean = nn.Linear(80*4*4, 3)
-        self.variance = nn.Linear(80*4*4, 3)
+        #(80,4,4) -> lsdim mean and logvar
+        self.mean = nn.Linear(64*2*2, args.lsdim)
+        self.variance = nn.Linear(64*2*2, args.lsdim)
 
-        #(3 -> 4)
-        self.fc1 = nn.Linear(3, 4)
+        #(args.lsdim -> 4)
+        self.fc1 = nn.Linear(args.lsdim, 4)
         #reshape elsewhere
         
         #(1,2,2) -> (32,7,7)
@@ -136,44 +124,22 @@ class VAE(nn.Module):
         d5 = F.relu(self.convt4(d4))
         return d5
         
-    
-
-    '''h3 = F.relu(self.fc3(z))
-        return torch.sigmoid(self.fc4(h3))'''
 
     def forward(self, x):
         #(1,28,28) -> (8,26,26) -> (8,13,13)
         x = F.max_pool2d(F.relu(self.conv1(x)), (2,2))
-
-        #(8,13,13) -> (16,12,12)
-        x = F.relu(self.conv2(x))
         
-        #(16,12,12) -> (24,11,11)
+        #(8,13,13) -> (16,12,12) -> (16,6,6)
+        x = F.max_pool2d(F.relu(self.conv2(x)), (2,2))
+        
+        #(16,6,6) -> (32,4,4)
         x = F.relu(self.conv3(x))
         
-        #(24,11,11) -> (32,10,10)
+        #(32,4,4) -> (64,2,2)
         x = F.relu(self.conv4(x))
-        
-        #(32,10,10) -> (40,9,9)
-        x = F.relu(self.conv5(x))
-        
-        #(40,9,9) -> (48,8,8)
-        x = F.relu(self.conv6(x))
-        
-        #(48,8,8) -> (56,7,7)
-        x = F.relu(self.conv7(x))
-        
-        #(56,7,7) -> (64,6,6)
-        x = F.relu(self.conv8(x))
-        
-        #(64,6,6) -> (72,5,5)
-        x = F.relu(self.conv9(x))
-        
-        #(72,5,5) -> (80,4,4)
-        x = F.relu(self.conv10(x))
 
-        #(64,2,2) -> 3-dim mean and logvar
-        mu, logvar = self.encode(x.view(-1, 80*4*4))
+        #(64,2,2) -> lsdim mean and logvar
+        mu, logvar = self.encode(x.view(-1, 64*2*2))
 
         #get code
         z = self.reparameterize(mu, logvar)
@@ -184,7 +150,6 @@ class VAE(nn.Module):
 
 model = VAE().to(device)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
-
 
 # Reconstruction + KL divergence losses summed over all elements and batch
 def loss_function(recon_x, x, mu, logvar):
@@ -219,12 +184,11 @@ def train(epoch):
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
 
-fig=plt.figure()
-ax=fig.gca(projection='3d')
+
 def test(epoch, max, startTime):
     model.eval()
     test_loss = 0
-    zTensor = torch.empty(0,3).to(device)
+    zTensor = torch.empty(0,args.lsdim).to(device)
     labelTensor = torch.empty(0, dtype = torch.long)
     with torch.no_grad():
         for i, (data, _) in enumerate(test_loader):
@@ -233,19 +197,59 @@ def test(epoch, max, startTime):
             test_loss += loss_function(recon_batch, data, mu, logvar).item()
             zTensor = torch.cat((zTensor, z), 0)
             labelTensor = torch.cat((labelTensor, _), 0)
+    
+    if (args.dbscan == True) :
+        zScaled = StandardScaler().fit_transform((torch.Tensor.cpu(zTensor).numpy())) #re-add StandardScaler().fit_transform
+        db = DBSCAN(eps= 0.7, min_samples= 3).fit(zScaled)
+        print(db.labels_)
+        labelTensor = db.labels_
+    if (args.spectral == True) :
+        spectral = SpectralClustering(affinity='nearest_neighbors', n_neighbors=10).fit(torch.Tensor.cpu(zTensor).numpy())
+        print(spectral)
+        labelTensor = spectral.labels_
     test_loss /= len(test_loader.dataset)
     print('====> Test set loss: {:.4f}'.format(test_loss))
     if(epoch == max):
         print("--- %s seconds ---" % (time.time() - startTime))
-        z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
-        z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-        z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
-        cmap = ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
-        scatterPlot = ax.scatter(z1, z2, z3, s = 4, c = labelTensor, cmap = cmap)
+        cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
+        
+        #Handling different dimensionalities
+        if (args.lsdim < 3) :
+            z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
+            z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
+            scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor) #Regular 2dim plot, RE-ADD CMAP = CMAP
+            plt.colorbar()
+        elif (args.lsdim == 3) :
+            fig=plt.figure()
+            ax=fig.gca(projection='3d')
+            z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
+            z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
+            z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
+            scatterPlot = ax.scatter(z1, z2, z3, s = 4, c = labelTensor, cmap = cmap) #Regular 3dim plot
+        else:    
+            Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())        
+            z1 = Z_embedded[:, 0]
+            z2 = Z_embedded[:, 1]
+            scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #TSNE projection for >3dim 
+            plt.colorbar()
+
         plt.show()
+         
+def dplot(x):
+    img = decode(x)
+    plt.imshow(img)
 
 if __name__ == "__main__":
     summary(model,(1,28,28))
-    for epoch in range(1, args.epochs + 1):
-        train(epoch)
-        test(epoch, args.epochs, startTime)
+    if(args.load == ''):
+        for epoch in range(1, args.epochs + 1):
+            train(epoch)
+            test(epoch, args.epochs, startTime)
+    elif(args.cuda == True):
+        model.load_state_dict(torch.load(args.load))
+        test(args.epochs, args.epochs, startTime)
+    else:
+        model.load_state_dict(torch.load(args.load, map_location= device))
+        test(args.epochs, args.epochs, startTime)
+    if(args.save != ''):
+        torch.save(model.state_dict(), args.save)

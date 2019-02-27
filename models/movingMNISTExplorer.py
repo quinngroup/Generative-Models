@@ -93,4 +93,4 @@ trainSet, testSet = random_split(data, [trainSize, testSize])
 
 #Constructs DataLoaders for training and testing data
 train_loader = DataLoader(trainSet, batch_size=args.batch_size, shuffle=True, **kwargs)
-test_loader = torch.utils.data.DataLoader(testSet, batch_size=args.batch_size, shuffle=True, **kwargs)
+test_loader = DataLoader(testSet, batch_size=args.batch_size, shuffle=True, **kwargs)
