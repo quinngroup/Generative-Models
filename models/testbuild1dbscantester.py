@@ -226,7 +226,7 @@ def test(epoch, max, startTime):
             plt.colorbar()
 
         plt.show()
-        dbplots(zTensor, 0.3, 2, 0.1, 2, 50, 4)
+        dbplots(zTensor, 0.01, 2, .05, 2, 36, 4)
         
 def dplot(x):
     img = decode(x)
