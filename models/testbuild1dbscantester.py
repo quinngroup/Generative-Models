@@ -226,7 +226,7 @@ def test(epoch, max, startTime):
             plt.colorbar()
 
         plt.show()
-        dbplots(zTensor, 0.01, 2, .05, 2, 36, 4)
+        dbplots(zTensor, 0.3, 2, 0.1, 2, 50, 4)
         
 def dplot(x):
     img = decode(x)
@@ -236,7 +236,7 @@ def dbplots (zTensor, epsmin, epsmax, epsteps, minmin, minmax, minstep) :
     for eps in np.arange(epsmin, epsmax, epsteps) :
         for min in np.arange(minmin, minmax, minstep) :
             zScaled = StandardScaler().fit_transform((torch.Tensor.cpu(zTensor).numpy())) #re-add StandardScaler().fit_transform
-            db = DBSCAN(eps=eps, min_samples= min).fit(zScaled)
+            db = DBSCAN(eps= 0.7, min_samples= 3).fit(zScaled)
             labelTensor = db.labels_
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
@@ -258,4 +258,8 @@ if __name__ == "__main__":
         model.load_state_dict(torch.load(args.load, map_location= device))
         test(args.epochs, args.epochs, startTime)
     if(args.save != ''):
+<<<<<<< HEAD
         torch.save(model.state_dict(), args.save)
+=======
+        torch.save(model.state_dict(), args.save)
+>>>>>>> c81f723... Created testbuild1dbscan, which containts the method dbplots, used for iteratively testing thr DBSCAN clustering algorithm through given parameters and saving the plots to the folder dbscan
