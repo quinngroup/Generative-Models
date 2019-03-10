@@ -39,11 +39,13 @@ Repository for the JWZ group.
 
 [16](https://arxiv.org/pdf/0711.0189.pdf) Spectral clustering tutorial
 
-[17](https://papers.nips.cc/paper/2183-half-lives-of-eigenflows-for-spectral-clustering.pdf)
+[17](https://papers.nips.cc/paper/2183-half-lives-of-eigenflows-for-spectral-clustering.pdf) Eigen-cuts algorithm
 
 [18](https://github.com/ncullen93/torchsample/blob/master/README.md) Utility package we ought to implement
 
 [19](https://arxiv.org/pdf/1706.06982.pdf) Two-stream dynamic texture synthesis
+
+[20](https://arxiv.org/pdf/1901.11390.pdf) MONet: Unsupervised scene decomposition and representation
 
 Descriptions of Uploads:
 
