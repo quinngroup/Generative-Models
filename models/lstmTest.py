@@ -220,6 +220,7 @@ class Model(nn.Module):
         for i in range(video.shape()[0] - 1):
             c = torch.cat((c, cBase), 0)
         
+        
 
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
