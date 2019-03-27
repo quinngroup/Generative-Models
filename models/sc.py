@@ -21,8 +21,6 @@ import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
 
-import hdbscan
-
 startTime = time.time()
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
@@ -60,6 +58,7 @@ torch.manual_seed(args.seed)
 device = torch.device("cuda" if args.cuda else "cpu")
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
+
 train_loader = torch.utils.data.DataLoader(
     datasets.MNIST('../data', train=True, download=True,
                    transform=transforms.ToTensor()),
@@ -236,7 +235,7 @@ def test(epoch, max, startTime):
             print(db.labels_)
             labelTensor = db.labels_
         if (args.spectral == True) :
-            spectral = SpectralClustering(affinity=inverse_distance).fit(torch.Tensor.cpu(zTensor).numpy())
+            spectral = SpectralClustering().fit(torch.Tensor.cpu(zTensor).numpy())
             print(spectral)
             labelTensor = spectral.labels_
         print("--- %s seconds ---" % (time.time() - startTime))
