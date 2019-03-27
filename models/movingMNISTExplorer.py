@@ -2,6 +2,8 @@ import numpy as np
 import imageio
 import argparse
 import torch
+import sklearn
+
 from math import ceil
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import transforms
@@ -85,6 +87,8 @@ def genLoaders(batch_size=128, no_cuda=False, seed=1, testSplit=.2, index=-1, fi
     #Constructs Pytorch Dataset from moving MNIST data
     data = movingMNISTDataset(npArray=mnist, transform=transforms.ToTensor())
     length = data.__len__()
+    
+    print(data.__getitem__(1).shape)
 
     #Splits data into training and testing data
     if(testSplit <= 0 or testSplit >= 1):
