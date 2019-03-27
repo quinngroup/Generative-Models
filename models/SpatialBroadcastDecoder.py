@@ -85,11 +85,18 @@ class VAE(nn.Module):
         #(80,4,4) -> lsdim mean and logvar
         self.mean = nn.Linear(64*2*2, args.lsdim)
         self.variance = nn.Linear(64*2*2, args.lsdim)
-
         
-        
-        
-        
+       #Size-Preserving Convolution
+       self.conv5 = nn.Conv2d(4, 4, 3, padding=1)
+       
+       #Size-Preserving Convolution
+       self.conv6 = nn.Conv2d(4, 4, 3, padding=1)
+       
+       #Size-Preserving Convolution
+       self.conv7 = nn.Conv2d(4, 4, 3, padding=1)
+       
+       #Channel Reduction Convolution
+       self.conv8 = nn.Conv2d(4, 1, 3, padding=1)
 
     def encode(self, x):
         return self.mean(x), self.variance(x)
@@ -132,6 +139,12 @@ class VAE(nn.Module):
         
         print(fullBase.shape)
         
+        d1 = self.conv5(fullBase)
+        d2 = self.conv6(d1)
+        d3 = self.conv7(d2)
+        d4 = self.conv8(d3)
+        
+        return d4
 
     def forward(self, x):
         #(1,28,28) -> (8,26,26) -> (8,13,13)
