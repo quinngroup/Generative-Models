@@ -207,20 +207,25 @@ class LSTMModule(nn.Module):
         mu,logvar = self.encode(x,c)
         z = self.reparameterize(mu, logvar)
         
-        return self.decode(z), c, mu, logvar, z
+        return self.decode(z), c, mu, logvar
 
         
 class Model(nn.Module):
     def __init__(self):
-        module = LSTMModule()
+        self.module = LSTMModule()
     def forward(self, video):
-        h = torch.zeros_like(video[:,:,0])
-        cBase = torch.zeros((1,args.celldim))
-        c = cBase
-        for i in range(video.shape()[0] - 1):
-            c = torch.cat((c, cBase), 0)
+        batchsize,width,frames,height = video.shape()
+        h = torch.zeros((batchsize, width, height))
+        c = torch.zeros((batchsize,args.celldim))
+        recon_x = torch.zeros_like(video)
+        mu = torch.zeros((batchsize, frames, lsdim))
+        logvar = torch.zeros((batchsize, frames, lsdim))
         
+        for i in range(frames):
+            recon_x[:,:,i], c, mu[:,i], logvar[:,i] = self.module(video[:,:,i], h, c)
+            h = recon_x[:,:,i]
         
+        return recon_x, mu, logvar
 
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
