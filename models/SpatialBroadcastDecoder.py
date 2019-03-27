@@ -100,11 +100,15 @@ class VAE(nn.Module):
         return eps.mul(std).add_(mu)
 
     def decode(self, z):
-        base = z.view(-1, args.lsdim, 1, 1).numpy()
-        ztiled = np.tile(base, (28, 28))
-        ztiled = torch.from_numpy(ztiled)
+        base = z.view(-1, args.lsdim, 1, 1)
+        basePlane = base
+        for i in range(27):
+            basePlane = torch.cat((basePlane,base), 2)
+        fullBase = basePlane
+        for i in range(27):
+            fullBase = torch.cat((fullBase,basePlane), 3)
         
-        stepTensor = torch.linspace(-1, 1, 28)
+        stepTensor = torch.linspace(-1, 1, 28).to(device)
         xAxisTensor = stepTensor.view(1,1,28,1)
         yAxisTensor = stepTensor.view(1,1,1,28)
         
@@ -120,10 +124,13 @@ class VAE(nn.Module):
         for i in range(0, z.shape[0] - 1):
             fullXPlane = torch.cat((fullXPlane, xPlane), 0)
             fullYPlane = torch.cat((fullYPlane, yPlane), 0)
-            
-        ztiled = torch.cat((fullXPlane, fullYPlane, ztiled), 1) 
         
-        print(ztiled.shape)
+        print(fullXPlane.shape)
+        print(fullYPlane.shape)
+        print(fullBase.shape)
+        fullBase = torch.cat((fullXPlane, fullYPlane, fullBase), 1) 
+        
+        print(fullBase.shape)
         
 
     def forward(self, x):
