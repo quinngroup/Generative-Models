@@ -47,6 +47,11 @@ Repository for the JWZ group.
 
 [20](https://arxiv.org/pdf/1901.11390.pdf) MONet: Unsupervised scene decomposition and representation
 
+[21](https://arxiv.org/pdf/1901.07017.pdf) Spatial Broadcast Decoder
+
+[22](https://arxiv.org/pdf/1903.00450.pdf) IODINE Network
+
+
 Descriptions of Uploads:
 
 CNN_T.py  - Uploaded base code from Meekail on a basic Convolution Net using the MNIST Data set
