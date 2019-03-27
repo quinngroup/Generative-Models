@@ -214,7 +214,12 @@ class Model(nn.Module):
     def __init__(self):
         module = LSTMModule()
     def forward(self, video):
-        h = 
+        h = torch.zeros_like(video[:,:,0])
+        cBase = torch.zeros((1,args.celldim))
+        c = cBase
+        for i in range(video.shape()[0] - 1):
+            c = torch.cat((c, cBase), 0)
+        
 
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
