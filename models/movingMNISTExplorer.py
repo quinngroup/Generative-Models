@@ -2,11 +2,11 @@ import numpy as np
 import imageio
 import argparse
 import torch
-import sklearn
 
 from math import ceil
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import transforms
+from sklearn.preprocessing import normalize
 
 """
 Loads video data from the observation in the moving MNIST dataset corresponding to given index
@@ -54,6 +54,8 @@ def genLoaders(batch_size=128, no_cuda=False, seed=1, testSplit=.2, index=-1, fi
             raise Exception('filename must be defined')
     elif(filename != ''):
         raise Exception('valid index between 0 and 9999 must be defined')
+        
+    mnist = normalize(mnist)
 
     #movingMNISTDataset class    
     class movingMNISTDataset(Dataset):
