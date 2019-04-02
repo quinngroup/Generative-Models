@@ -55,7 +55,7 @@ def genLoaders(batch_size=128, no_cuda=False, seed=1, testSplit=.2, index=-1, fi
     elif(filename != ''):
         raise Exception('valid index between 0 and 9999 must be defined')
         
-    mnist = normalize(mnist)
+    mnist = mnist / 255.0
 
     #movingMNISTDataset class    
     class movingMNISTDataset(Dataset):
