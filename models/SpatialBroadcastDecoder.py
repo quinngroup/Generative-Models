@@ -8,12 +8,9 @@ from torch.nn import functional as F
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 from torchsummary import summary
-from scipy.spatial import distance
 from sklearn.manifold import TSNE
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import SpectralClustering
-from sklearn.metrics.pairwise import paired_euclidean_distances
 from mpl_toolkits.mplot3d import Axes3D
 
 import numpy as np
@@ -43,13 +40,7 @@ parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                     help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
                     #current implementation may not be optimal for dims above 4
 parser.add_argument('--dbscan', type= bool, default= False, metavar='db',
-                    help='to run dbscan clustering') 
-parser.add_argument('--spectral', type= bool, default= False, metavar='spc',
-                    help='to run spectral clustering')     
-parser.add_argument('--hdbscan', type=bool, default=False, metavar='hdb',
-                    help='to run hdbscan clustering')
-parser.add_argument('--eps', type=float, default=.0001, metavar='e',
-                    help='small number to prevent divide by zero errors (default: .0001)')
+                    help='to run dbscan clustering')                    
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -58,7 +49,6 @@ torch.manual_seed(args.seed)
 device = torch.device("cuda" if args.cuda else "cpu")
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
-
 train_loader = torch.utils.data.DataLoader(
     datasets.MNIST('../data', train=True, download=True,
                    transform=transforms.ToTensor()),
@@ -68,7 +58,9 @@ test_loader = torch.utils.data.DataLoader(
     batch_size=args.batch_size, shuffle=True, **kwargs)
     
 """
-Spectral Clustering test on the MNIST dataset
+Secpmd Convolutional Neural Network Variational Autoencoder with Transpose Convolutional Decoder
+Uses 4 convolutional hidden layers in the encoder before encoding a distribution
+Applies 1 fully-connected and 3 transpose convolutional hidden layers to code before output layer.
 
 @author Davis Jackson & Quinn Wyner
 """
@@ -93,23 +85,18 @@ class VAE(nn.Module):
         #(80,4,4) -> lsdim mean and logvar
         self.mean = nn.Linear(64*2*2, args.lsdim)
         self.variance = nn.Linear(64*2*2, args.lsdim)
-
-        #(args.lsdim -> 4)
-        self.fc1 = nn.Linear(args.lsdim, 4)
-        #reshape elsewhere
         
-        #(1,2,2) -> (32,7,7)
-        self.convt1 = nn.ConvTranspose2d(1, 32, 6)
+        #Size-Preserving Convolution
+        self.conv5 = nn.Conv2d(4, 4, 3, padding=1)
+       
+        #Size-Preserving Convolution
+        self.conv6 = nn.Conv2d(4, 4, 3, padding=1)
         
-        #(32,7,7) -> (16, 14, 14)
-        self.convt2 = nn.ConvTranspose2d(32, 16, 8)
-
-        #(16, 14, 14) -> (8, 20, 20)
-        self.convt3 = nn.ConvTranspose2d(16, 8, 7)
-
-        #(8,20, 20) -> (1, 28, 28) 
-        self.convt4 = nn.ConvTranspose2d(8, 1, 9)
+        #Size-Preserving Convolution
+        self.conv7 = nn.Conv2d(4, 4, 3, padding=1)
         
+        #Channel Reduction Convolution
+        self.conv8 = nn.Conv2d(4, 1, 1)
 
     def encode(self, x):
         return self.mean(x), self.variance(x)
@@ -120,15 +107,37 @@ class VAE(nn.Module):
         return eps.mul(std).add_(mu)
 
     def decode(self, z):
-        #implement
-        d1 = F.relu(self.fc1(z))
-        d1r = d1.view(-1,1,2,2)
-        d2 = F.relu(self.convt1(d1r))
-        d3 = F.relu(self.convt2(d2))
-        d4 = F.relu(self.convt3(d3))
-        d5 = F.relu(self.convt4(d4))
-        return d5
+        base = z.view(-1, args.lsdim, 1, 1)
+        basePlane = base
+        for i in range(27):
+            basePlane = torch.cat((basePlane,base), 2)
+        fullBase = basePlane
+        for i in range(27):
+            fullBase = torch.cat((fullBase,basePlane), 3)
         
+        stepTensor = torch.linspace(-1, 1, 28).to(device)
+        xAxisTensor = stepTensor.view(1,1,28,1)
+        yAxisTensor = stepTensor.view(1,1,1,28)
+        
+        xPlane = xAxisTensor
+        yPlane = yAxisTensor
+        for i in range(27):
+            xPlane = torch.cat((xPlane, xAxisTensor), 3)
+            yPlane = torch.cat((yPlane, yAxisTensor), 2)
+            
+        fullXPlane = xPlane
+        fullYPlane = yPlane
+        
+        for i in range(0, z.shape[0] - 1):
+            fullXPlane = torch.cat((fullXPlane, xPlane), 0)
+            fullYPlane = torch.cat((fullYPlane, yPlane), 0)
+        fullBase = torch.cat((fullXPlane, fullYPlane, fullBase), 1) 
+        
+        d1 = F.relu(self.conv5(fullBase))
+        d2 = F.relu(self.conv6(d1))
+        d3 = F.relu(self.conv7(d2))
+        d4 = F.relu(self.conv8(fullBase))
+        return d4
 
     def forward(self, x):
         #(1,28,28) -> (8,26,26) -> (8,13,13)
@@ -189,29 +198,6 @@ def train(epoch):
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
 
-"""
-Defines a metric for use with spectral clustering based on the inverse euclidean distance
-
-@param z1 First data point
-@param z2 Second data point
-@return inverse euclidean distance
-"""
-def inverse_distance(z1, z2):
-    '''print(z1.shape)
-    print(z2.shape)
-    print((z1-z2).reshape(2).shape)
-    print()'''
-    """x1 = torch.from_numpy(z1)
-    x2 = torch.from_numpy(z2)
-    distance = torch.dist(x1, x2)
-    dst = distance.euclidean(z1, z2)
-    return 1/(args.eps + dst)"""
-    dst = np.linalg.norm(z1-z2)
-    value = 1/(args.eps + dst)
-    if (1/(args.eps + dst) > 1):
-        return 1/(args.eps + dst)
-    else:
-        return 0
 
 def test(epoch, max, startTime):
     model.eval()
@@ -226,18 +212,14 @@ def test(epoch, max, startTime):
             zTensor = torch.cat((zTensor, z), 0)
             labelTensor = torch.cat((labelTensor, _), 0)
     
+    if (args.dbscan == True) :
+        zScaled = StandardScaler().fit_transform((torch.Tensor.cpu(zTensor).numpy())) #re-add StandardScaler().fit_transform
+        db = DBSCAN(eps= 0.7, min_samples= 3).fit(zScaled)
+        print(db.labels_)
+        labelTensor = db.labels_
     test_loss /= len(test_loader.dataset)
     print('====> Test set loss: {:.4f}'.format(test_loss))
     if(epoch == max):
-        if (args.dbscan == True) :
-            zScaled = StandardScaler().fit_transform((torch.Tensor.cpu(zTensor).numpy())) #re-add StandardScaler().fit_transform
-            db = DBSCAN(eps= 0.7, min_samples= 3).fit(zScaled)
-            print(db.labels_)
-            labelTensor = db.labels_
-        if (args.spectral == True) :
-            spectral = SpectralClustering().fit(torch.Tensor.cpu(zTensor).numpy())
-            print(spectral)
-            labelTensor = spectral.labels_
         print("--- %s seconds ---" % (time.time() - startTime))
         cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
         
@@ -245,7 +227,7 @@ def test(epoch, max, startTime):
         if (args.lsdim < 3) :
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-            scatterPlot = plt.scatter(z1, z2, s = 2, c = labelTensor) #Regular 2dim plot, RE-ADD CMAP = CMAP
+            scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor) #Regular 2dim plot, RE-ADD CMAP = CMAP
             plt.colorbar()
         elif (args.lsdim == 3) :
             fig=plt.figure()
@@ -253,12 +235,12 @@ def test(epoch, max, startTime):
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
             z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
-            scatterPlot = ax.scatter(z1, z2, z3, s = 2, c = labelTensor, cmap = cmap) #Regular 3dim plot
+            scatterPlot = ax.scatter(z1, z2, z3, s = 4, c = labelTensor, cmap = cmap) #Regular 3dim plot
         else:    
-            Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())
+            Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())        
             z1 = Z_embedded[:, 0]
             z2 = Z_embedded[:, 1]
-            scatterPlot = plt.scatter(z1, z2, s = 2, c = labelTensor, cmap = cmap) #TSNE projection for >3dim 
+            scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #TSNE projection for >3dim 
             plt.colorbar()
 
         plt.show()
