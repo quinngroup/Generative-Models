@@ -69,6 +69,7 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 train_loader, test_loader = genLoaders(args.batch_size, args.no_cuda, args.seed, args.testSplit, -1, '', args.source)
     
 """
+Deprecated - Approach to analyzing moving MNIST dataset significantly changed
 First Attempt at Making an LSTM VAE on the moving MNIST dataset
 
 @author Quinn Wyner
@@ -84,23 +85,23 @@ class LSTMModule(nn.Module):
         self.memory2 = nn.Linear(2*64*64, args.celldim)
         
         #(2,64,64) -> (16,62,62)
-        self.encode1 = nn.conv2D(2, 16, 3)
+        self.encode1 = nn.Conv2d(2, 16, 3)
         
         #(16,31,31) -> (32,30,30)
-        self.encode2 = nn.conv2D(16, 32, 2)
+        self.encode2 = nn.Conv2d(16, 32, 2)
         
         #(32,15,15) -> (64,13,13)
-        self.encode3 = nn.conv2D(32, 64, 3)
+        self.encode3 = nn.Conv2d(32, 64, 3)
         
         #(64,13,13) -> (128,11,11)
-        self.encode4 = nn.conv2D(64, 128, 3)
+        self.encode4 = nn.Conv2d(64, 128, 3)
         
         #(128,11,11) -> (256,10,10)
-        self.encode5 = nn.conv2D(128, 256, 2)
+        self.encode5 = nn.Conv2d(128, 256, 2)
         
         #256*10*10 + celldim -> lsdim mean and logvar
-        self.mean = nn.Linear(256*10*10 + celldim, lsdim)
-        self.variance = nn.Linear(256*10*10 + celldim, lsdim)
+        self.mean = nn.Linear(256*10*10 + args.celldim, args.lsdim)
+        self.variance = nn.Linear(256*10*10 + args.celldim, args.lsdim)
         
         #(args.lsdim -> 4)
         self.fc1 = nn.Linear(args.lsdim, 4)
@@ -227,11 +228,12 @@ class Model(nn.Module):
         
         return recon_x, mu, logvar
 
+model = Model().to(device)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 # Reconstruction + KL divergence losses summed over all elements and batch
 def loss_function(recon_x, x, mu, logvar):
-    MSE = F.mse_loss(recon_x.view(-1,784), x.view(-1, 784), reduction = 'sum')
+    MSE = F.mse_loss(recon_x.view(-1,64*64*20), x.view(-1, 64*64*20), reduction = 'sum')
 
     # see Appendix B from VAE paper:
     # Kingma and Welling. Auto-Encoding Variational Bayes. ICLR, 2014
@@ -248,7 +250,7 @@ def train(epoch):
     for batch_idx, (data, _) in enumerate(train_loader):
         data = data.to(device)
         optimizer.zero_grad()
-        recon_batch, mu, logvar, z = model(data)
+        recon_batch, mu, logvar = model(data)
         loss = loss_function(recon_batch, data, mu, logvar)
         loss.backward()
         train_loss += loss.item()
@@ -270,7 +272,7 @@ def test(epoch, max, startTime):
     with torch.no_grad():
         for i, (data, _) in enumerate(test_loader):
             data = data.to(device)
-            recon_batch, mu, logvar, z = model(data)
+            recon_batch, mu, logvar = model(data)
             test_loss += loss_function(recon_batch, data, mu, logvar).item()
             zTensor = torch.cat((zTensor, z), 0)
             labelTensor = torch.cat((labelTensor, _), 0)
