@@ -86,17 +86,17 @@ class VAE(nn.Module):
         self.mean = nn.Linear(64*2*2, args.lsdim)
         self.variance = nn.Linear(64*2*2, args.lsdim)
         
-       #Size-Preserving Convolution
-       self.conv5 = nn.Conv2d(4, 4, 3, padding=1)
+        #Size-Preserving Convolution
+        self.conv5 = nn.Conv2d(4, 4, 3, padding=1)
        
-       #Size-Preserving Convolution
-       self.conv6 = nn.Conv2d(4, 4, 3, padding=1)
-       
-       #Size-Preserving Convolution
-       self.conv7 = nn.Conv2d(4, 4, 3, padding=1)
-       
-       #Channel Reduction Convolution
-       self.conv8 = nn.Conv2d(4, 1, 3, padding=1)
+        #Size-Preserving Convolution
+        self.conv6 = nn.Conv2d(4, 4, 3, padding=1)
+        
+        #Size-Preserving Convolution
+        self.conv7 = nn.Conv2d(4, 4, 3, padding=1)
+        
+        #Channel Reduction Convolution
+        self.conv8 = nn.Conv2d(4, 1, 1)
 
     def encode(self, x):
         return self.mean(x), self.variance(x)
@@ -131,19 +131,12 @@ class VAE(nn.Module):
         for i in range(0, z.shape[0] - 1):
             fullXPlane = torch.cat((fullXPlane, xPlane), 0)
             fullYPlane = torch.cat((fullYPlane, yPlane), 0)
-        
-        print(fullXPlane.shape)
-        print(fullYPlane.shape)
-        print(fullBase.shape)
         fullBase = torch.cat((fullXPlane, fullYPlane, fullBase), 1) 
         
-        print(fullBase.shape)
-        
-        d1 = self.conv5(fullBase)
-        d2 = self.conv6(d1)
-        d3 = self.conv7(d2)
-        d4 = self.conv8(d3)
-        
+        d1 = F.relu(self.conv5(fullBase))
+        d2 = F.relu(self.conv6(d1))
+        d3 = F.relu(self.conv7(d2))
+        d4 = F.relu(self.conv8(fullBase))
         return d4
 
     def forward(self, x):
