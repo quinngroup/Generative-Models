@@ -87,16 +87,16 @@ class VAE(nn.Module):
         self.variance = nn.Linear(64*2*2, args.lsdim)
         
         #Size-Preserving Convolution
-        self.conv5 = nn.Conv2d(4, 4, 3, padding=1)
+        self.conv5 = nn.Conv2d(args.lsdim + 2, args.lsdim + 2, 3, padding=1)
        
         #Size-Preserving Convolution
-        self.conv6 = nn.Conv2d(4, 4, 3, padding=1)
+        self.conv6 = nn.Conv2d(args.lsdim + 2, args.lsdim + 2, 3, padding=1)
         
         #Size-Preserving Convolution
-        self.conv7 = nn.Conv2d(4, 4, 3, padding=1)
+        self.conv7 = nn.Conv2d(args.lsdim + 2, args.lsdim + 2, 3, padding=1)
         
         #Channel Reduction Convolution
-        self.conv8 = nn.Conv2d(4, 1, 1)
+        self.conv8 = nn.Conv2d(args.lsdim + 2, 1, 1)
 
     def encode(self, x):
         return self.mean(x), self.variance(x)
