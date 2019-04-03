@@ -14,7 +14,7 @@ Also constructs a Pytorch Dataset from the moving MNIST data
 Splits the dataset into training and testing sets and constructs loaders for them
 
 
-@author Quinn Wyner
+@author Quinn Wyner, Davis Jackson
 """
 
 #Parses user arguments
@@ -27,10 +27,6 @@ parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
 parser.add_argument('--testSplit', type=float, default=.2, metavar='%',
                     help='portion of dataset to test on (default: .2)')
-parser.add_argument('--index', type=int, default=-1, metavar='i',
-                    help = 'index from 0 to 9999 in moving mnist dataset from which to generate a video')
-parser.add_argument('--filename', type=str, default='', metavar='F',
-                    help = 'name of file to which the video should be saved')
 parser.add_argument('--source', type=str, default='../data/mnist_test_seq.npy', metavar='S',
                     help = 'path to moving MNIST dataset (default: \'../data/mnist_test_seq.npy\')')
 args = parser.parse_args()
@@ -42,12 +38,7 @@ def genLoaders(batch_size=128, no_cuda=False, seed=1, testSplit=.2, index=-1, fi
 
     #Loads moving MNIST dataset
     mnist = np.load(source)
-    
-    mnist = mnist / 255.0
-    flatTensor = torch.zeros(0, 64, 64)
-    for i in range(20):  #for each frame
-        flatTensor = torch.cat((flatTensor, mnist[i]), 0)
-    print(flatTensor.shape())
+
     #movingMNISTDataset class    
     class movingMNISTDataset(Dataset):
         """
@@ -57,6 +48,8 @@ def genLoaders(batch_size=128, no_cuda=False, seed=1, testSplit=.2, index=-1, fi
         """
         def __init__(self, npArray, transform=None):
             self.npArray = npArray
+            self.frameCount = (self.npArray.shape)[0]
+            self.vidCount = (self.npArray.shape)[1]
             self.transform = transform
            
         """
@@ -64,7 +57,7 @@ def genLoaders(batch_size=128, no_cuda=False, seed=1, testSplit=.2, index=-1, fi
         @return number of observations
         """
         def __len__(self):
-            return (self.npArray.shape)[1]
+            return self.frameCount * self.vidCount
         
         """
         Gets the observation at a given index
@@ -72,7 +65,8 @@ def genLoaders(batch_size=128, no_cuda=False, seed=1, testSplit=.2, index=-1, fi
         @return Tensor observation corresponding to given index
         """
         def __getitem__(self, index):
-            obs = self.npArray[:,index]
+            obs = self.npArray[index % self.frameCount, index // self.frameCount,:,:,np.newaxis]
+            print(obs.shape)
             if self.transform:
                 obs = self.transform(obs)
             return obs
@@ -80,8 +74,6 @@ def genLoaders(batch_size=128, no_cuda=False, seed=1, testSplit=.2, index=-1, fi
     #Constructs Pytorch Dataset from moving MNIST data
     data = movingMNISTDataset(npArray=mnist, transform=transforms.ToTensor())
     length = data.__len__()
-    
-    print(data.__getitem__(1).shape)
 
     #Splits data into training and testing data
     if(testSplit <= 0 or testSplit >= 1):
@@ -94,6 +86,8 @@ def genLoaders(batch_size=128, no_cuda=False, seed=1, testSplit=.2, index=-1, fi
     train_loader = DataLoader(trainSet, batch_size=batch_size, shuffle=True, **kwargs)
     test_loader = DataLoader(testSet, batch_size=batch_size, shuffle=True, **kwargs)
     
+    print(train_loader.__len__())
+    print(test_loader.__len__())
     return train_loader, test_loader
 
-genLoaders(args.batch_size, args.no_cuda, args.seed, args.testSplit, args.index, args.filename, args.source)
+genLoaders(args.batch_size, args.no_cuda, args.seed, args.testSplit, args.source)
