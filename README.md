@@ -51,6 +51,7 @@ Repository for the JWZ group.
 
 [22](https://arxiv.org/pdf/1903.00450.pdf) IODINE Network
 
+[23](https://github.com/lisa-lab/pylearn2/blob/master/pylearn2/scripts/datasets/make_mnistplus.py) Augmented MNIST data set, including texture-in-texture generation
 
 Descriptions of Uploads:
 
