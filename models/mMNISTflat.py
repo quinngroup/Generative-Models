@@ -7,10 +7,7 @@ from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import transforms
 
 """
-Loads video data from the observation in the moving MNIST dataset corresponding to given index
-Saves the data as an mp4 named by the provided filename
-
-Also constructs a Pytorch Dataset from the moving MNIST data
+Constructs a Pytorch Dataset from the moving MNIST data's frames
 Splits the dataset into training and testing sets and constructs loaders for them
 
 
