@@ -146,7 +146,7 @@ class VAE(nn.Module):
 
 
 model = VAE().to(device)
-optimizer = optim.Adam(model.parameters(), lr=1e-3)
+optimizer = optim.Adam(model.parameters(), lr=5e-6)
 
 # Reconstruction + KL divergence losses summed over all elements and batch
 def loss_function(recon_x, x, mu, logvar):
@@ -165,6 +165,7 @@ def train(epoch):
     model.train()
     train_loss = 0
     for batch_idx, (data, _) in enumerate(train_loader):
+        data=data
         data = data.to(device)
         optimizer.zero_grad()
         recon_batch, mu, logvar, z = model(data)
@@ -189,6 +190,7 @@ def test(epoch, max, startTime):
     labelTensor = torch.empty(0, dtype = torch.long)
     with torch.no_grad():
         for i, (data, _) in enumerate(test_loader):
+            data = data
             data = data.to(device)
             recon_batch, mu, logvar, z = model(data)
             test_loss += loss_function(recon_batch, data, mu, logvar).item()
@@ -202,6 +204,7 @@ def test(epoch, max, startTime):
         labelTensor = db.labels_
     test_loss /= len(test_loader.dataset)
     print('====> Test set loss: {:.4f}'.format(test_loss))
+
     if(epoch == max):
         print("--- %s seconds ---" % (time.time() - startTime))
         cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
@@ -227,7 +230,7 @@ def test(epoch, max, startTime):
             plt.colorbar()
 
         plt.show()
-         
+
 def dplot(x):
     img = decode(x)
     plt.imshow(img)
