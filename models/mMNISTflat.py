@@ -28,7 +28,7 @@ parser.add_argument('--source', type=str, default='../data/mnist_test_seq.npy', 
                     help = 'path to moving MNIST dataset (default: \'../data/mnist_test_seq.npy\')')
 args = parser.parse_args()
 
-def genLoaders(batch_size=128, no_cuda=False, seed=1, testSplit=.2, index=-1, filename='', source='../data/mnist_test_seq.npy'):
+def genLoaders(batch_size=128, no_cuda=False, seed=1, testSplit=.2, source='../data/mnist_test_seq.npy'):
     cuda = not no_cuda and torch.cuda.is_available()
     kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
     torch.manual_seed(seed)
@@ -63,7 +63,6 @@ def genLoaders(batch_size=128, no_cuda=False, seed=1, testSplit=.2, index=-1, fi
         """
         def __getitem__(self, index):
             obs = self.npArray[index % self.frameCount, index // self.frameCount,:,:,np.newaxis]
-            print(obs.shape)
             if self.transform:
                 obs = self.transform(obs)
             return obs
@@ -83,8 +82,6 @@ def genLoaders(batch_size=128, no_cuda=False, seed=1, testSplit=.2, index=-1, fi
     train_loader = DataLoader(trainSet, batch_size=batch_size, shuffle=True, **kwargs)
     test_loader = DataLoader(testSet, batch_size=batch_size, shuffle=True, **kwargs)
     
-    print(train_loader.__len__())
-    print(test_loader.__len__())
     return train_loader, test_loader
 
 genLoaders(args.batch_size, args.no_cuda, args.seed, args.testSplit, args.source)
