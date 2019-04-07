@@ -10,7 +10,7 @@ from torchvision import datasets, transforms
 from torchvision.utils import save_image
 from torchsummary import summary
 from sklearn.manifold import TSNE
-from sklearn.decomposition.PCA
+from sklearn.decomposition import PCA
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 from mpl_toolkits.mplot3d import Axes3D
