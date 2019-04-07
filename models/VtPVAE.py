@@ -42,7 +42,11 @@ parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                     help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
                     #current implementation may not be optimal for dims above 4
 parser.add_argument('--dbscan', type= bool, default= False, metavar='db',
-                    help='to run dbscan clustering')                    
+                    help='to run dbscan clustering')                  
+parser.add_argument('--testSplit', type=float, default=.2, metavar='%',
+                    help='portion of dataset to test on (default: .2)')
+parser.add_argument('--source', type=str, default='../data/mnist_test_seq.npy', metavar='S',
+                    help = 'path to moving MNIST dataset (default: \'../data/mnist_test_seq.npy\')')                    
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -52,12 +56,10 @@ device = torch.device("cuda" if args.cuda else "cpu")
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
-train_loader, test_loader = genLoaders(args.batch_size, args.no_cuda, args.seed, args.testSplit, -1, '', args.source)
+train_loader, test_loader = genLoaders(args.batch_size, args.no_cuda, args.seed, args.testSplit, args.source)
     
 """
-Secpmd Convolutional Neural Network Variational Autoencoder with Transpose Convolutional Decoder
-Uses 4 convolutional hidden layers in the encoder before encoding a distribution
-Applies 1 fully-connected and 3 transpose convolutional hidden layers to code before output layer.
+First attempt at Video-to-Path VAE on moving MNIST dataset.
 
 @author Davis Jackson & Quinn Wyner
 """
@@ -171,6 +173,7 @@ def loss_function(recon_x, x, mu, logvar):
 def train(epoch):
     model.train()
     train_loss = 0
+    enumerate(train_loader)
     for batch_idx, (data, _) in enumerate(train_loader):
         data = data.to(device)
         optimizer.zero_grad()
@@ -240,7 +243,7 @@ def dplot(x):
     plt.imshow(img)
 
 if __name__ == "__main__":
-    summary(model,(1,28,28))
+    summary(model,(1,64,64))
     if(args.load == ''):
         for epoch in range(1, args.epochs + 1):
             train(epoch)
