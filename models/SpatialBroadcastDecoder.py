@@ -58,9 +58,7 @@ test_loader = torch.utils.data.DataLoader(
     batch_size=args.batch_size, shuffle=True, **kwargs)
     
 """
-Secpmd Convolutional Neural Network Variational Autoencoder with Transpose Convolutional Decoder
-Uses 4 convolutional hidden layers in the encoder before encoding a distribution
-Applies 1 fully-connected and 3 transpose convolutional hidden layers to code before output layer.
+Spatial Broadcast Decoder on MNIST dataset
 
 @author Davis Jackson & Quinn Wyner
 """
@@ -87,16 +85,21 @@ class VAE(nn.Module):
         self.variance = nn.Linear(64*2*2, args.lsdim)
         
         #Size-Preserving Convolution
-        self.conv5 = nn.Conv2d(args.lsdim + 2, args.lsdim + 2, 3, padding=1)
+        self.conv5 = nn.Conv2d(args.lsdim + 2, 64, 3, padding=1)
        
         #Size-Preserving Convolution
-        self.conv6 = nn.Conv2d(args.lsdim + 2, args.lsdim + 2, 3, padding=1)
+        self.conv6 = nn.Conv2d(64, 64, 3, padding=1)
         
         #Size-Preserving Convolution
-        self.conv7 = nn.Conv2d(args.lsdim + 2, args.lsdim + 2, 3, padding=1)
+        self.conv7 = nn.Conv2d(64, 64, 3, padding=1)
         
-        #Channel Reduction Convolution
-        self.conv8 = nn.Conv2d(args.lsdim + 2, 1, 1)
+        #Size-Preserving Convolution
+        self.conv8 = nn.Conv2d(64, 64, 3, padding=1)
+        
+        #Channel-Reducing Convolution
+        self.conv9 = nn.Conv2d(64, 1, 1)
+        
+        
 
     def encode(self, x):
         return self.mean(x), self.variance(x)
@@ -133,24 +136,25 @@ class VAE(nn.Module):
             fullYPlane = torch.cat((fullYPlane, yPlane), 0)
         fullBase = torch.cat((fullXPlane, fullYPlane, fullBase), 1) 
         
-        d1 = F.relu(self.conv5(fullBase))
-        d2 = F.relu(self.conv6(d1))
-        d3 = F.relu(self.conv7(d2))
-        d4 = F.relu(self.conv8(fullBase))
+        d1 = F.leaky_relu(self.conv5(fullBase))
+        d2 = F.leaky_relu(self.conv6(d1))
+        d3 = F.leaky_relu(self.conv7(d2))
+        d4 = F.leaky_relu(self.conv8(d3))
+        d4 = F.leaky_relu(self.conv9(d4))
         return d4
 
     def forward(self, x):
         #(1,28,28) -> (8,26,26) -> (8,13,13)
-        x = F.max_pool2d(F.relu(self.conv1(x)), (2,2))
+        x = F.max_pool2d(F.leaky_relu(self.conv1(x)), (2,2))
         
         #(8,13,13) -> (16,12,12) -> (16,6,6)
-        x = F.max_pool2d(F.relu(self.conv2(x)), (2,2))
+        x = F.max_pool2d(F.leaky_relu(self.conv2(x)), (2,2))
         
         #(16,6,6) -> (32,4,4)
-        x = F.relu(self.conv3(x))
+        x = F.leaky_relu(self.conv3(x))
         
         #(32,4,4) -> (64,2,2)
-        x = F.relu(self.conv4(x))
+        x = F.leaky_relu(self.conv4(x))
 
         #(64,2,2) -> lsdim mean and logvar
         mu, logvar = self.encode(x.view(-1, 64*2*2))
@@ -227,7 +231,7 @@ def test(epoch, max, startTime):
         if (args.lsdim < 3) :
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-            scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor) #Regular 2dim plot, RE-ADD CMAP = CMAP
+            scatterPlot = plt.scatter(z1, z2, s = 3, c = labelTensor, cmap = cmap) #Regular 2dim plot, RE-ADD CMAP = CMAP
             plt.colorbar()
         elif (args.lsdim == 3) :
             fig=plt.figure()
