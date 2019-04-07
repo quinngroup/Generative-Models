@@ -113,27 +113,27 @@ class VAE(nn.Module):
 
     def decode(self, z):
         #implement
-        d1 = F.relu(self.fc1(z))
+        d1 = F.leaky_relu(self.fc1(z))
         d1r = d1.view(-1,1,2,2)
-        d2 = F.relu(self.convt1(d1r))
-        d3 = F.relu(self.convt2(d2))
-        d4 = F.relu(self.convt3(d3))
-        d5 = F.relu(self.convt4(d4))
+        d2 = F.leaky_relu(self.convt1(d1r))
+        d3 = F.leaky_relu(self.convt2(d2))
+        d4 = F.leaky_relu(self.convt3(d3))
+        d5 = F.leaky_relu(self.convt4(d4))
         return d5
         
 
     def forward(self, x):
         #(1,28,28) -> (8,26,26) -> (8,13,13)
-        x = F.max_pool2d(F.relu(self.conv1(x)), (2,2))
+        x = F.max_pool2d(F.leaky_relu(self.conv1(x)), (2,2))
         
         #(8,13,13) -> (16,12,12) -> (16,6,6)
-        x = F.max_pool2d(F.relu(self.conv2(x)), (2,2))
+        x = F.max_pool2d(F.leaky_relu(self.conv2(x)), (2,2))
         
         #(16,6,6) -> (32,4,4)
-        x = F.relu(self.conv3(x))
+        x = F.leaky_relu(self.conv3(x))
         
         #(32,4,4) -> (64,2,2)
-        x = F.relu(self.conv4(x))
+        x = F.leaky_relu(self.conv4(x))
 
         #(64,2,2) -> lsdim mean and logvar
         mu, logvar = self.encode(x.view(-1, 64*2*2))
