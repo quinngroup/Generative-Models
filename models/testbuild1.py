@@ -5,6 +5,7 @@ import torch.utils.data
 import time
 from torch import nn, optim
 from torch.nn import functional as F
+from torch.nn import LeakyReLU
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 from torchsummary import summary
@@ -26,8 +27,6 @@ parser.add_argument('--epochs', type=int, default=10, metavar='N',
                     help='number of epochs to train (default: 10)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='enables CUDA training')
-parser.add_argument('--seed', type=int, default=1, metavar='S',
-                    help='random seed (default: 1)')
 parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                     help='how many batches to wait before logging training status')
 parser.add_argument('--save', type=str, default='', metavar='s',
@@ -44,7 +43,6 @@ parser.add_argument('--dbscan', type= bool, default= False, metavar='db',
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
-torch.manual_seed(args.seed)
 
 device = torch.device("cuda" if args.cuda else "cpu")
 
@@ -86,10 +84,12 @@ class VAE(nn.Module):
         self.mean = nn.Linear(64*2*2, args.lsdim)
         self.variance = nn.Linear(64*2*2, args.lsdim)
 
+        self.fcs = nn.Linear(args.lsdim,args.lsdim*4)
         #(args.lsdim -> 4)
         self.fc1 = nn.Linear(args.lsdim, 4)
         #reshape elsewhere
-        
+ 
+ 
         #(1,2,2) -> (32,7,7)
         self.convt1 = nn.ConvTranspose2d(1, 32, 6)
         
@@ -113,27 +113,27 @@ class VAE(nn.Module):
 
     def decode(self, z):
         #implement
-        d1 = F.relu(self.fc1(z))
-        d1r = d1.view(-1,1,2,2)
-        d2 = F.relu(self.convt1(d1r))
-        d3 = F.relu(self.convt2(d2))
-        d4 = F.relu(self.convt3(d3))
-        d5 = F.relu(self.convt4(d4))
-        return d5
+        x = LeakyReLU(0.1)(self.fc1(z))
+        x = x.view(-1,1,2,2)
+        x = LeakyReLU(0.1)(self.convt1(x))
+        x = LeakyReLU(0.1)(self.convt2(x))
+        x = LeakyReLU(0.1)(self.convt3(x))
+        x = LeakyReLU(0.1)(self.convt4(x))
+        return x
         
 
     def forward(self, x):
         #(1,28,28) -> (8,26,26) -> (8,13,13)
-        x = F.max_pool2d(F.relu(self.conv1(x)), (2,2))
+        x = F.max_pool2d(LeakyReLU(0.1)(self.conv1(x)), (2,2))
         
         #(8,13,13) -> (16,12,12) -> (16,6,6)
-        x = F.max_pool2d(F.relu(self.conv2(x)), (2,2))
+        x = F.max_pool2d(LeakyReLU(0.1)(self.conv2(x)), (2,2))
         
         #(16,6,6) -> (32,4,4)
-        x = F.relu(self.conv3(x))
+        x = LeakyReLU(0.1)(self.conv3(x))
         
         #(32,4,4) -> (64,2,2)
-        x = F.relu(self.conv4(x))
+        x = LeakyReLU(0.1)(self.conv4(x))
 
         #(64,2,2) -> lsdim mean and logvar
         mu, logvar = self.encode(x.view(-1, 64*2*2))
