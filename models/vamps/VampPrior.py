@@ -89,6 +89,7 @@ class VAE(nn.Module):
 
         self.means = nn.Linear(args.pseudos, 28*28, bias=False)
         
+        '''
         #(2 -> 4)
         self.fc1 = nn.Linear(args.lsdim, 4)
         #reshape elsewhere
@@ -104,7 +105,18 @@ class VAE(nn.Module):
 
         #(8,20, 20) -> (1, 28, 28) 
         self.convt4 = nn.ConvTranspose2d(8, 1, 9)
-        
+        '''
+        #Size-Preserving Convolution
+        self.conv5 = nn.Conv2d(args.lsdim + 2, 64, 3, padding=1)
+        #Size-Preserving Convolution
+        self.conv6 = nn.Conv2d(64, 64, 3, padding=1)
+        #Size-Preserving Convolution
+        self.conv7 = nn.Conv2d(64, 64, 3, padding=1)
+        #Size-Preserving Convolution
+        self.conv8 = nn.Conv2d(64, 64, 3, padding=1)
+        #Channel-Reducing Convolution
+        self.conv9 = nn.Conv2d(64, 1, 1)
+
         #add pseudo-inputs
         self.means = nn.Linear(args.pseudos, 28*28, bias=False)
 
@@ -155,12 +167,50 @@ class VAE(nn.Module):
     # THE MODEL: GENERATIVE DISTRIBUTION
     def p_x(self, z):
         #implement
+        
+        base = z.view(-1, args.lsdim, 1, 1)
+        basePlane = base
+
+        for i in range(27):
+            basePlane = torch.cat((basePlane,base), 2)
+
+        fullBase = basePlane
+
+        for i in range(27):
+            fullBase = torch.cat((fullBase,basePlane), 3)
+
+        stepTensor = torch.linspace(-1, 1, 28).to(device)
+        xAxisTensor = stepTensor.view(1,1,28,1)
+        yAxisTensor = stepTensor.view(1,1,1,28)
+        
+        xPlane = xAxisTensor
+        yPlane = yAxisTensor
+
+        for i in range(27):
+            xPlane = torch.cat((xPlane, xAxisTensor), 3)
+            yPlane = torch.cat((yPlane, yAxisTensor), 2)
+
+        fullXPlane = xPlane
+        fullYPlane = yPlane
+
+        for i in range(0, z.shape[0] - 1):
+            fullXPlane = torch.cat((fullXPlane, xPlane), 0)
+            fullYPlane = torch.cat((fullYPlane, yPlane), 0)
+        fullBase = torch.cat((fullXPlane, fullYPlane, fullBase), 1) 
+        
+        x = F.leaky_relu(self.conv5(fullBase))
+        x = F.leaky_relu(self.conv6(x))
+        x = F.leaky_relu(self.conv7(x))
+        x = F.leaky_relu(self.conv8(x))
+        x = F.leaky_relu(self.conv9(x))
+        '''
         x = LeakyReLU(0.1)(self.fc1(z))
         x = x.view(-1,1,2,2)
         x = LeakyReLU(0.1)(self.convt1(x))
         x = LeakyReLU(0.1)(self.convt2(x))
         x = LeakyReLU(0.1)(self.convt3(x))
         x = LeakyReLU(0.1)(self.convt4(x))
+        '''
         return x
             
     def log_p_z(self,z):
@@ -284,7 +334,7 @@ def test(epoch, max, startTime):
         if (args.lsdim < 3) :
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-            scatterPlot = plt.scatter(z1, z2, s = 4, c = cmap) #Regular 2dim plot, RE-ADD CMAP = CMAP
+            scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #Regular 2dim plot, RE-ADD CMAP = CMAP
             plt.colorbar()
         elif (args.lsdim == 3) :
             fig=plt.figure()
