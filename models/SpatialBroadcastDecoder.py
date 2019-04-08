@@ -110,33 +110,18 @@ class VAE(nn.Module):
         return eps.mul(std).add_(mu)
 
     def decode(self, z):
-        base = z.view(-1, args.lsdim, 1, 1)
-        basePlane = base
-        for i in range(27):
-            basePlane = torch.cat((basePlane,base), 2)
-        fullBase = basePlane
-        for i in range(27):
-            fullBase = torch.cat((fullBase,basePlane), 3)
+        baseVector = z.view(-1, args.lsdim, 1, 1)
+        base = baseVector.repeat(1,1,28,28)
         
         stepTensor = torch.linspace(-1, 1, 28).to(device)
-        xAxisTensor = stepTensor.view(1,1,28,1)
-        yAxisTensor = stepTensor.view(1,1,1,28)
+        xAxisVector = stepTensor.view(1,1,28,1)
+        yAxisVector = stepTensor.view(1,1,1,28)
+        xPlane = xAxisVector.repeat(z.shape[0],1,1,28)
+        yPlane = yAxisVector.repeat(z.shape[0],1,28,1)
         
-        xPlane = xAxisTensor
-        yPlane = yAxisTensor
-        for i in range(27):
-            xPlane = torch.cat((xPlane, xAxisTensor), 3)
-            yPlane = torch.cat((yPlane, yAxisTensor), 2)
-            
-        fullXPlane = xPlane
-        fullYPlane = yPlane
+        base = torch.cat((xPlane, yPlane, base), 1) 
         
-        for i in range(0, z.shape[0] - 1):
-            fullXPlane = torch.cat((fullXPlane, xPlane), 0)
-            fullYPlane = torch.cat((fullYPlane, yPlane), 0)
-        fullBase = torch.cat((fullXPlane, fullYPlane, fullBase), 1) 
-        
-        d1 = F.leaky_relu(self.conv5(fullBase))
+        d1 = F.leaky_relu(self.conv5(base))
         d2 = F.leaky_relu(self.conv6(d1))
         d3 = F.leaky_relu(self.conv7(d2))
         d4 = F.leaky_relu(self.conv8(d3))
