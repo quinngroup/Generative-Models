@@ -173,39 +173,21 @@ class VAE(nn.Module):
     # p(x|z)
     # THE MODEL: GENERATIVE DISTRIBUTION
     def p_x(self, z):
-        #implement
         
-        base = z.view(-1, args.lsdim, 1, 1)
-        basePlane = base
-
-        for i in range(27):
-            basePlane = torch.cat((basePlane,base), 2)
-
-        fullBase = basePlane
-
-        for i in range(27):
-            fullBase = torch.cat((fullBase,basePlane), 3)
+        baseVector = z.view(-1, args.lsdim, 1, 1)
+        base = baseVector.repeat(1,1,28,28)
 
         stepTensor = torch.linspace(-1, 1, 28).to(device)
-        xAxisTensor = stepTensor.view(1,1,28,1)
-        yAxisTensor = stepTensor.view(1,1,1,28)
-        
-        xPlane = xAxisTensor
-        yPlane = yAxisTensor
 
-        for i in range(27):
-            xPlane = torch.cat((xPlane, xAxisTensor), 3)
-            yPlane = torch.cat((yPlane, yAxisTensor), 2)
+        xAxisVector = stepTensor.view(1,1,28,1)
+        yAxisVector = stepTensor.view(1,1,1,28)
 
-        fullXPlane = xPlane
-        fullYPlane = yPlane
+        xPlane = xAxisVector.repeat(z.shape[0],1,1,28)
+        yPlane = yAxisVector.repeat(z.shape[0],1,28,1)
 
-        for i in range(0, z.shape[0] - 1):
-            fullXPlane = torch.cat((fullXPlane, xPlane), 0)
-            fullYPlane = torch.cat((fullYPlane, yPlane), 0)
-        fullBase = torch.cat((fullXPlane, fullYPlane, fullBase), 1) 
-        
-        x = F.leaky_relu(self.conv5(fullBase))
+        base = torch.cat((xPlane, yPlane, base), 1)         
+
+        x = F.leaky_relu(self.conv5(base))
         x = F.leaky_relu(self.conv6(x))
         x = F.leaky_relu(self.conv7(x))
         x = F.leaky_relu(self.conv8(x))
