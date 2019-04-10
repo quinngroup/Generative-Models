@@ -53,6 +53,9 @@ Repository for the JWZ group.
 
 [23](https://github.com/lisa-lab/pylearn2/blob/master/pylearn2/scripts/datasets/make_mnistplus.py) Augmented MNIST data set, including texture-in-texture generation
 
+[24](http://legacydirs.umiacs.umd.edu/~xyang35/files/understanding-variational-lower.pdf) Further explanation for VAE objective functino, ELBO and loss
+
+
 Descriptions of Uploads:
 
 CNN_T.py  - Uploaded base code from Meekail on a basic Convolution Net using the MNIST Data set
