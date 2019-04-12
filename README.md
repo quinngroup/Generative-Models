@@ -87,3 +87,7 @@ vae10LayerConv.py - A Variational Auto Encoder with 10 hidden convolutional laye
 2/22/19: Uploaded mnist_test_seq.npy, a numpy array containing 10,000 observations of 20-frame 64x64 videos of moving handwritten digits, called hereafter by the moving MNIST dataset. Uploaded movingMNISTExploration.py, which allows conversion between an observation of the moving MNIST dataset and an mp4 file and constructs training and testing DataLoaders from the moving MNIST dataset.
 
 3/20/19: Began work on a Long Short-Term Memory Variational Autoencoder for the moving MNIST dataset. Constructed a bare-bones cell state stream and began a new encoder to encode 64x64 images. Updated movingMNISTExplorer.py to allow generation of DataLoaders from outside programs. Deleted a redundant model. Reviewed research regarding Two-Stream and VampPrior.
+
+4/7/19: Fixed vanishing gradient problem in models. Finished implementing the spatial braodcast decoder. Finished implementing the vampPrior model. Combined vampPrior with spatial broadcast decoding.
+
+4/11/19: Made a modified vampPrior model which includes a loss term encouraging the maximization of the likelihood that the generative process produces the pseudo inputs. Added a hyper-parameter gamma to allow for dynamic weighting (weight is considered per batch). Need to perform more experiments on the model's sensitivity to gamma
