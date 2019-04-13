@@ -39,7 +39,7 @@ parser.add_argument('--pseudos', type=int, default=10, metavar='p',
                     help='Number of pseudo-inputs (default: 10)')
 parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                     help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
-parser.add_argument('--gamma', type = float, default=.001, metavar='g',
+parser.add_argument('--gamma', type = float, default=10, metavar='g',
                     help='Pseudo-loss weight')
 parser.add_argument('--repeat', action='store_true', default=False,
                     help='Runs training again after loading')
