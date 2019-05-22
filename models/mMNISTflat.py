@@ -28,11 +28,7 @@ parser.add_argument('--source', type=str, default='../data/mnist_test_seq.npy', 
                     help = 'path to moving MNIST dataset (default: \'../data/mnist_test_seq.npy\')')
 args = parser.parse_args()
 
-def genLoaders(batch_size=128, no_cuda=False, seed=1, testSplit=.2, source='../data/mnist_test_seq.npy'):
-    cuda = not no_cuda and torch.cuda.is_available()
-    kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
-    torch.manual_seed(seed)
-
+def genDataset(source='../data/mnist_test_seq.npy'):
     #Loads moving MNIST dataset
     mnist = np.load(source)
 
@@ -68,7 +64,12 @@ def genLoaders(batch_size=128, no_cuda=False, seed=1, testSplit=.2, source='../d
             return obs
     
     #Constructs Pytorch Dataset from moving MNIST data
-    data = movingMNISTDataset(npArray=mnist, transform=transforms.ToTensor())
+    return movingMNISTDataset(npArray=mnist, transform=transforms.ToTensor())
+    
+def genLoaders(data, batch_size=128, no_cuda=False, seed=1, testSplit=.2):
+    cuda = not no_cuda and torch.cuda.is_available()
+    kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+    torch.manual_seed(seed)
     length = data.__len__()
 
     #Splits data into training and testing data
@@ -84,4 +85,5 @@ def genLoaders(batch_size=128, no_cuda=False, seed=1, testSplit=.2, source='../d
     
     return train_loader, test_loader
 
-genLoaders(args.batch_size, args.no_cuda, args.seed, args.testSplit, args.source)
+data = genDataset(args.source)
+genLoaders(data, args.batch_size, args.no_cuda, args.seed, args.testSplit)

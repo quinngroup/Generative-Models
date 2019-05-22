@@ -6,6 +6,7 @@ import torch.utils.data
 import time
 from torch import nn, optim
 from torch.nn import functional as F
+from torch.utils.data import Dataset
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 from torchsummary import summary
@@ -13,7 +14,7 @@ from sklearn.manifold import TSNE
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 from mpl_toolkits.mplot3d import Axes3D
-from mMNISTflat import genLoaders
+from mMNISTflat import genDataset, genLoaders
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -56,7 +57,43 @@ device = torch.device("cuda" if args.cuda else "cpu")
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
-train_loader, test_loader = genLoaders(args.batch_size, args.no_cuda, args.seed, args.testSplit, args.source)
+#Loads moving MNIST dataset
+mnist = np.load(args.source)
+
+#movingMNISTDataset class    
+class movingMNISTDataset(Dataset):
+    """
+    Initializes dataset
+    @param npArray (numpy.array): moving MNIST dataset
+    @param transform(callable, optional): Optional transform to be applied on a sample.
+    """
+    def __init__(self, npArray, transform=None):
+        self.npArray = npArray
+        self.frameCount = (self.npArray.shape)[0]
+        self.vidCount = (self.npArray.shape)[1]
+        self.transform = transform
+       
+    """
+    Gets number of observations in dataset
+    @return number of observations
+    """
+    def __len__(self):
+        return self.frameCount * self.vidCount
+    
+    """
+    Gets the observation at a given index
+    @param index (int): index corresponding to observation which is to be returned
+    @return Tensor observation corresponding to given index
+    """
+    def __getitem__(self, index):
+        obs = self.npArray[index % self.frameCount, index // self.frameCount,:,:,np.newaxis]
+        if self.transform:
+            obs = self.transform(obs)
+        return obs
+
+#Constructs Pytorch Dataset from moving MNIST data
+data = movingMNISTDataset(npArray=mnist, transform=transforms.ToTensor())
+train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args.seed, args.testSplit)
     
 """
 First attempt at Video-to-Path VAE on moving MNIST dataset.
@@ -174,7 +211,9 @@ def train(epoch):
     model.train()
     train_loss = 0
     enumerate(train_loader)
-    for batch_idx, (data, _) in enumerate(train_loader):
+    for batch_idx, data in enumerate(train_loader):
+        print(batch_idx)
+        print(data.shape)
         data = data.to(device)
         optimizer.zero_grad()
         recon_batch, mu, logvar, z = model(data)
