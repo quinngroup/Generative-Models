@@ -12,6 +12,7 @@ from torchsummary import summary
 from torch.autograd import Variable
 from sklearn.manifold import TSNE
 from sklearn.cluster import DBSCAN
+from torch.utils.tensorboard import SummaryWriter
 
 import math
 import numpy as np
@@ -20,6 +21,9 @@ import matplotlib.cbook as cbook
 import matplotlib.colors as colors
 
 startTime = time.time()
+
+writer = SummaryWriter()
+
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--batch-size', type=int, default=128, metavar='B',
                     help='input batch size for training (default: 128)')
@@ -141,16 +145,16 @@ class VAE(nn.Module):
     # THE MODEL: VARIATIONAL POSTERIOR
     def q_z(self, x):
         #(1,28,28) -> (8,26,26) -> (8,13,13)
-        x = F.max_pool2d(LeakyReLU(0.1)(self.conv1(x)), (2,2))
+        x = F.max_pool2d(F.leaky_relu(self.conv1(x)), (2,2))
         
         #(8,13,13) -> (16,12,12) -> (16,6,6)
-        x = F.max_pool2d(LeakyReLU(0.1)(self.conv2(x)), (2,2))
+        x = F.max_pool2d(F.leaky_relu(self.conv2(x)), (2,2))
         
         #(16,6,6) -> (32,4,4)
-        x = LeakyReLU(0.1)(self.conv3(x))
+        x = F.leaky_relu(self.conv3(x))
         
         #(32,4,4) -> (64,2,2)
-        x = LeakyReLU(0.1)(self.conv4(x))
+        x = F.leaky_relu(self.conv4(x))
 
         x=x.view(-1, 64*2*2)
         
@@ -200,7 +204,7 @@ class VAE(nn.Module):
 
         print
         # calculate params
-        X = LeakyReLU(0.1)(self.means(self.idle_input))
+        X = F.leaky_relu(self.means(self.idle_input))
 
         # calculate params for given data
         z_p_mean, z_p_logvar = self.q_z(X.view(-1,1,28,28))  # C x M
@@ -350,11 +354,16 @@ if __name__ == "__main__":
     if(args.save != ''):
         torch.save(model.state_dict(), args.save)
 
-        
-    
     temp =model.means(model.idle_input).view(-1,28,28).detach().cpu()
-    print(temp.shape)
+
+    res = torch.autograd.Variable(torch.Tensor(1,1,28,28), requires_grad=True).to(device)
+#    writer.add_graph(model,temp.unsqueeze(1).to(device),verbose=True)
+    writer.add_graph(model,res,verbose=True)
+    
+    writer.close()
+        
+    '''
     for x in range(args.pseudos):
         plt.matshow(temp[x].numpy())
         plt.show()
-        
+    '''
