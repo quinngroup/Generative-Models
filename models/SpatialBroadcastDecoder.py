@@ -40,7 +40,9 @@ parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                     help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
                     #current implementation may not be optimal for dims above 4
 parser.add_argument('--dbscan', type= bool, default= False, metavar='db',
-                    help='to run dbscan clustering')                    
+                    help='to run dbscan clustering')           
+parser.add_argument('--z1', type = float, default = 0.0, metavar ='z1')
+parser.add_argument('--z2', type = float, default = 0.0, metavar = 'z2')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -116,8 +118,8 @@ class VAE(nn.Module):
         stepTensor = torch.linspace(-1, 1, 28).to(device)
         xAxisVector = stepTensor.view(1,1,28,1)
         yAxisVector = stepTensor.view(1,1,1,28)
-        xPlane = xAxisVector.repeat(z.shape[0],1,1,28)
-        yPlane = yAxisVector.repeat(z.shape[0],1,28,1)
+        xPlane = xAxisVector.repeat(baseVector.shape[0],1,1,28)
+        yPlane = yAxisVector.repeat(baseVector.shape[0],1,28,1)
         
         base = torch.cat((xPlane, yPlane, base), 1) 
         
@@ -209,6 +211,8 @@ def test(epoch, max, startTime):
     test_loss /= len(test_loader.dataset)
     print('====> Test set loss: {:.4f}'.format(test_loss))
     if(epoch == max):
+        if(args.save != ''):
+            torch.save(model.state_dict(), args.save)
         print("--- %s seconds ---" % (time.time() - startTime))
         cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
         
@@ -235,8 +239,9 @@ def test(epoch, max, startTime):
         plt.show()
          
 def dplot(x):
-    img = decode(x)
+    img = model.decode(x).view(28,28).cpu()
     plt.imshow(img)
+    plt.show()
 
 if __name__ == "__main__":
     summary(model,(1,28,28))
@@ -246,9 +251,9 @@ if __name__ == "__main__":
             test(epoch, args.epochs, startTime)
     elif(args.cuda == True):
         model.load_state_dict(torch.load(args.load))
-        test(args.epochs, args.epochs, startTime)
+        #test(args.epochs, args.epochs, startTime)
+        with torch.no_grad():
+            dplot(torch.tensor([args.z1, args.z2]).to(device))
     else:
         model.load_state_dict(torch.load(args.load, map_location= device))
         test(args.epochs, args.epochs, startTime)
-    if(args.save != ''):
-        torch.save(model.state_dict(), args.save)
