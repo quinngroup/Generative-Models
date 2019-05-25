@@ -227,8 +227,6 @@ def train(epoch):
 
 
 def test(epoch, max, startTime):
-    if(args.save != ''):
-            torch.save(model.state_dict(), args.save)
     model.eval()
     test_loss = 0
     zTensor = torch.empty(0,args.lsdim).to(device)
@@ -249,6 +247,8 @@ def test(epoch, max, startTime):
     test_loss /= len(test_loader.dataset)
     print('====> Test set loss: {:.4f}'.format(test_loss))
     if(epoch == max):
+        if(args.save != ''):
+            torch.save(model.state_dict(), args.save)
         print("--- %s seconds ---" % (time.time() - startTime))
         cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
         
