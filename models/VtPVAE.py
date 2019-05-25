@@ -14,7 +14,8 @@ from sklearn.manifold import TSNE
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 from mpl_toolkits.mplot3d import Axes3D
-from mMNISTflat import genDataset, genLoaders
+from mMNISTflat import genLoaders
+from vamps.NatVampPrior import log_Normal_diag, VAE
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,15 +23,19 @@ import matplotlib.cbook as cbook
 import matplotlib.colors as colors
 
 startTime = time.time()
-parser = argparse.ArgumentParser(description='VAE MNIST Example')
+parser = argparse.ArgumentParser(description='VtPVAE')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                     help='input batch size for training (default: 128)')
-parser.add_argument('--epochs', type=int, default=10, metavar='N',
-                    help='number of epochs to train (default: 10)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='enables CUDA training')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
+parser.add_argument('--testSplit', type=float, default=.2, metavar='%',
+                    help='portion of dataset to test on (default: .2)')
+parser.add_argument('--source', type=str, default='../data/mnist_test_seq.npy', metavar='S',
+                    help = 'path to moving MNIST dataset (default: \'../data/mnist_test_seq.npy\')')
+parser.add_argument('--epochs', type=int, default=10, metavar='N',
+                    help='number of epochs to train (default: 10)')
 parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                     help='how many batches to wait before logging training status')
 parser.add_argument('--save', type=str, default='', metavar='s',
@@ -39,15 +44,17 @@ parser.add_argument('--load', type=str, default='', metavar='l',
                     help='loads the weights from a given filepath')
 parser.add_argument('--beta', type=float, default=1.0, metavar='b',
                     help='sets the value of beta for a beta-vae implementation')
+parser.add_argument('--pseudos', type=int, default=10, metavar='p',
+                    help='Number of pseudo-inputs (default: 10)')
 parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                     help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
                     #current implementation may not be optimal for dims above 4
+parser.add_argument('--gamma', type = float, default=10, metavar='g',
+                    help='Pseudo-loss weight')
 parser.add_argument('--dbscan', type= bool, default= False, metavar='db',
-                    help='to run dbscan clustering')                  
-parser.add_argument('--testSplit', type=float, default=.2, metavar='%',
-                    help='portion of dataset to test on (default: .2)')
-parser.add_argument('--source', type=str, default='../data/mnist_test_seq.npy', metavar='S',
-                    help = 'path to moving MNIST dataset (default: \'../data/mnist_test_seq.npy\')')                    
+                    help='to run dbscan clustering')                                      
+parser.add_argument('--input_length', type=int, default=64, metavar='il',
+                    help='length and height of one image')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -101,7 +108,8 @@ First attempt at Video-to-Path VAE on moving MNIST dataset.
 @author Davis Jackson & Quinn Wyner
 """
     
-    
+#First attempt at replacement of NatVampPrior VAE
+"""    
 class VAE(nn.Module):
     def __init__(self):
         super(VAE, self).__init__()
@@ -189,35 +197,22 @@ class VAE(nn.Module):
 
         #decode code
         return self.decode(z), mu, logvar, z
+"""
 
 
-model = VAE().to(device)
+model = VAE(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
-
-# Reconstruction + KL divergence losses summed over all elements and batch
-def loss_function(recon_x, x, mu, logvar):
-    MSE = F.mse_loss(recon_x.view(-1,4096), x.view(-1,4096), reduction = 'sum')
-
-    # see Appendix B from VAE paper:
-    # Kingma and Welling. Auto-Encoding Variational Bayes. ICLR, 2014
-    # https://arxiv.org/abs/1312.6114
-    # 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
-    KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-
-    return MSE + args.beta*KLD
-
 
 def train(epoch):
     model.train()
     train_loss = 0
-    enumerate(train_loader)
     for batch_idx, data in enumerate(train_loader):
-        print(batch_idx)
-        print(data.shape)
         data = data.to(device)
         optimizer.zero_grad()
         recon_batch, mu, logvar, z = model(data)
-        loss = loss_function(recon_batch, data, mu, logvar)
+        pseudos=model.means(model.idle_input).view(-1,1,args.input_length,args.input_length).to(device)
+        recon_pseudos, p_mu, p_logvar, p_z=model(pseudos)
+        loss = model.loss_function(recon_batch, data, mu, logvar, z,pseudos,recon_pseudos, p_mu, p_logvar, p_z)
         loss.backward()
         train_loss += loss.item()
         optimizer.step()
@@ -235,14 +230,14 @@ def test(epoch, max, startTime):
     model.eval()
     test_loss = 0
     zTensor = torch.empty(0,args.lsdim).to(device)
-    labelTensor = torch.empty(0, dtype = torch.long)
+    pseudos=model.means(model.idle_input).view(-1,1,args.input_length,args.input_length).to(device)
+    recon_pseudos, p_mu, p_logvar, p_z=model(pseudos)
     with torch.no_grad():
-        for i, (data, _) in enumerate(test_loader):
+        for i, data in enumerate(test_loader):
             data = data.to(device)
             recon_batch, mu, logvar, z = model(data)
-            test_loss += loss_function(recon_batch, data, mu, logvar).item()
+            test_loss += model.loss_function(recon_batch, data, mu, logvar,z,pseudos,recon_pseudos, p_mu, p_logvar, p_z).item()
             zTensor = torch.cat((zTensor, z), 0)
-            labelTensor = torch.cat((labelTensor, _), 0)
     
     if (args.dbscan == True) :
         zScaled = StandardScaler().fit_transform((torch.Tensor.cpu(zTensor).numpy())) #re-add StandardScaler().fit_transform
@@ -259,39 +254,45 @@ def test(epoch, max, startTime):
         if (args.lsdim < 3) :
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-            scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor) #Regular 2dim plot, RE-ADD CMAP = CMAP
-            plt.colorbar()
+            scatterPlot = plt.scatter(z1, z2, s = 4) #Regular 2dim plot, RE-ADD CMAP = CMAP
         elif (args.lsdim == 3) :
             fig=plt.figure()
             ax=fig.gca(projection='3d')
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
             z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
-            scatterPlot = ax.scatter(z1, z2, z3, s = 4, c = labelTensor, cmap = cmap) #Regular 3dim plot
+            scatterPlot = ax.scatter(z1, z2, z3, s = 4) #Regular 3dim plot
         else:    
             Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())        
             z1 = Z_embedded[:, 0]
             z2 = Z_embedded[:, 1]
-            scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #TSNE projection for >3dim 
-            plt.colorbar()
+            scatterPlot = plt.scatter(z1, z2, s = 4) #TSNE projection for >3dim 
 
         plt.show()
+        temp = model.means(model.idle_input).view(-1,args.input_length,args.input_length).detach().cpu()
+        for x in range(args.pseudos):
+            plt.matshow(temp[x].numpy())
+            plt.show()
          
 def dplot(x):
     img = decode(x)
     plt.imshow(img)
 
 if __name__ == "__main__":
-    summary(model,(1,64,64))
+    summary(model,(1,args.input_length,args.input_length))
     if(args.load == ''):
         for epoch in range(1, args.epochs + 1):
             train(epoch)
+            if(args.save != ''):
+                torch.save(model.state_dict(), args.save)
             test(epoch, args.epochs, startTime)
     elif(args.cuda == True):
         model.load_state_dict(torch.load(args.load))
+        if(args.save != ''):
+            torch.save(model.state_dict(), args.save)
         test(args.epochs, args.epochs, startTime)
     else:
         model.load_state_dict(torch.load(args.load, map_location= device))
+        if(args.save != ''):
+            torch.save(model.state_dict(), args.save)
         test(args.epochs, args.epochs, startTime)
-    if(args.save != ''):
-        torch.save(model.state_dict(), args.save)
