@@ -227,6 +227,8 @@ def train(epoch):
 
 
 def test(epoch, max, startTime):
+    if(args.save != ''):
+            torch.save(model.state_dict(), args.save)
     model.eval()
     test_loss = 0
     zTensor = torch.empty(0,args.lsdim).to(device)
@@ -283,16 +285,10 @@ if __name__ == "__main__":
     if(args.load == ''):
         for epoch in range(1, args.epochs + 1):
             train(epoch)
-            if(args.save != ''):
-                torch.save(model.state_dict(), args.save)
             test(epoch, args.epochs, startTime)
     elif(args.cuda == True):
         model.load_state_dict(torch.load(args.load))
-        if(args.save != ''):
-            torch.save(model.state_dict(), args.save)
         test(args.epochs, args.epochs, startTime)
     else:
         model.load_state_dict(torch.load(args.load, map_location= device))
-        if(args.save != ''):
-            torch.save(model.state_dict(), args.save)
         test(args.epochs, args.epochs, startTime)
