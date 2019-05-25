@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import print_function
 import argparse
 import torch
 import torch.utils.data
@@ -9,6 +10,7 @@ from torchvision import datasets, transforms
 from torchvision.utils import save_image
 from torchsummary import summary
 from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 from mpl_toolkits.mplot3d import Axes3D
@@ -40,9 +42,7 @@ parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                     help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
                     #current implementation may not be optimal for dims above 4
 parser.add_argument('--dbscan', type= bool, default= False, metavar='db',
-                    help='to run dbscan clustering')           
-parser.add_argument('--z1', type = float, default = 0.0, metavar ='z1')
-parser.add_argument('--z2', type = float, default = 0.0, metavar = 'z2')
+                    help='to run dbscan clustering')                    
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -60,7 +60,9 @@ test_loader = torch.utils.data.DataLoader(
     batch_size=args.batch_size, shuffle=True, **kwargs)
     
 """
-Spatial Broadcast Decoder on MNIST dataset
+Secpmd Convolutional Neural Network Variational Autoencoder with Transpose Convolutional Decoder
+Uses 4 convolutional hidden layers in the encoder before encoding a distribution
+Applies 1 fully-connected and 3 transpose convolutional hidden layers to code before output layer.
 
 @author Davis Jackson & Quinn Wyner
 """
@@ -85,22 +87,22 @@ class VAE(nn.Module):
         #(80,4,4) -> lsdim mean and logvar
         self.mean = nn.Linear(64*2*2, args.lsdim)
         self.variance = nn.Linear(64*2*2, args.lsdim)
+
+        #(args.lsdim -> 4)
+        self.fc1 = nn.Linear(args.lsdim, 4)
+        #reshape elsewhere
         
-        #Size-Preserving Convolution
-        self.conv5 = nn.Conv2d(args.lsdim + 2, 64, 3, padding=1)
-       
-        #Size-Preserving Convolution
-        self.conv6 = nn.Conv2d(64, 64, 3, padding=1)
+        #(1,2,2) -> (32,7,7)
+        self.convt1 = nn.ConvTranspose2d(1, 32, 6)
         
-        #Size-Preserving Convolution
-        self.conv7 = nn.Conv2d(64, 64, 3, padding=1)
-        
-        #Size-Preserving Convolution
-        self.conv8 = nn.Conv2d(64, 64, 3, padding=1)
-        
-        #Channel-Reducing Convolution
-        self.conv9 = nn.Conv2d(64, 1, 1)
-        
+        #(32,7,7) -> (16, 14, 14)
+        self.convt2 = nn.ConvTranspose2d(32, 16, 8)
+
+        #(16, 14, 14) -> (8, 20, 20)
+        self.convt3 = nn.ConvTranspose2d(16, 8, 7)
+
+        #(8,20, 20) -> (1, 28, 28) 
+        self.convt4 = nn.ConvTranspose2d(8, 1, 9)
         
 
     def encode(self, x):
@@ -112,36 +114,28 @@ class VAE(nn.Module):
         return eps.mul(std).add_(mu)
 
     def decode(self, z):
-        baseVector = z.view(-1, args.lsdim, 1, 1)
-        base = baseVector.repeat(1,1,28,28)
+        #implement
+        d1 = F.relu(self.fc1(z))
+        d1r = d1.view(-1,1,2,2)
+        d2 = F.relu(self.convt1(d1r))
+        d3 = F.relu(self.convt2(d2))
+        d4 = F.relu(self.convt3(d3))
+        d5 = F.relu(self.convt4(d4))
+        return d5
         
-        stepTensor = torch.linspace(-1, 1, 28).to(device)
-        xAxisVector = stepTensor.view(1,1,28,1)
-        yAxisVector = stepTensor.view(1,1,1,28)
-        xPlane = xAxisVector.repeat(baseVector.shape[0],1,1,28)
-        yPlane = yAxisVector.repeat(baseVector.shape[0],1,28,1)
-        
-        base = torch.cat((xPlane, yPlane, base), 1) 
-        
-        d1 = F.leaky_relu(self.conv5(base))
-        d2 = F.leaky_relu(self.conv6(d1))
-        d3 = F.leaky_relu(self.conv7(d2))
-        d4 = F.leaky_relu(self.conv8(d3))
-        d4 = F.leaky_relu(self.conv9(d4))
-        return d4
 
     def forward(self, x):
         #(1,28,28) -> (8,26,26) -> (8,13,13)
-        x = F.max_pool2d(F.leaky_relu(self.conv1(x)), (2,2))
+        x = F.max_pool2d(F.relu(self.conv1(x)), (2,2))
         
         #(8,13,13) -> (16,12,12) -> (16,6,6)
-        x = F.max_pool2d(F.leaky_relu(self.conv2(x)), (2,2))
+        x = F.max_pool2d(F.relu(self.conv2(x)), (2,2))
         
         #(16,6,6) -> (32,4,4)
-        x = F.leaky_relu(self.conv3(x))
+        x = F.relu(self.conv3(x))
         
         #(32,4,4) -> (64,2,2)
-        x = F.leaky_relu(self.conv4(x))
+        x = F.relu(self.conv4(x))
 
         #(64,2,2) -> lsdim mean and logvar
         mu, logvar = self.encode(x.view(-1, 64*2*2))
@@ -211,8 +205,6 @@ def test(epoch, max, startTime):
     test_loss /= len(test_loader.dataset)
     print('====> Test set loss: {:.4f}'.format(test_loss))
     if(epoch == max):
-        if(args.save != ''):
-            torch.save(model.state_dict(), args.save)
         print("--- %s seconds ---" % (time.time() - startTime))
         cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
         
@@ -220,7 +212,7 @@ def test(epoch, max, startTime):
         if (args.lsdim < 3) :
             z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
             z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-            scatterPlot = plt.scatter(z1, z2, s = 3, c = labelTensor, cmap = cmap) #Regular 2dim plot, RE-ADD CMAP = CMAP
+            scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor) #Regular 2dim plot, RE-ADD CMAP = CMAP
             plt.colorbar()
         elif (args.lsdim == 3) :
             fig=plt.figure()
@@ -230,7 +222,7 @@ def test(epoch, max, startTime):
             z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
             scatterPlot = ax.scatter(z1, z2, z3, s = 4, c = labelTensor, cmap = cmap) #Regular 3dim plot
         else:    
-            Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())        
+            Z_embedded = PCA(n_components=2).fit_transform(zTensor.cpu())        
             z1 = Z_embedded[:, 0]
             z2 = Z_embedded[:, 1]
             scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #TSNE projection for >3dim 
@@ -239,9 +231,8 @@ def test(epoch, max, startTime):
         plt.show()
          
 def dplot(x):
-    img = model.decode(x).view(28,28).cpu()
+    img = decode(x)
     plt.imshow(img)
-    plt.show()
 
 if __name__ == "__main__":
     summary(model,(1,28,28))
@@ -251,9 +242,9 @@ if __name__ == "__main__":
             test(epoch, args.epochs, startTime)
     elif(args.cuda == True):
         model.load_state_dict(torch.load(args.load))
-        #test(args.epochs, args.epochs, startTime)
-        with torch.no_grad():
-            dplot(torch.tensor([args.z1, args.z2]).to(device))
+        test(args.epochs, args.epochs, startTime)
     else:
         model.load_state_dict(torch.load(args.load, map_location= device))
         test(args.epochs, args.epochs, startTime)
+    if(args.save != ''):
+        torch.save(model.state_dict(), args.save)
