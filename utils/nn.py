@@ -1,5 +1,4 @@
-from utils.nn import 
-
+from torch import nn
 class depthwise_separable_conv(nn.Module):
     def __init__(self, nin, nout, kpl=1, kernel_size=3, padding=0):
         super(depthwise_separable_conv, self).__init__()
