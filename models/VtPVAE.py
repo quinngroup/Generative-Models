@@ -18,6 +18,7 @@ from mMNISTflat import genLoaders
 from vamps.NatVampPrior import log_Normal_diag, VAE
 
 import numpy as np
+
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
