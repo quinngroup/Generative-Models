@@ -52,6 +52,8 @@ parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                     #current implementation may not be optimal for dims above 4
 parser.add_argument('--gamma', type = float, default=10, metavar='g',
                     help='Pseudo-loss weight')
+parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
+                    help='learning rate')
 parser.add_argument('--dbscan', action='store_true', default= False,
                     help='to run dbscan clustering')      
 parser.add_argument('--graph', action='store_true', default= False,
@@ -111,7 +113,7 @@ train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args
     
 
 model = VAE(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
-optimizer = optim.Adam(model.parameters(), lr=1e-3)
+optimizer = optim.Adam(model.parameters(), lr=lr)
 
 def train(epoch):
     model.train()
