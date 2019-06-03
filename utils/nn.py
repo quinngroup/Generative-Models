@@ -1,4 +1,7 @@
 from torch import nn
+import torch
+from torch.nn import functional as F
+from torch.nn import LeakyReLU
 
 class depthwise_separable_conv(nn.Module):
     def __init__(self, nin, nout, kpl=1, kernel_size=3, padding=0):
@@ -10,3 +13,40 @@ class depthwise_separable_conv(nn.Module):
         out = self.depthwise(x)
         out = self.pointwise(out)
         return out
+        
+class spatial_broadcast_decoder(nn.Module):
+    def __init__(self,input_length,device,lsdim,kernel_size=3,channels=[64,64,64,64]):
+        super(spatial_broadcast_decoder,self).__init__()
+        self.input_length=input_length
+        self.device=device
+        self.lsdim=lsdim
+        assert kernel_size%2==1, "Kernel size must be odd"
+        padding=(kernel_size-1)/2
+        #Size-Preserving Convolutions
+        self.conv1 = nn.Conv2d(lsdim + 2, channels[0], kernel_size=kernel_size, padding=1)
+        self.conv2 = nn.Conv2d(channels[0], channels[1], kernel_size=kernel_size, padding=1)
+        self.conv3 = nn.Conv2d(channels[1], channels[2], kernel_size=kernel_size, padding=1)
+        self.conv4 = nn.Conv2d(channels[2], channels[3], kernel_size=kernel_size, padding=1)
+        self.conv5 = nn.Conv2d(channels[3], 1, 1)
+
+    def forward(self,z):
+        baseVector = z.view(-1, self.lsdim, 1, 1)
+        base = baseVector.repeat(1,1,self.input_length,self.input_length)
+
+        stepTensor = torch.linspace(-1, 1, self.input_length).to(self.device)
+
+        xAxisVector = stepTensor.view(1,1,self.input_length,1)
+        yAxisVector = stepTensor.view(1,1,1,self.input_length)
+
+        xPlane = xAxisVector.repeat(z.shape[0],1,1,self.input_length)
+        yPlane = yAxisVector.repeat(z.shape[0],1,self.input_length,1)
+
+        base = torch.cat((xPlane, yPlane, base), 1)         
+
+        x = F.leaky_relu(self.conv1(base))
+        x = F.leaky_relu(self.conv2(x))
+        x = F.leaky_relu(self.conv3(x))
+        x = F.leaky_relu(self.conv4(x))
+        x = F.leaky_relu(self.conv5(x))
+
+        return x
