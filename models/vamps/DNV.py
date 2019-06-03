@@ -20,9 +20,8 @@ import matplotlib.colors as colors
 import sys
 
 sys.path.insert(0, '../../')
-print(sys.path)
-import dcn
-from dcn.modules import deform_conv
+
+from mmdetection.mmdet.ops.dcn.modules.deform_conv import DeformConvPack
 
 
 
@@ -81,16 +80,16 @@ class VAE(nn.Module):
 
         #(1,28,28) -> (8,26,26)
         self.conv1 = nn.Conv2d(1, 8, 3)
-        
+        self.dconv1= DeformConvPack(1,8,3)
         #(8,13,13) -> (16,12,12)
         self.conv2 = nn.Conv2d(8, 16, 2)
-        
+        self.dconv2= DeformConvPack(8,16,2)
         #(16,6,6) -> (32,4,4)
         self.conv3 = nn.Conv2d(16, 32, 3)
-        
+        self.dconv3= DeformConvPack(16,32,3)
         #(32,4,4) -> (64,2,2)
         self.conv4 = nn.Conv2d(32, 64, 3)
-
+        self.dconv4=DeformConvPack(32,64,3)
         #(80,4,4) -> lsdim mean and logvar
         self.mean = nn.Linear(64*2*2, args.lsdim)
         self.logvar = nn.Linear(64*2*2, args.lsdim)
@@ -149,16 +148,16 @@ class VAE(nn.Module):
     # THE MODEL: VARIATIONAL POSTERIOR
     def q_z(self, x):
         #(1,28,28) -> (8,26,26) -> (8,13,13)
-        x = F.max_pool2d(LeakyReLU(0.1)(self.conv1(x)), (2,2))
+        x = F.max_pool2d(LeakyReLU(0.1)(self.dconv1(x)), (2,2))
         
         #(8,13,13) -> (16,12,12) -> (16,6,6)
-        x = F.max_pool2d(LeakyReLU(0.1)(self.conv2(x)), (2,2))
+        x = F.max_pool2d(LeakyReLU(0.1)(self.dconv2(x)), (2,2))
         
         #(16,6,6) -> (32,4,4)
-        x = LeakyReLU(0.1)(self.conv3(x))
+        x = LeakyReLU(0.1)(self.dconv3(x))
         
         #(32,4,4) -> (64,2,2)
-        x = LeakyReLU(0.1)(self.conv4(x))
+        x = LeakyReLU(0.1)(self.dconv4(x))
 
         x=x.view(-1, 64*2*2)
         
