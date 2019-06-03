@@ -13,8 +13,16 @@ from torch.autograd import Variable
 from sklearn.manifold import TSNE
 from sklearn.cluster import DBSCAN
 
-import sys
-sys.path.insert(0, '../../')
+
+import sys,os
+#abspath=os.path.abspath(__file__)
+#dname=os.path.dirname(abspath)
+#os.chdir(dname)
+
+print(os.getcwd())
+if(__name__=="main"):
+    sys.path.insert(0,'../../')
+print(os.getcwd())
 from utils.nn import spatial_broadcast_decoder
 import math
 import numpy as np

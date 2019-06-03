@@ -15,13 +15,26 @@ from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 from mpl_toolkits.mplot3d import Axes3D
 from mMNISTflat import genLoaders
-from vamps.NatVampPrior import log_Normal_diag, VAE
 
 import numpy as np
 
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
+
+import sys,os
+
+#print(os.getcwd())
+#abspath=os.path.abspath(__file__)
+#dname=os.path.dirname(abspath)
+#os.chdir(dname)
+
+#os.chdir(os.path.dirname(sys.argv[0]))
+sys.path.insert(0,'../')
+print(os.getcwd())
+
+print(os.listdir())
+from vamps.NatVampPrior import log_Normal_diag, VAE
 
 startTime = time.time()
 parser = argparse.ArgumentParser(description='VtPVAE')
@@ -113,7 +126,7 @@ train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args
     
 
 model = VAE(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
-optimizer = optim.Adam(model.parameters(), lr=lr)
+optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
 def train(epoch):
     model.train()
