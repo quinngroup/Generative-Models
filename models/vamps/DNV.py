@@ -19,8 +19,9 @@ import matplotlib.cbook as cbook
 import matplotlib.colors as colors
 import sys
 
-sys.path.insert(0, '..\\..')
+sys.path.insert(0, '../../')
 print(sys.path)
+import dcn
 from dcn.modules import deform_conv
 
 
