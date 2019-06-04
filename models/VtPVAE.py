@@ -30,7 +30,7 @@ parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='enables CUDA training')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
-parser.add_argument('--testSplit', type=float, default=.2, metavar='%',
+parser.add_argument('--testSplit', type=float, default=.05, metavar='%',
                     help='portion of dataset to test on (default: .2)')
 parser.add_argument('--source', type=str, default='../data/mnist_test_seq.npy', metavar='S',
                     help = 'path to moving MNIST dataset (default: \'../data/mnist_test_seq.npy\')')
@@ -52,7 +52,9 @@ parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
 parser.add_argument('--gamma', type = float, default=10, metavar='g',
                     help='Pseudo-loss weight')
 parser.add_argument('--dbscan', type= bool, default= False, metavar='db',
-                    help='to run dbscan clustering')                                      
+                    help='to run dbscan clustering')      
+parser.add_argument('--graph', type= bool, default= False, metavar='gr',
+                    help='flag to determine whether or not to run automatic graphing')      
 parser.add_argument('--input_length', type=int, default=64, metavar='il',
                     help='length and height of one image')
 args = parser.parse_args()
@@ -65,7 +67,7 @@ device = torch.device("cuda" if args.cuda else "cpu")
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
 #Loads moving MNIST dataset
-mnist = np.load(args.source)
+mnist = np.load(args.source,allow_pickle=True)
 
 #movingMNISTDataset class    
 class movingMNISTDataset(Dataset):
@@ -102,103 +104,6 @@ class movingMNISTDataset(Dataset):
 data = movingMNISTDataset(npArray=mnist, transform=transforms.ToTensor())
 train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args.seed, args.testSplit)
     
-"""
-First attempt at Video-to-Path VAE on moving MNIST dataset.
-
-@author Davis Jackson & Quinn Wyner
-"""
-    
-#First attempt at replacement of NatVampPrior VAE
-"""    
-class VAE(nn.Module):
-    def __init__(self):
-        super(VAE, self).__init__()
-
-        #(1,64,64) -> (8,60,60)
-        self.conv1 = nn.Conv2d(1, 8, 5)
-        
-        #(8,30,30) -> (16,24,24)
-        self.conv2 = nn.Conv2d(8, 16, 7)
-        
-        #(16,12,12) -> (32,6,6)
-        self.conv3 = nn.Conv2d(16, 32, 7)
-        
-        #(32,6,6) -> (64,2,2)
-        self.conv4 = nn.Conv2d(32, 64, 5)
-
-        #64*2*2 -> lsdim mean and logvar
-        self.mean = nn.Linear(64*2*2, args.lsdim)
-        self.variance = nn.Linear(64*2*2, args.lsdim)
-
-        #(args.lsdim -> 4)
-        self.fc1 = nn.Linear(args.lsdim, 4)
-        #reshape elsewhere
-        
-        #(1,2,2) -> (64,10,10)
-        self.convt1 = nn.ConvTranspose2d(1, 64, 9)
-        
-        #(64,10,10) -> (32, 20, 20)
-        self.convt2 = nn.ConvTranspose2d(64, 32, 11)
-
-        #(32,20,20) -> (16, 32, 32)
-        self.convt3 = nn.ConvTranspose2d(32, 16, 13)
-
-        #(16,32,32) -> (8, 46, 46) 
-        self.convt4 = nn.ConvTranspose2d(16, 8, 15)
-        
-        #(8,46,46) -> (4, 56, 56) 
-        self.convt5 = nn.ConvTranspose2d(8, 4, 11)
-        
-        #(4,56,56) -> (1, 64, 64) 
-        self.convt6 = nn.ConvTranspose2d(4, 1, 9)
-        
-        
-        
-
-    def encode(self, x):
-        return self.mean(x), self.variance(x)
-
-    def reparameterize(self, mu, logvar):
-        std = torch.exp(0.5*logvar)
-        eps = torch.randn_like(std)
-        return eps.mul(std).add_(mu)
-
-    def decode(self, z):
-        #implement
-        x = F.relu(self.fc1(z))
-        x = x.view(-1,1,2,2)
-        x = F.relu(self.convt1(x))
-        x = F.relu(self.convt2(x))
-        x = F.relu(self.convt3(x))
-        x = F.relu(self.convt4(x))
-        x = F.relu(self.convt5(x))
-        x = F.relu(self.convt6(x))
-        return x
-        
-
-    def forward(self, x):
-        #(1,64,64) -> (8,60,60) -> (8,30,30)
-        x = F.max_pool2d(F.relu(self.conv1(x)), (2,2))
-        
-        #(8,30,30) -> (16,24,24) -> (16,12,12)
-        x = F.max_pool2d(F.relu(self.conv2(x)), (2,2))
-        
-        #(16,12,12) -> (32,6,6)
-        x = F.relu(self.conv3(x))
-        
-        #(32,6,6) -> (64,2,2)
-        x = F.relu(self.conv4(x))
-
-        #(64,2,2) -> lsdim mean and logvar
-        mu, logvar = self.encode(x.view(-1, 64*2*2))
-
-        #get code
-        z = self.reparameterize(mu, logvar)
-
-        #decode code
-        return self.decode(z), mu, logvar, z
-"""
-
 
 model = VAE(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
@@ -253,24 +158,25 @@ def test(epoch, max, startTime):
         cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
         
         #Handling different dimensionalities
-        if (args.lsdim < 3) :
-            z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
-            z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-            scatterPlot = plt.scatter(z1, z2, s = 4) #Regular 2dim plot, RE-ADD CMAP = CMAP
-        elif (args.lsdim == 3) :
-            fig=plt.figure()
-            ax=fig.gca(projection='3d')
-            z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
-            z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-            z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
-            scatterPlot = ax.scatter(z1, z2, z3, s = 4) #Regular 3dim plot
-        else:    
-            Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())        
-            z1 = Z_embedded[:, 0]
-            z2 = Z_embedded[:, 1]
-            scatterPlot = plt.scatter(z1, z2, s = 4) #TSNE projection for >3dim 
+        if(args.graph):
+            if (args.lsdim < 3) :
+                z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
+                z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
+                scatterPlot = plt.scatter(z1, z2, s = 4) #Regular 2dim plot, RE-ADD CMAP = CMAP
+            elif (args.lsdim == 3) :
+                fig=plt.figure()
+                ax=fig.gca(projection='3d')
+                z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
+                z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
+                z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
+                scatterPlot = ax.scatter(z1, z2, z3, s = 4) #Regular 3dim plot
+            else:    
+                Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())        
+                z1 = Z_embedded[:, 0]
+                z2 = Z_embedded[:, 1]
+                scatterPlot = plt.scatter(z1, z2, s = 4) #TSNE projection for >3dim 
 
-        plt.show()
+            plt.show()
         temp = model.means(model.idle_input).view(-1,args.input_length,args.input_length).detach().cpu()
         for x in range(args.pseudos):
             plt.matshow(temp[x].numpy())
