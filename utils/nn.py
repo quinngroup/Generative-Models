@@ -13,7 +13,7 @@ class depthwise_separable_conv(nn.Module):
         out = self.depthwise(x)
         out = self.pointwise(out)
         return out
-        
+
 class spatial_broadcast_decoder(nn.Module):
     def __init__(self,input_length,device,lsdim,kernel_size=3,channels=[64,64,64,64]):
         super(spatial_broadcast_decoder,self).__init__()
