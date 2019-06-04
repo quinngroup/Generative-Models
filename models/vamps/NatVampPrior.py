@@ -172,8 +172,8 @@ class VAE(nn.Module):
         plog_q_z = torch.sum(log_Normal_diag(p_z, p_mu, p_logvar, dim=1),0)
         pKL= -(plog_p_z - plog_q_z)
 
-        
-        return (RE + self.beta*KL)+self.gamma*(pRE + self.beta*pKL)/self.batch_size
+        return (RE + self.beta*KL)+self.gamma*(pRE + self.beta*pKL)
+        #return (RE + self.beta*KL)+self.gamma*(pRE + self.beta*pKL)/self.batch_size
      
 def log_Normal_diag(x, mean, log_var, average=False, dim=None):
 
