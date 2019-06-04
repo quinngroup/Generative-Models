@@ -15,12 +15,26 @@ from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 from mpl_toolkits.mplot3d import Axes3D
 from mMNISTflat import genLoaders
-from vamps.NatVampPrior import log_Normal_diag, VAE
 
 import numpy as np
+
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
+
+import sys,os
+
+#print(os.getcwd())
+#abspath=os.path.abspath(__file__)
+#dname=os.path.dirname(abspath)
+#os.chdir(dname)
+
+#os.chdir(os.path.dirname(sys.argv[0]))
+sys.path.insert(0,'../')
+print(os.getcwd())
+
+print(os.listdir())
+from vamps.NatVampPrior import log_Normal_diag, VAE
 
 startTime = time.time()
 parser = argparse.ArgumentParser(description='VtPVAE')
@@ -51,12 +65,18 @@ parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                     #current implementation may not be optimal for dims above 4
 parser.add_argument('--gamma', type = float, default=10, metavar='g',
                     help='Pseudo-loss weight')
-parser.add_argument('--dbscan', type= bool, default= False, metavar='db',
+parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
+                    help='learning rate')
+parser.add_argument('--dbscan', action='store_true', default= False,
                     help='to run dbscan clustering')      
-parser.add_argument('--graph', type= bool, default= False, metavar='gr',
+parser.add_argument('--graph', action='store_true', default= False,
                     help='flag to determine whether or not to run automatic graphing')      
 parser.add_argument('--input_length', type=int, default=64, metavar='il',
                     help='length and height of one image')
+parser.add_argument('--repeat', action='store_true', default=False,
+                    help='determines whether to enact further training after loading weights')
+
+
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -106,7 +126,7 @@ train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args
     
 
 model = VAE(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
-optimizer = optim.Adam(model.parameters(), lr=1e-3)
+optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
 def train(epoch):
     model.train()
@@ -188,6 +208,7 @@ def dplot(x):
 
 if __name__ == "__main__":
     summary(model,(1,args.input_length,args.input_length))
+    '''
     if(args.load == ''):
         for epoch in range(1, args.epochs + 1):
             train(epoch)
@@ -198,3 +219,18 @@ if __name__ == "__main__":
     else:
         model.load_state_dict(torch.load(args.load, map_location= device))
         test(args.epochs, args.epochs, startTime)
+    '''
+    if(args.load == ''):
+        for epoch in range(1, args.epochs + 1):
+            train(epoch)
+            test(epoch, args.epochs, startTime)
+    else:
+        model.load_state_dict(torch.load(args.load))
+        test(args.epochs, args.epochs, startTime)
+        if(args.repeat==True):
+            for epoch in range(1, args.epochs + 1):
+                train(epoch)
+                test(epoch, args.epochs, startTime)
+    if(args.save != ''):
+        torch.save(model.state_dict(), args.save)
+    

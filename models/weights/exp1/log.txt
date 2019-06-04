@@ -1,0 +1,3 @@
+Experiment log
+===============
+Performing 40 epochs of learning, with batch size at 128 and 1200, lsdim 12, ceteris paribus
