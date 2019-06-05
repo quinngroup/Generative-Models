@@ -152,7 +152,7 @@ class VAE(nn.Module):
     
         
     # Reconstruction + KL divergence losses summed over all elements and batch
-    def loss_function(self, recon_x, x, mu, logvar, z_q,pseudo,recon_pseudo,p_mu,p_logvar,p_z):
+    def loss_function(self, recon_x, x, mu, logvar, z_q, pseudo,recon_pseudo, p_mu, p_logvar, p_z, gamma=None):
         RE = F.mse_loss(recon_x.view(-1,self.input_length*self.input_length), x.view(-1, self.input_length*self.input_length), reduction = 'sum')
 
         # see Appendix B from VAE paper:
@@ -172,7 +172,10 @@ class VAE(nn.Module):
         plog_q_z = torch.sum(log_Normal_diag(p_z, p_mu, p_logvar, dim=1),0)
         pKL= -(plog_p_z - plog_q_z)
 
-        return (RE + self.beta*KL)+self.gamma*(pRE + self.beta*pKL)
+        if gamma is None:
+            return (RE + self.beta*KL)+self.gamma*(pRE + self.beta*pKL)
+        else:
+            return (RE + self.beta*KL)+gamma*(pRE + self.beta*pKL)
         #return (RE + self.beta*KL)+self.gamma*(pRE + self.beta*pKL)/self.batch_size
      
 def log_Normal_diag(x, mean, log_var, average=False, dim=None):
