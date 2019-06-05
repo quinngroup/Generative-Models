@@ -263,7 +263,10 @@ if __name__ == "__main__":
         print('====> Test set loss: {:.4f}'.format(test_loss))
         if(epoch == max):
             if(args.save != ''):
-                torch.save(model.state_dict(), args.save)
+                torch.save({
+                            'model_state_dict':model.state_dict(),
+                            'optimizer_state_dict':optimizer.state_dict()
+                            }, args.save)
             print("--- %s seconds ---" % (time.time() - startTime))
             cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
             
@@ -301,7 +304,9 @@ if __name__ == "__main__":
             train(epoch)
             #test(epoch, args.epochs, startTime)
     elif(args.cuda == True):
-        model.load_state_dict(torch.load(args.load))
+        checkpoint=torch.load(args.load)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         test(args.epochs, args.epochs, startTime)
     else:
         model.load_state_dict(torch.load(args.load, map_location= device))
