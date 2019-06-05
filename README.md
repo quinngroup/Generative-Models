@@ -55,6 +55,24 @@ Repository for the JWZ group.
 
 [24](http://legacydirs.umiacs.umd.edu/~xyang35/files/understanding-variational-lower.pdf) Further explanation for VAE objective functino, ELBO and loss
 
+[25](https://arxiv.org/pdf/1712.00636.pdf) Paper on using compressed representation of video data to truncate noise from low-frequency motion
+
+[26](https://arxiv.org/pdf/1807.04689.pdf) Paper exploring the idea and implementation of general homemorphic manifolds extending the standard guassian prior
+
+[27](https://arxiv.org/pdf/1703.06114.pdf) Paper creating an model which operates on clustering/classifying sets as objects rather than vectors
+
+[28](https://arxiv.org/pdf/1702.08389.pdf) Paper on the equivariance of models (through parameter sharing) using resistance to group actions
+
+[29](https://arxiv.org/pdf/1901.06082.pdf) "PROBABILISTIC SYMMETRY AND INVARIANT NEURAL
+NETWORKS" 
+
+[30](https://arxiv.org/pdf/1703.06211.pdf) "Deformable Convolutional Networks"
+
+[31](https://arxiv.org/pdf/1609.04836.pdf) "ON LARGE-BATCH TRAINING FOR DEEP LEARNING: GENERALIZATION GAP AND SHARP MINIMA"
+
+[32](http://www.cs.columbia.edu/~gravano/Papers/2017/tods17.pdf) Paper exploring (fast) time-series clustering
+
+
 
 Descriptions of Uploads:
 
