@@ -181,7 +181,7 @@ def test(epoch, max, startTime):
             torch.save({
                         'model_state_dict':model.state_dict(),
                         'optimizer_state_dict':optimizer.state_dict()
-            }, args.save)
+                        }, args.save)
         print("--- %s seconds ---" % (time.time() - startTime))
         cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
         
