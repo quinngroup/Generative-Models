@@ -1,0 +1,3 @@
+Experiment Log
+==============
+Using batch-size 1000, lsdim 12, comparing gamma ranging from .05-.15 in increments of .05 for 20 epochs
