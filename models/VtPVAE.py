@@ -63,7 +63,7 @@ parser.add_argument('--pseudos', type=int, default=10, metavar='p',
 parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                     help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
                     #current implementation may not be optimal for dims above 4
-parser.add_argument('--gamma', type = float, default=10, metavar='g',
+parser.add_argument('--gamma', type = float, default=.05, metavar='g',
                     help='Pseudo-loss weight')
 parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
                     help='learning rate')
@@ -142,10 +142,11 @@ def train(epoch):
         train_loss += loss.item()
         optimizer.step()
         if batch_idx % args.log_interval == 0:
-            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tGenLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader),
-                loss.item() / len(data)))
+                loss.item() / len(data),
+                model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0).item() / len(data)))
 
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
@@ -154,6 +155,7 @@ def train(epoch):
 def test(epoch, max, startTime):
     model.eval()
     test_loss = 0
+    gen_loss = 0
     zTensor = torch.empty(0,args.lsdim).to(device)
     pseudos=model.means(model.idle_input).view(-1,1,args.input_length,args.input_length).to(device)
     recon_pseudos, p_mu, p_logvar, p_z=model(pseudos)
@@ -162,6 +164,7 @@ def test(epoch, max, startTime):
             data = data.to(device)
             recon_batch, mu, logvar, z = model(data)
             test_loss += model.loss_function(recon_batch, data, mu, logvar,z,pseudos,recon_pseudos, p_mu, p_logvar, p_z).item()
+            gen_loss += model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0).item()
             zTensor = torch.cat((zTensor, z), 0)
     
     if (args.dbscan == True) :
@@ -170,7 +173,9 @@ def test(epoch, max, startTime):
         print(db.labels_)
         labelTensor = db.labels_
     test_loss /= len(test_loader.dataset)
+    gen_loss /= len(test_loader.dataset)
     print('====> Test set loss: {:.4f}'.format(test_loss))
+    print('====> Generation loss: {:.4f}'.format(gen_loss))
     if(epoch == max):
         if(args.save != ''):
             torch.save({
