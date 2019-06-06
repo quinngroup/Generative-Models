@@ -24,17 +24,18 @@ import matplotlib.colors as colors
 
 import sys,os
 
-#print(os.getcwd())
-#abspath=os.path.abspath(__file__)
-#dname=os.path.dirname(abspath)
-#os.chdir(dname)
-
 #os.chdir(os.path.dirname(sys.argv[0]))
 sys.path.insert(0,'../')
-print(os.getcwd())
+#print(os.getcwd())
 
-print(os.listdir())
+#print(os.listdir())
 from vamps.NatVampPrior import log_Normal_diag, VAE
+
+with torch.cuda.device(0):
+    torch.tensor([1.]).cuda()
+
+
+
 
 startTime = time.time()
 parser = argparse.ArgumentParser(description='VtPVAE')
@@ -75,6 +76,8 @@ parser.add_argument('--input_length', type=int, default=64, metavar='il',
                     help='length and height of one image')
 parser.add_argument('--repeat', action='store_true', default=False,
                     help='determines whether to enact further training after loading weights')
+parser.add_argument('--pp', type = int, default=10, metavar='pp',
+                    help='Plot pseudos. Controls the number of pseudo inputs to be displayed')
 
 
 args = parser.parse_args()
@@ -205,10 +208,14 @@ def test(epoch, max, startTime):
                 scatterPlot = plt.scatter(z1, z2, s = 4) #TSNE projection for >3dim 
 
             plt.show()
-        temp = model.means(model.idle_input).view(-1,args.input_length,args.input_length).detach().cpu()
-        for x in range(args.pseudos):
-            plt.matshow(temp[x].numpy())
-            plt.show()
+        if(args.pp>0):
+            t=min(args.pp,args.pseudos)
+            temp = model.means(model.idle_input).view(-1,args.input_length,args.input_length).detach().cpu()
+            for x in range(t):
+                plt.matshow(temp[x].numpy())
+                plt.show()
+            
+        
          
 def dplot(x):
     img = decode(x)
