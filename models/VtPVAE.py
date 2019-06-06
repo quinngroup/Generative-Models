@@ -31,8 +31,6 @@ sys.path.insert(0,'../')
 #print(os.listdir())
 from vamps.NatVampPrior import log_Normal_diag, VAE
 
-with torch.cuda.device(0):
-    torch.tensor([1.]).cuda()
 
 
 
@@ -85,7 +83,11 @@ args.cuda = not args.no_cuda and torch.cuda.is_available()
 
 torch.manual_seed(args.seed)
 
-device = torch.device("cuda" if args.cuda else "cpu")
+device = "cuda" if args.cuda else "cpu"
+
+if(args.cuda):
+    with torch.cuda.device(0):
+        torch.tensor([1.]).cuda()
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
