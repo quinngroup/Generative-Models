@@ -20,6 +20,7 @@ import sys,os
 
 if(__name__=="__main__"):
     sys.path.insert(0,'../../')
+
 #print(os.listdir())
 #print(os.getcwd())
 from utils.nn import spatial_broadcast_decoder
@@ -29,8 +30,6 @@ import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
     
-with torch.cuda.device(0):
-    torch.tensor([1.]).cuda()
     
     
 """
@@ -73,7 +72,7 @@ class VAE(nn.Module):
         self.sbd=spatial_broadcast_decoder(input_length=self.input_length,device=self.device,lsdim=self.lsdim)
         # create an idle input for calling pseudo-inputs
         self.idle_input = torch.eye(pseudos,pseudos,requires_grad=True)
-        self.idle_input = self.idle_input.cuda()
+        self.idle_input = self.idle_input.to(device)
 
 
     def reconstruct_x(self, x):
@@ -238,7 +237,11 @@ if __name__ == "__main__":
     args.cuda = not args.no_cuda and torch.cuda.is_available()
 
 
-    device = torch.device("cuda" if args.cuda else "cpu")
+    device = "cuda" if args.cuda else "cpu"
+    
+    if(args.cuda):
+        with torch.cuda.device(0):
+            torch.tensor([1.]).cuda()
 
     kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
     train_loader = torch.utils.data.DataLoader(
@@ -333,8 +336,8 @@ if __name__ == "__main__":
     def dplot(x):
         img = p_x(x)
         plt.imshow(img)
-
-    summary(model,(1,args.input_length,args.input_length))
+    print(device)
+    summary(model,(1,args.input_length,args.input_length),device=device)
     if(args.load == ''):
         for epoch in range(1, args.epochs + 1):
             train(epoch)
