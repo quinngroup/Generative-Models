@@ -15,14 +15,13 @@ from sklearn.cluster import DBSCAN
 
 
 import sys,os
-#abspath=os.path.abspath(__file__)
-#dname=os.path.dirname(abspath)
-#os.chdir(dname)
+#print(os.getcwd())
+#print(os.listdir())
 
-print(os.getcwd())
-if(__name__=="main"):
+if(__name__=="__main__"):
     sys.path.insert(0,'../../')
-print(os.getcwd())
+#print(os.listdir())
+#print(os.getcwd())
 from utils.nn import spatial_broadcast_decoder
 import math
 import numpy as np
