@@ -29,6 +29,10 @@ import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
     
+with torch.cuda.device(0):
+    torch.tensor([1.]).cuda()
+    
+    
 """
 VampPrior implementation with Spatial Broadcast Decoder for use with MNIST dataset
 
