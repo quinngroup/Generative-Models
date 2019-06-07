@@ -1,0 +1,4 @@
+Experiment Log
+==============
+Varying number of pseudos form 5 to 75 in iterations of 10 training each for 10 epochs at batch size
+1000 with lsdim 12 at gamma .15, c.p.
