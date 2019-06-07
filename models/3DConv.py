@@ -1,5 +1,7 @@
-from __future__ import print_function
-from __future__ import print_function
+import sys
+
+sys.path.insert(0,'../')
+
 import argparse
 import torch
 import torch.utils.data
@@ -16,7 +18,9 @@ from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 from mpl_toolkits.mplot3d import Axes3D
 from mMNISTflat import genLoaders
+from vamps.NatVampPrior import log_Normal_diag
 
+import math
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
@@ -27,14 +31,16 @@ import matplotlib.colors as colors
 
 @author Quinn Wyner
 """
-class VAE(nn.Module):
-    def __init__(self, input_length, input_depth, lsdim, beta, batch_size, device):
-        super(VAE, self).__init__()
+class Conv3DVAE(nn.Module):
+    def __init__(self, input_length, input_depth, lsdim, pseudos, beta, gamma, batch_size, device):
+        super(Conv3DVAE, self).__init__()
         
         self.input_length = input_length
         self.input_depth = input_depth
         self.lsdim = lsdim
+        self.pseudos = pseudos
         self.beta = beta
+        self.gamma = gamma
         self.batch_size = batch_size
         self.device = device
         
@@ -62,6 +68,9 @@ class VAE(nn.Module):
         self.conv7 = nn.Conv3d(16, 16, 3, padding=1)
         self.conv8 = nn.Conv3d(16, 16, 3, padding=1)
         self.conv9 = nn.Conv3d(16, 1, 1)
+        
+        self.means = nn.Linear(pseudos, input_depth * input_length * input_length, bias=False)
+        self.idle_input = torch.eye(pseudos, pseudos, requires_grad=True).cuda()
         
     # THE MODEL: VARIATIONAL POSTERIOR
     def q_z(self, x):
@@ -118,6 +127,25 @@ class VAE(nn.Module):
         
         return x
         
+    def log_p_z(self, z):
+        #calculate params
+        x = self.means(self.idle_input)
+        
+        #calculate params for given data
+        z_p_mean, z_p_logvar = self.q_z(x.view(-1, 1, self.input_depth, self.input_length, self.input_length))
+        
+        #expand z
+        z_expand = z.unsqueeze(1)
+        means = z_p_mean.unsqueeze(0)
+        logvars = z_p_logvar.unsqueeze(0)
+        
+        a = log_Normal_diag(z_expand, means, logvars, dim=2) - math.log(self.pseudos)
+        a_max, _ = torch.max(a, 1)
+        
+        #calculate log-sum-exp
+        log_prior = a_max + torch.log(torch.sum(torch.exp(a - a_max.unsqueeze(1)), 1))
+        return torch.sum(log_prior, 0)
+        
     def forward(self, x):
         
         #z~q(z|x)
@@ -129,13 +157,25 @@ class VAE(nn.Module):
         x_mean=self.p_x(z)
         return x_mean, mu, logvar, z
         
-    def loss_function(self, recon_x, x, mu, logvar):
-        MSE = F.mse_loss(recon_x.view(-1,self.input_depth*self.input_length*self.input_length), x.view(-1, self.input_depth*self.input_length*self.input_length), reduction = 'sum')
+    def loss_function(self, recon_x, x, mu, logvar, z_q, pseudo, recon_pseudo, p_mu, p_logvar, p_z, gamma=None):
+        RE = F.mse_loss(recon_x.view(-1, self.input_depth*self.input_length*self.input_length), x.view(-1, self.input_depth*self.input_length*self.input_length), reduction = 'sum')
         
         #KL
-        KL = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+        log_p_z = self.log_p_z(z_q)
+        log_q_z = torch.sum(log_Normal_diag(z_q, mu, logvar, dim=1),0)
+        KL = -(log_p_z - log_q_z)
         
-        return MSE + args.beta*KL
+        #pseudo-loss
+        pRE = F.mse_loss(recon_pseudo.view(-1, self.input_depth*self.input_length*self.input_length), pseudo.view(-1, self.input_depth*self.input_length*self.input_length), reduction = 'sum')
+        
+        plog_p_z = self.log_p_z(p_z)
+        plog_q_z = torch.sum(log_Normal_diag(p_z, p_mu, p_logvar, dim=1),0)
+        pKL = -(plog_p_z - plog_q_z)
+        
+        if gamma is None:
+            return (RE + self.beta*KL) + self.gamma*(pRE + self.beta*pKL)
+        else:
+            return (RE + self.beta*KL) + gamma*(pRE + self.beta*pKL)
         
 def videoTransform(array):
     x = torch.from_numpy(array).float()
@@ -195,6 +235,10 @@ if __name__ == "__main__":
                         help='loads the weights from a given filepath')
     parser.add_argument('--beta', type=float, default=1.0, metavar='b',
                         help='sets the value of beta for a beta-vae implementation')
+    parser.add_argument('--gamma', type=float, default=.05, metavar='%',
+                        help='Pseudo-loss weight (default: .05)')
+    parser.add_argument('--pseudos', type=int, default=10, metavar='p',
+                        help='Number of pseudo-inputs (default:10)')
     parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                         help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
                         #current implementation may not be optimal for dims above 4
@@ -220,7 +264,7 @@ if __name__ == "__main__":
     data = movingMNISTDataset(npArray=mnist, transform=videoTransform)
     train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args.seed, args.testSplit)
     enumerate(train_loader)
-    model = VAE(args.input_length, args.input_depth, args.lsdim, args.beta, args.batch_size, device).to(device)
+    model = Conv3DVAE(args.input_length, args.input_depth, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
     def train(epoch):
@@ -230,15 +274,18 @@ if __name__ == "__main__":
             data = data.to(device)
             optimizer.zero_grad()
             recon_batch, mu, logvar, z = model(data)
-            loss = model.loss_function(recon_batch, data, mu, logvar)
+            pseudos = model.means(model.idle_input).view(-1, 1, args.input_depth, args.input_length, args.input_length).to(device)
+            recon_pseudos, p_mu, p_logvar, p_z = model(pseudos)
+            loss = model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z)
             loss.backward()
             train_loss += loss.item()
             optimizer.step()
             if batch_idx % args.log_interval == 0:
-                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tGenLoss: {:.6f}'.format(
                     epoch, batch_idx * len(data), len(train_loader.dataset),
                     100. * batch_idx / len(train_loader),
-                    loss.item() / len(data)))
+                    loss.item() / len(data),
+                    model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0).item() / len(data)))
 
         print('====> Epoch: {} Average loss: {:.4f}'.format(
               epoch, train_loss / len(train_loader.dataset)))
@@ -246,12 +293,16 @@ if __name__ == "__main__":
     def test(epoch, max, startTime):
         model.eval()
         test_loss = 0
+        gen_loss = 0
         zTensor = torch.empty(0,args.lsdim).to(device)
+        pseudos = model.means(model.idle_input).view(-1, 1, args.input_depth, args.input_length, args.input_length).to(device)
+        recon_pseudos, p_mu, p_logvar, p_z = model(pseudos)
         with torch.no_grad():
             for i, data in enumerate(test_loader):
                 data = data.to(device)
                 recon_batch, mu, logvar, z = model(data)
-                test_loss += model.loss_function(recon_batch, data, mu, logvar).item()
+                test_loss += model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z).item()
+                gen_loss += model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0).item()
                 zTensor = torch.cat((zTensor, z), 0)
         
         if (args.dbscan == True) :
@@ -260,7 +311,9 @@ if __name__ == "__main__":
             print(db.labels_)
             labelTensor = db.labels_
         test_loss /= len(test_loader.dataset)
+        gen_loss /= len(test_loader.dataset)
         print('====> Test set loss: {:.4f}'.format(test_loss))
+        print('====> Generation loss: {:.4f}'.format(gen_loss))
         if(epoch == max):
             if(args.save != ''):
                 torch.save({
@@ -302,7 +355,7 @@ if __name__ == "__main__":
     if(args.load == ''):
         for epoch in range(1, args.epochs + 1):
             train(epoch)
-            #test(epoch, args.epochs, startTime)
+            test(epoch, args.epochs, startTime)
     elif(args.cuda == True):
         checkpoint=torch.load(args.load)
         model.load_state_dict(checkpoint['model_state_dict'])
