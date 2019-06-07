@@ -258,6 +258,7 @@ if __name__ == "__main__":
             
     def train(engine, batch):
         model.train()
+
         data, _ = batch 
         data = data.to(device) #change to data = batch maybe???
         optimizer.zero_grad()
@@ -273,26 +274,19 @@ if __name__ == "__main__":
     def test(engine, batch):
         model.eval()
         with torch.no_grad():
-            x, _ = batch
-            
-        
-        zTensor = torch.empty(0,args.lsdim).to(device)
-        labelTensor = torch.empty(0, dtype = torch.long)
-        pseudos=model.means(model.idle_input).view(-1,1,args.input_length,args.input_length).to(device)
-        recon_pseudos, p_mu, p_logvar, p_z=model(pseudos)
-        with torch.no_grad():
-            for i, (data, _) in enumerate(test_loader):
-                data = data.to(device)
-                recon_batch, mu, logvar, z = model(data)
-
-                test_loss += model.loss_function(recon_batch, data, mu, logvar,z,pseudos,recon_pseudos, p_mu, p_logvar, p_z).item()
-                zTensor = torch.cat((zTensor, z), 0)
-                labelTensor = torch.cat((labelTensor, _), 0)
-        test_loss /= len(test_loader.dataset)
-        return recon_pseudos, test_loss, zTensor, labelTensor
+            data, _ = batch
+            data = data.to(device)
+            recon_batch, mu, logvar, z = model(data)
+            pseudos=model.means(model.idle_input).view(-1,1,args.input_length,args.input_length).to(device)
+            recon_pseudos, p_mu, p_logvar, p_z=model(pseudos)
+        return recon_x, x, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, _
         
     trainer = Engine(train)
     evaluator = Engine(test)
+    training_history = {'loss': [], 'genLoss': []}
+    validation_history = {'loss': [], 'genLoss': []}\
+    RunningAverage(output_transform=lambda data: data[0]).attach(trainer, 'loss')
+    RunningAverage(output_transform=lambda data: data[0]).attach(trainer, 'genLoss')
     
     @trainer.on(Events.INTERATION_COMPLETED)
     def log_training_loss(trainer) 
