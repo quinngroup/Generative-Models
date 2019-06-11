@@ -13,16 +13,26 @@ from torch.autograd import Variable
 from sklearn.manifold import TSNE
 from sklearn.cluster import DBSCAN
 
+
+import sys,os
+#print(os.getcwd())
+#print(os.listdir())
+
+if(__name__=="__main__"):
+    sys.path.insert(0,'../../')
+
+#print(os.listdir())
+#print(os.getcwd())
+from utils.nn import spatial_broadcast_decoder
 import math
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
-import sys
 
-sys.path.insert(0, '..\\..')
-
-from utils.nn import spatial_broadcast_decoder, depthwise_separable_conv
+import tensorwatch as tw    
+    
+    
 """
 VampPrior implementation with Spatial Broadcast Decoder for use with MNIST dataset
 
@@ -43,55 +53,20 @@ class VAE(nn.Module):
         self.device = device
         self.finalConvLength = ((input_length - 2)//2 - 1)//2 - 4
 
-        #(1,28,28) -> (8,26,26)
         self.conv1 = nn.Conv2d(1, 8, 3)
-        
-        #(8,13,13) -> (16,12,12)
         self.conv2 = nn.Conv2d(8, 16, 2)
-        
-        #(16,6,6) -> (32,4,4)
         self.conv3 = nn.Conv2d(16, 32, 3)
-        
-        #(32,4,4) -> (64,2,2)
         self.conv4 = nn.Conv2d(32, 64, 3)
 
-        #(80,4,4) -> lsdim mean and logvar
         self.mean = nn.Linear(64*self.finalConvLength*self.finalConvLength, lsdim)
         self.logvar = nn.Linear(64*self.finalConvLength*self.finalConvLength, lsdim)
 
         self.means = nn.Linear(pseudos, input_length * input_length, bias=False)
-        
-        '''
-        #(2 -> 4)
-        self.fc1 = nn.Linear(args.lsdim, 4)
-        #reshape elsewhere
-        
-        #(1,2,2) -> (32,7,7)
-        self.convt1 = nn.ConvTranspose2d(1, 32, 6)
-        
-        #(32,7,7) -> (16, 14, 14)
-        self.convt2 = nn.ConvTranspose2d(32, 16, 8)
-
-        #(16, 14, 14) -> (8, 20, 20)
-        self.convt3 = nn.ConvTranspose2d(16, 8, 7)
-
-        #(8,20, 20) -> (1, 28, 28) 
-        self.convt4 = nn.ConvTranspose2d(8, 1, 9)
-        '''
-        #Size-Preserving Convolution
-        self.conv5 = depthwise_separable_conv(lsdim + 2, 64, padding=1,kpl=10)
-        #Size-Preserving Convolution
-        self.conv6 = depthwise_separable_conv(64, 64, padding=1,kpl=10)
-        #Size-Preserving Convolution
-        self.conv7 = depthwise_separable_conv(64, 64, padding=1,kpl=10)
-        #Size-Preserving Convolution
-        self.conv8 = depthwise_separable_conv(64, 64, padding=1,kpl=10)
-        #Channel-Reducing Convolution
-        self.conv9 = nn.Conv2d(64, 1, 1)
+        self.sbd=spatial_broadcast_decoder(input_length=self.input_length,device=self.device,lsdim=self.lsdim)
 
         # create an idle input for calling pseudo-inputs
         self.idle_input = torch.eye(pseudos,pseudos,requires_grad=True)
-        self.idle_input = self.idle_input.cuda()
+        self.idle_input = self.idle_input.to(device)
 
 
     def reconstruct_x(self, x):
@@ -111,18 +86,11 @@ class VAE(nn.Module):
         
     # THE MODEL: VARIATIONAL POSTERIOR
     def q_z(self, x):
-        #(1,28,28) -> (8,26,26) -> (8,13,13)
-        x = F.max_pool2d(LeakyReLU(0.1)(self.conv1(x)), (2,2))
-        
-        #(8,13,13) -> (16,12,12) -> (16,6,6)
-        x = F.max_pool2d(LeakyReLU(0.1)(self.conv2(x)), (2,2))
-        
-        #(16,6,6) -> (32,4,4)
-        x = LeakyReLU(0.1)(self.conv3(x))
-        
-        #(32,4,4) -> (64,2,2)
-        x = LeakyReLU(0.1)(self.conv4(x))
 
+        x = F.max_pool2d(LeakyReLU(0.1)(self.conv1(x)), (2,2))
+        x = F.max_pool2d(LeakyReLU(0.1)(self.conv2(x)), (2,2))
+        x = LeakyReLU(0.1)(self.conv3(x))
+        x = LeakyReLU(0.1)(self.conv4(x))
         x=x.view(-1, 64*self.finalConvLength*self.finalConvLength)
         
         z_q_mean = self.mean(x)
@@ -138,23 +106,7 @@ class VAE(nn.Module):
     # THE MODEL: GENERATIVE DISTRIBUTION
     def p_x(self, z):
         
-        
-        base = spatial_broadcast_decoder(self,z)
-
-        x = F.leaky_relu(self.conv5(base))
-        x = F.leaky_relu(self.conv6(x))
-        x = F.leaky_relu(self.conv7(x))
-        x = F.leaky_relu(self.conv8(x))
-        x = F.leaky_relu(self.conv9(x))
-        '''
-        x = LeakyReLU(0.1)(self.fc1(z))
-        x = x.view(-1,1,2,2)
-        x = LeakyReLU(0.1)(self.convt1(x))
-        x = LeakyReLU(0.1)(self.convt2(x))
-        x = LeakyReLU(0.1)(self.convt3(x))
-        x = LeakyReLU(0.1)(self.convt4(x))
-        '''
-        return x
+        return self.sbd(z)
             
     def log_p_z(self,z):
         # calculate params
@@ -189,7 +141,7 @@ class VAE(nn.Module):
     
         
     # Reconstruction + KL divergence losses summed over all elements and batch
-    def loss_function(self, recon_x, x, mu, logvar, z_q,pseudo,recon_pseudo,p_mu,p_logvar,p_z):
+    def loss_function(self, recon_x, x, mu, logvar, z_q, pseudo,recon_pseudo, p_mu, p_logvar, p_z, gamma=None):
         RE = F.mse_loss(recon_x.view(-1,self.input_length*self.input_length), x.view(-1, self.input_length*self.input_length), reduction = 'sum')
 
         # see Appendix B from VAE paper:
@@ -209,8 +161,11 @@ class VAE(nn.Module):
         plog_q_z = torch.sum(log_Normal_diag(p_z, p_mu, p_logvar, dim=1),0)
         pKL= -(plog_p_z - plog_q_z)
 
-        
-        return (RE + self.beta*KL)+self.gamma*(pRE + self.beta*pKL)/self.batch_size
+        if gamma is None:
+            return (RE + self.beta*KL)+self.gamma*(pRE + self.beta*pKL)
+        else:
+            return (RE + self.beta*KL)+gamma*(pRE + self.beta*pKL)
+        #return (RE + self.beta*KL)+self.gamma*(pRE + self.beta*pKL)/self.batch_size
      
 def log_Normal_diag(x, mean, log_var, average=False, dim=None):
 
@@ -228,12 +183,18 @@ if __name__ == "__main__":
 
     startTime = time.time()
     parser = argparse.ArgumentParser(description='VAE MNIST Example')
-    parser.add_argument('--batch-size', type=int, default=128, metavar='B',
+    parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                         help='input batch size for training (default: 128)')
-    parser.add_argument('--epochs', type=int, default=10, metavar='E',
-                        help='number of epochs to train (default: 10)')
     parser.add_argument('--no-cuda', action='store_true', default=False,
                         help='enables CUDA training')
+    parser.add_argument('--seed', type=int, default=1, metavar='S',
+                        help='random seed (default: 1)')
+    parser.add_argument('--testSplit', type=float, default=.05, metavar='%',
+                        help='portion of dataset to test on (default: .2)')
+    parser.add_argument('--source', type=str, default='../data/mnist_test_seq.npy', metavar='S',
+                        help = 'path to moving MNIST dataset (default: \'../data/mnist_test_seq.npy\')')
+    parser.add_argument('--epochs', type=int, default=10, metavar='N',
+                        help='number of epochs to train (default: 10)')
     parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                         help='how many batches to wait before logging training status')
     parser.add_argument('--save', type=str, default='', metavar='s',
@@ -246,18 +207,28 @@ if __name__ == "__main__":
                         help='Number of pseudo-inputs (default: 10)')
     parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                         help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
+                        #current implementation may not be optimal for dims above 4
     parser.add_argument('--gamma', type = float, default=10, metavar='g',
                         help='Pseudo-loss weight')
-    parser.add_argument('--repeat', action='store_true', default=False,
-                        help='Runs training again after loading')
+    parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
+                        help='learning rate')
+    parser.add_argument('--dbscan', action='store_true', default= False,
+                        help='to run dbscan clustering')      
+    parser.add_argument('--graph', action='store_true', default= False,
+                        help='flag to determine whether or not to run automatic graphing')      
     parser.add_argument('--input_length', type=int, default=28, metavar='il',
                         help='length and height of one image')
-
+    parser.add_argument('--repeat', action='store_true', default=False,
+                        help='determines whether to enact further training after loading weights')
     args = parser.parse_args()
     args.cuda = not args.no_cuda and torch.cuda.is_available()
 
 
-    device = torch.device("cuda" if args.cuda else "cpu")
+    device = "cuda" if args.cuda else "cpu"
+    
+    if(args.cuda):
+        with torch.cuda.device(0):
+            torch.tensor([1.]).cuda()
 
     kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
     train_loader = torch.utils.data.DataLoader(
@@ -268,13 +239,22 @@ if __name__ == "__main__":
         datasets.MNIST('../data', train=False, transform=transforms.ToTensor()),
         batch_size=args.batch_size, shuffle=True, **kwargs)
         
+    w = tw.Watcher()
+    st_batch_loss = w.create_stream('batch_loss2')
+
     model = VAE(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
     optimizer = optim.Adam(model.parameters(), lr=1e-3)            
-            
+     
+
+
     def train(epoch):
         model.train()
         train_loss = 0
+        #w.observe(weights=weights)
+
         for batch_idx, (data, _) in enumerate(train_loader):
+            
+            
             data = data.to(device)
             optimizer.zero_grad()
             recon_batch, mu, logvar, z = model(data)
@@ -289,6 +269,10 @@ if __name__ == "__main__":
                     epoch, batch_idx * len(data), len(train_loader.dataset),
                     100. * batch_idx / len(train_loader),
                     loss.item() / len(data)))
+                #######
+                epochf=epoch+batch_idx / len(train_loader)
+                batch_loss=loss.item()
+                st_batch_loss.write((epochf, batch_loss))
 
         print('====> Epoch: {} Average loss: {:.4f}'.format(
               epoch, train_loss / len(train_loader.dataset)))
@@ -322,26 +306,27 @@ if __name__ == "__main__":
             cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
             
             #Handling different dimensionalities
-            if (args.lsdim < 3) :
-                z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
-                z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-                scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #Regular 2dim plot, RE-ADD CMAP = CMAP
-                plt.colorbar()
-            elif (args.lsdim == 3) :
-                fig=plt.figure()
-                ax=fig.gca(projection='3d')
-                z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
-                z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-                z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
-                scatterPlot = ax.scatter(z1, z2, z3, s = 4, c = labelTensor, cmap = cmap) #Regular 3dim plot
-            else:    
-                Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())        
-                z1 = Z_embedded[:, 0]
-                z2 = Z_embedded[:, 1]
-                scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #TSNE projection for >3dim 
-                plt.colorbar()
+            if(args.graph):
+                if (args.lsdim < 3) :
+                    z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
+                    z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
+                    scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #Regular 2dim plot, RE-ADD CMAP = CMAP
+                    plt.colorbar()
+                elif (args.lsdim == 3) :
+                    fig=plt.figure()
+                    ax=fig.gca(projection='3d')
+                    z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
+                    z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
+                    z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
+                    scatterPlot = ax.scatter(z1, z2, z3, s = 4, c = labelTensor, cmap = cmap) #Regular 3dim plot
+                else:    
+                    Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())        
+                    z1 = Z_embedded[:, 0]
+                    z2 = Z_embedded[:, 1]
+                    scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #TSNE projection for >3dim 
+                    plt.colorbar()
 
-            plt.show()
+                plt.show()
             temp =model.means(model.idle_input).view(-1,args.input_length,args.input_length).detach().cpu()
             for x in range(args.pseudos):
                 plt.matshow(temp[x].numpy())
@@ -351,8 +336,8 @@ if __name__ == "__main__":
     def dplot(x):
         img = p_x(x)
         plt.imshow(img)
-
-    summary(model,(1,args.input_length,args.input_length))
+    print(device)
+    summary(model,(1,args.input_length,args.input_length),device=device)
     if(args.load == ''):
         for epoch in range(1, args.epochs + 1):
             train(epoch)
