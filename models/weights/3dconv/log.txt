@@ -1,0 +1,4 @@
+Experiment Log
+==============
+
+Running 3DConv with lsdim 16, and psuedos 25 with all else being equal for 30 epochs
