@@ -1,4 +1,3 @@
 Experiment Log
 ==============
-Varying number of pseudos form 5 to 75 in iterations of 10 training each for 10 epochs at batch size
-1000 with lsdim 12 at gamma .15, c.p.
+Comparing 30 epochs of batch-size 128 with 30 epochs of batch-size 128, 1000, and a warm start where in batch size is increased to 1000 after 10 and 20 epochs, lsdim 16, pseudos 25, c.p.
