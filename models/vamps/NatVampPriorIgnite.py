@@ -6,13 +6,16 @@ import time
 from torch import nn, optim
 from torch.nn import functional as F
 from torch.nn import LeakyReLU
-from torchvision import datasets, transforms
-from torchvision.utils import save_image
+from torch.utils.data import DataLoader
+from torchvision import transforms
+from torchvision.datasets import MNIST
+from torchvision.utils import save_image, make_grid
 from torchsummary import summary
 from torch.autograd import Variable
 from sklearn.manifold import TSNE
 from sklearn.cluster import DBSCAN
 from ignite.engine import Engine, Events
+from ignite.metrics import Loss, RunningAverage
 
 
 import sys,os
@@ -34,9 +37,9 @@ import matplotlib.colors as colors
     
     
 """
-VampPrior implementation with Spatial Broadcast Decoder for use with MNIST dataset
+Ignite implementation of NatVampPrior
 
-@author Meekail Zain
+@author Davis Jackson, Quinn Wyner
 """
     
     
@@ -245,13 +248,13 @@ if __name__ == "__main__":
             torch.tensor([1.]).cuda()
 
     kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
-    train_loader = torch.utils.data.DataLoader(
-        datasets.MNIST('../data', train=True, download=True,
-                       transform=transforms.ToTensor()),
-        batch_size=args.batch_size, shuffle=True, **kwargs)
-    test_loader = torch.utils.data.DataLoader(
-        datasets.MNIST('../data', train=False, transform=transforms.ToTensor()),
-        batch_size=args.batch_size, shuffle=True, **kwargs)
+    data_transform = transforms.Compose([transforms.ToTensor()])
+    
+    train_data = MNIST(download=False, root="../../data/", transform=data_transform, train=True)
+    val_data = MNIST(download=False, root="../../data/", transform=data_transform, train=False)
+    
+    train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True, **kwargs)
+    val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=True, **kwargs)
         
     model = VAE(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
     optimizer = optim.Adam(model.parameters(), lr=1e-3)            
@@ -268,7 +271,9 @@ if __name__ == "__main__":
         loss = model.loss_function(recon_batch, data, mu, logvar, z,pseudos,recon_pseudos, p_mu, p_logvar, p_z)
         loss.backward()
         optimizer.step()
-        return loss.item()
+        with torch.no_grad():
+            genLoss=model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0)
+        return loss.item(), genLoss.item()
      
 
     def test(engine, batch):
@@ -284,25 +289,37 @@ if __name__ == "__main__":
     trainer = Engine(train)
     evaluator = Engine(test)
     training_history = {'loss': [], 'genLoss': []}
-    validation_history = {'loss': [], 'genLoss': []}\
-    RunningAverage(output_transform=lambda data: data[0]).attach(trainer, 'loss')
-    RunningAverage(output_transform=lambda data: data[0]).attach(trainer, 'genLoss')
+    validation_history = {'loss': [], 'genLoss': []}
+    RunningAverage(output_transform=lambda x: x[0]).attach(trainer, 'loss')
+    RunningAverage(output_transform=lambda x: x[1]).attach(trainer, 'genLoss')
     
-    @trainer.on(Events.INTERATION_COMPLETED)
-    def log_training_loss(trainer) 
-        print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(trainer.state.epoch, trainer.state.output))
-
-        
+    Loss(model.loss_function, lambda x: [x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9]]).attach(evaluator, 'loss')
+    Loss(model.loss_function, lambda x: [x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], 0]).attach(evaluator, 'genLoss')
     
+    @trainer.on(Events.EPOCH_COMPLETED)
+    def print_trainer_logs(engine):
+        avg_loss = engine.state.metrics['loss']
+        avg_genLoss = engine.state.metrics['genLoss']
+        print("Trainer Results - Epoch {} - Avg loss: {:.6f} Avg genLoss:{:.6f}"
+              .format(engine.state.epoch, avg_loss, avg_genLoss))
     
-    
-  
-        
+    def print_logs(engine, dataloader, mode, history_dict):
+        evaluator.run(dataloader, max_epochs=1)
+        metrics = evaluator.state.metrics
+        avg_loss = metrics['loss']
+        avg_genLoss = metrics['genLoss']
+        print(
+            mode + " Results - Epoch {} - Avg Loss: {:.6f} Avg genLoss: {:.6f}"
+            .format(engine.state.epoch, avg_loss, avg_genLoss))
+        for key in evaluator.state.metrics.keys():
+            history_dict[key].append(evaluator.state.metrics[key])
+    trainer.add_event_handler(Events.EPOCH_COMPLETED, print_logs, train_loader, 'Training', training_history)
+    trainer.add_event_handler(Events.EPOCH_COMPLETED, print_logs, val_loader, 'Validation', validation_history)
             
     def dplot(x):
         img = p_x(x)
         plt.imshow(img)
-    print(device)
+
     summary(model,(1,args.input_length,args.input_length),device=device)
     if(args.load == ''):
         for epoch in range(1, args.epochs + 1):
