@@ -1,0 +1,109 @@
+----------------------------------------------------------------
+        Layer (type)               Output Shape         Param #
+================================================================
+            Conv3d-1        [-1, 8, 18, 56, 56]           1,952
+            Conv3d-2       [-1, 16, 16, 22, 22]          18,832
+            Conv3d-3          [-1, 32, 4, 6, 6]          92,192
+            Conv3d-4          [-1, 64, 2, 2, 2]         153,664
+            Linear-5                   [-1, 16]           8,208
+            Linear-6                   [-1, 16]           8,208
+            Conv3d-7       [-1, 16, 20, 64, 64]           8,224
+            Conv3d-8       [-1, 16, 20, 64, 64]           6,928
+            Conv3d-9       [-1, 16, 20, 64, 64]           6,928
+           Conv3d-10       [-1, 16, 20, 64, 64]           6,928
+           Conv3d-11        [-1, 1, 20, 64, 64]              17
+================================================================
+Total params: 312,081
+Trainable params: 312,081
+Non-trainable params: 0
+----------------------------------------------------------------
+Input size (MB): 0.31
+Forward/backward pass size (MB): 45.05
+Params size (MB): 1.19
+Estimated Total Size (MB): 46.56
+----------------------------------------------------------------
+Train Epoch: 1 [0/9500 (0%)]	Loss: 3467.728760	GenLoss: 3457.072510
+Train Epoch: 1 [1280/9500 (13%)]	Loss: 3418.599854	GenLoss: 3408.088623
+Train Epoch: 1 [2560/9500 (27%)]	Loss: 3546.034180	GenLoss: 3534.573730
+Train Epoch: 1 [3840/9500 (40%)]	Loss: 3487.196289	GenLoss: 3476.634766
+Train Epoch: 1 [5120/9500 (53%)]	Loss: 3390.023682	GenLoss: 3379.889648
+Train Epoch: 1 [6400/9500 (67%)]	Loss: 3332.434326	GenLoss: 3322.690430
+Train Epoch: 1 [7680/9500 (80%)]	Loss: 3360.548096	GenLoss: 3349.610596
+Train Epoch: 1 [8960/9500 (93%)]	Loss: 3210.610596	GenLoss: 3199.885498
+====> Epoch: 1 Average loss: 3385.3049
+====> Test set loss: 3332.1784
+====> Generation loss: 3321.4076
+Train Epoch: 2 [0/9500 (0%)]	Loss: 3347.390137	GenLoss: 3336.876221
+Train Epoch: 2 [1280/9500 (13%)]	Loss: 3384.704346	GenLoss: 3373.473389
+Train Epoch: 2 [2560/9500 (27%)]	Loss: 3380.221436	GenLoss: 3369.152832
+Train Epoch: 2 [3840/9500 (40%)]	Loss: 3174.016357	GenLoss: 3162.720703
+Train Epoch: 2 [5120/9500 (53%)]	Loss: 3128.747559	GenLoss: 3117.663330
+Train Epoch: 2 [6400/9500 (67%)]	Loss: 3206.470459	GenLoss: 3195.766357
+Train Epoch: 2 [7680/9500 (80%)]	Loss: 3278.610107	GenLoss: 3267.477783
+Train Epoch: 2 [8960/9500 (93%)]	Loss: 3211.499756	GenLoss: 3200.236328
+====> Epoch: 2 Average loss: 3265.5511
+====> Test set loss: 3282.3229
+====> Generation loss: 3272.0969
+Train Epoch: 3 [0/9500 (0%)]	Loss: 3198.529053	GenLoss: 3188.324951
+Train Epoch: 3 [1280/9500 (13%)]	Loss: 3096.357666	GenLoss: 3085.208740
+Train Epoch: 3 [2560/9500 (27%)]	Loss: 3285.594727	GenLoss: 3275.049316
+Train Epoch: 3 [3840/9500 (40%)]	Loss: 3141.796387	GenLoss: 3131.352051
+Train Epoch: 3 [5120/9500 (53%)]	Loss: 3150.795410	GenLoss: 3139.425049
+Train Epoch: 3 [6400/9500 (67%)]	Loss: 3137.280273	GenLoss: 3126.988281
+Train Epoch: 3 [7680/9500 (80%)]	Loss: 3204.293701	GenLoss: 3193.946533
+Train Epoch: 3 [8960/9500 (93%)]	Loss: 3072.491455	GenLoss: 3062.558350
+====> Epoch: 3 Average loss: 3168.8914
+====> Test set loss: 3131.7732
+====> Generation loss: 3121.4277
+Train Epoch: 4 [0/9500 (0%)]	Loss: 2996.419678	GenLoss: 2986.062012
+Train Epoch: 4 [1280/9500 (13%)]	Loss: 3170.558350	GenLoss: 3160.343506
+Train Epoch: 4 [2560/9500 (27%)]	Loss: 3077.946289	GenLoss: 3067.609375
+Train Epoch: 4 [3840/9500 (40%)]	Loss: 3141.545898	GenLoss: 3132.858398
+Train Epoch: 4 [5120/9500 (53%)]	Loss: 3030.576904	GenLoss: 3020.300293
+Train Epoch: 4 [6400/9500 (67%)]	Loss: 2976.855225	GenLoss: 2966.784668
+Train Epoch: 4 [7680/9500 (80%)]	Loss: 3069.785645	GenLoss: 3060.522217
+Train Epoch: 4 [8960/9500 (93%)]	Loss: 2932.451172	GenLoss: 2922.296143
+====> Epoch: 4 Average loss: 3049.7941
+====> Test set loss: 3048.0527
+====> Generation loss: 3038.2632
+Train Epoch: 5 [0/9500 (0%)]	Loss: 2965.050049	GenLoss: 2955.303711
+Train Epoch: 5 [1280/9500 (13%)]	Loss: 3108.758301	GenLoss: 3099.007568
+Train Epoch: 5 [2560/9500 (27%)]	Loss: 2906.899902	GenLoss: 2897.456299
+Train Epoch: 5 [3840/9500 (40%)]	Loss: 3023.887451	GenLoss: 3013.875732
+Train Epoch: 5 [5120/9500 (53%)]	Loss: 3079.004150	GenLoss: 3069.445068
+Train Epoch: 5 [6400/9500 (67%)]	Loss: 3006.554688	GenLoss: 2996.840332
+Train Epoch: 5 [7680/9500 (80%)]	Loss: 2912.986084	GenLoss: 2903.606201
+Train Epoch: 5 [8960/9500 (93%)]	Loss: 2902.814453	GenLoss: 2893.634277
+====> Epoch: 5 Average loss: 2994.1487
+====> Test set loss: 3016.2186
+====> Generation loss: 3006.9513
+Train Epoch: 6 [0/9500 (0%)]	Loss: 3003.678955	GenLoss: 2994.566650
+Train Epoch: 6 [1280/9500 (13%)]	Loss: 2984.738281	GenLoss: 2975.766602
+Train Epoch: 6 [2560/9500 (27%)]	Loss: 3060.852539	GenLoss: 3051.993896
+Train Epoch: 6 [3840/9500 (40%)]	Loss: 2886.798340	GenLoss: 2877.301270
+Train Epoch: 6 [5120/9500 (53%)]	Loss: 2915.083740	GenLoss: 2906.110596
+Train Epoch: 6 [6400/9500 (67%)]	Loss: 2886.001221	GenLoss: 2876.986084
+Train Epoch: 6 [7680/9500 (80%)]	Loss: 3038.678711	GenLoss: 3029.597168
+Train Epoch: 6 [8960/9500 (93%)]	Loss: 2860.556885	GenLoss: 2851.466553
+====> Epoch: 6 Average loss: 2961.0267
+====> Test set loss: 2973.7165
+====> Generation loss: 2964.4480
+Train Epoch: 7 [0/9500 (0%)]	Loss: 2963.445557	GenLoss: 2954.252197
+Train Epoch: 7 [1280/9500 (13%)]	Loss: 2928.766846	GenLoss: 2919.744385
+Train Epoch: 7 [2560/9500 (27%)]	Loss: 2925.757812	GenLoss: 2917.165527
+Train Epoch: 7 [3840/9500 (40%)]	Loss: 3005.646240	GenLoss: 2996.893311
+Train Epoch: 7 [5120/9500 (53%)]	Loss: 2902.559082	GenLoss: 2893.621826
+Train Epoch: 7 [6400/9500 (67%)]	Loss: 3051.783447	GenLoss: 3042.858643
+Train Epoch: 7 [7680/9500 (80%)]	Loss: 2812.291748	GenLoss: 2803.517090
+Train Epoch: 7 [8960/9500 (93%)]	Loss: 2846.408203	GenLoss: 2838.152100
+====> Epoch: 7 Average loss: 2920.7907
+====> Test set loss: 2928.9311
+====> Generation loss: 2919.7791
+--- 692.7616877555847 seconds ---
+[t-SNE] Computing 91 nearest neighbors...
+[t-SNE] Indexed 500 samples in 0.000s...
+[t-SNE] Computed neighbors for 500 samples in 0.015s...
+[t-SNE] Computed conditional probabilities for sample 500 / 500
+[t-SNE] Mean sigma: 0.571611
+[t-SNE] KL divergence after 250 iterations with early exaggeration: 70.398033
+[t-SNE] KL divergence after 1000 iterations: 1.194250
