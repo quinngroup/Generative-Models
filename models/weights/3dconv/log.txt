@@ -2,3 +2,6 @@ Experiment Log
 ==============
 
 Running 3DConv with lsdim 16, and psuedos 25 with all else being equal for 30 epochs
+
+
+trial 4: python 3DConv.py --epochs 100 --lr 1e-5 --batch-size 32 --pseudos 25 --lsdim 256
