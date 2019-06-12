@@ -248,6 +248,9 @@ if __name__ == "__main__":
                         help='length and height of one image')
     parser.add_argument('--input_depth', type=int, default=20, metavar='id',
                         help='number of frames in one video')
+    parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
+                        help='learning rate')
+
     args = parser.parse_args()
     args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -265,7 +268,7 @@ if __name__ == "__main__":
     train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args.seed, args.testSplit)
     enumerate(train_loader)
     model = Conv3DVAE(args.input_length, args.input_depth, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
     def train(epoch):
         model.train()
