@@ -252,6 +252,9 @@ if __name__ == "__main__":
                         help='learning rate')
     parser.add_argument('--graph', action='store_true', default= False,
                     help='flag to determine whether or not to run automatic graphing')      
+    parser.add_argument('--repeat', action='store_true', default=False,
+                    help='determines whether to enact further training after loading weights')
+
 
     args = parser.parse_args()
     args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -361,11 +364,12 @@ if __name__ == "__main__":
         for epoch in range(1, args.epochs + 1):
             train(epoch)
             test(epoch, args.epochs, startTime)
-    elif(args.cuda == True):
+    else:
         checkpoint=torch.load(args.load)
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         test(args.epochs, args.epochs, startTime)
-    else:
-        model.load_state_dict(torch.load(args.load, map_location= device))
-        test(args.epochs, args.epochs, startTime)
+        if(args.repeat==True):
+            for epoch in range(1, args.epochs + 1):
+                train(epoch)
+                test(epoch, args.epochs, startTime)
