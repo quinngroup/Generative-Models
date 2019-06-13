@@ -1,0 +1,36 @@
+----------------------------------------------------------------
+        Layer (type)               Output Shape         Param #
+================================================================
+            Conv3d-1        [-1, 8, 18, 56, 56]           1,952
+            Conv3d-2       [-1, 16, 16, 22, 22]          18,832
+            Conv3d-3          [-1, 32, 4, 6, 6]          92,192
+            Conv3d-4          [-1, 64, 2, 2, 2]         153,664
+            Linear-5                   [-1, 16]           8,208
+            Linear-6                   [-1, 16]           8,208
+            Conv3d-7       [-1, 16, 20, 64, 64]           8,224
+            Conv3d-8       [-1, 16, 20, 64, 64]           6,928
+            Conv3d-9       [-1, 16, 20, 64, 64]           6,928
+           Conv3d-10       [-1, 16, 20, 64, 64]           6,928
+           Conv3d-11        [-1, 1, 20, 64, 64]              17
+================================================================
+Total params: 312,081
+Trainable params: 312,081
+Non-trainable params: 0
+----------------------------------------------------------------
+Input size (MB): 0.31
+Forward/backward pass size (MB): 45.05
+Params size (MB): 1.19
+Estimated Total Size (MB): 46.56
+----------------------------------------------------------------
+/opt/anaconda3/lib/python3.7/site-packages/matplotlib/pyplot.py:514: RuntimeWarning: More than 20 figures have been opened. Figures created through the pyplot interface (`matplotlib.pyplot.figure`) are retained until explicitly closed and may consume too much memory. (To control this warning, see the rcParam `figure.max_open_warning`).
+  max_open_warning, RuntimeWarning)
+====> Test set loss: 2504.2410
+====> Generation loss: 2501.4545
+--- 6.05426287651062 seconds ---
+[t-SNE] Computing 91 nearest neighbors...
+[t-SNE] Indexed 500 samples in 0.000s...
+[t-SNE] Computed neighbors for 500 samples in 0.015s...
+[t-SNE] Computed conditional probabilities for sample 500 / 500
+[t-SNE] Mean sigma: 0.597850
+[t-SNE] KL divergence after 250 iterations with early exaggeration: 71.434944
+[t-SNE] KL divergence after 1000 iterations: 1.145615
