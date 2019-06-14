@@ -1,0 +1,1197 @@
+----------------------------------------------------------------
+        Layer (type)               Output Shape         Param #
+================================================================
+            Conv3d-1        [-1, 8, 18, 56, 56]           1,952
+            Conv3d-2       [-1, 16, 16, 22, 22]          18,832
+            Conv3d-3          [-1, 32, 4, 6, 6]          92,192
+            Conv3d-4          [-1, 64, 2, 2, 2]         153,664
+            Linear-5                   [-1, 16]           8,208
+            Linear-6                   [-1, 16]           8,208
+            Conv3d-7       [-1, 16, 20, 64, 64]           8,224
+            Conv3d-8       [-1, 16, 20, 64, 64]           6,928
+            Conv3d-9       [-1, 16, 20, 64, 64]           6,928
+           Conv3d-10       [-1, 16, 20, 64, 64]           6,928
+           Conv3d-11        [-1, 1, 20, 64, 64]              17
+================================================================
+Total params: 312,081
+Trainable params: 312,081
+Non-trainable params: 0
+----------------------------------------------------------------
+Input size (MB): 0.31
+Forward/backward pass size (MB): 45.05
+Params size (MB): 1.19
+Estimated Total Size (MB): 46.56
+----------------------------------------------------------------
+====> Test set loss: 2504.2410
+====> Generation loss: 2501.4545
+--- 17.460031986236572 seconds ---
+Train Epoch: 1 [0/9500 (0%)]	Loss: 2414.456299	GenLoss: 2411.915771
+Train Epoch: 1 [640/9500 (7%)]	Loss: 2603.480957	GenLoss: 2599.984375
+Train Epoch: 1 [1280/9500 (13%)]	Loss: 2355.051758	GenLoss: 2351.586914
+Train Epoch: 1 [1920/9500 (20%)]	Loss: 2378.197510	GenLoss: 2374.688232
+Train Epoch: 1 [2560/9500 (27%)]	Loss: 2436.582764	GenLoss: 2432.430908
+Train Epoch: 1 [3200/9500 (34%)]	Loss: 2480.120361	GenLoss: 2476.317383
+Train Epoch: 1 [3840/9500 (40%)]	Loss: 2349.295410	GenLoss: 2346.064697
+Train Epoch: 1 [4480/9500 (47%)]	Loss: 2397.617676	GenLoss: 2394.208008
+Train Epoch: 1 [5120/9500 (54%)]	Loss: 2528.455322	GenLoss: 2524.441162
+Train Epoch: 1 [5760/9500 (60%)]	Loss: 2458.745850	GenLoss: 2455.782959
+Train Epoch: 1 [6400/9500 (67%)]	Loss: 2355.957764	GenLoss: 2353.274658
+Train Epoch: 1 [7040/9500 (74%)]	Loss: 2545.644775	GenLoss: 2542.868164
+Train Epoch: 1 [7680/9500 (81%)]	Loss: 2348.002441	GenLoss: 2345.231445
+Train Epoch: 1 [8320/9500 (87%)]	Loss: 2402.372559	GenLoss: 2399.609619
+Train Epoch: 1 [8960/9500 (94%)]	Loss: 2454.519775	GenLoss: 2451.873779
+====> Epoch: 1 Average loss: 2434.5754
+====> Test set loss: 2534.1328
+====> Generation loss: 2529.9415
+Train Epoch: 2 [0/9500 (0%)]	Loss: 2552.530273	GenLoss: 2549.063721
+Train Epoch: 2 [640/9500 (7%)]	Loss: 2530.613037	GenLoss: 2526.970215
+Train Epoch: 2 [1280/9500 (13%)]	Loss: 2385.721191	GenLoss: 2380.031250
+Train Epoch: 2 [1920/9500 (20%)]	Loss: 2334.921631	GenLoss: 2330.852539
+Train Epoch: 2 [2560/9500 (27%)]	Loss: 2408.108643	GenLoss: 2404.515137
+Train Epoch: 2 [3200/9500 (34%)]	Loss: 2502.591797	GenLoss: 2499.593506
+Train Epoch: 2 [3840/9500 (40%)]	Loss: 2375.868896	GenLoss: 2373.358887
+Train Epoch: 2 [4480/9500 (47%)]	Loss: 2394.866699	GenLoss: 2391.884277
+Train Epoch: 2 [5120/9500 (54%)]	Loss: 2359.858398	GenLoss: 2356.335205
+Train Epoch: 2 [5760/9500 (60%)]	Loss: 2451.135742	GenLoss: 2447.920166
+Train Epoch: 2 [6400/9500 (67%)]	Loss: 2418.015869	GenLoss: 2414.370117
+Train Epoch: 2 [7040/9500 (74%)]	Loss: 2382.162598	GenLoss: 2378.168945
+Train Epoch: 2 [7680/9500 (81%)]	Loss: 2332.115479	GenLoss: 2329.312988
+Train Epoch: 2 [8320/9500 (87%)]	Loss: 2213.091553	GenLoss: 2210.049072
+Train Epoch: 2 [8960/9500 (94%)]	Loss: 2367.826904	GenLoss: 2363.931641
+====> Epoch: 2 Average loss: 2427.4252
+====> Test set loss: 2499.6649
+====> Generation loss: 2495.5312
+Train Epoch: 3 [0/9500 (0%)]	Loss: 2261.988525	GenLoss: 2257.574463
+Train Epoch: 3 [640/9500 (7%)]	Loss: 2446.860840	GenLoss: 2443.260254
+Train Epoch: 3 [1280/9500 (13%)]	Loss: 2403.388672	GenLoss: 2400.309570
+Train Epoch: 3 [1920/9500 (20%)]	Loss: 2452.533447	GenLoss: 2447.468506
+Train Epoch: 3 [2560/9500 (27%)]	Loss: 2352.788086	GenLoss: 2349.805176
+Train Epoch: 3 [3200/9500 (34%)]	Loss: 2491.480225	GenLoss: 2488.048096
+Train Epoch: 3 [3840/9500 (40%)]	Loss: 2525.702637	GenLoss: 2522.197021
+Train Epoch: 3 [4480/9500 (47%)]	Loss: 2452.754883	GenLoss: 2449.291992
+Train Epoch: 3 [5120/9500 (54%)]	Loss: 2313.567139	GenLoss: 2310.564697
+Train Epoch: 3 [5760/9500 (60%)]	Loss: 2476.329102	GenLoss: 2471.771973
+Train Epoch: 3 [6400/9500 (67%)]	Loss: 2453.988770	GenLoss: 2450.951904
+Train Epoch: 3 [7040/9500 (74%)]	Loss: 2466.785889	GenLoss: 2463.263428
+Train Epoch: 3 [7680/9500 (81%)]	Loss: 2407.092041	GenLoss: 2403.208496
+Train Epoch: 3 [8320/9500 (87%)]	Loss: 2382.702637	GenLoss: 2379.588867
+Train Epoch: 3 [8960/9500 (94%)]	Loss: 2335.921875	GenLoss: 2333.083252
+====> Epoch: 3 Average loss: 2421.3953
+====> Test set loss: 2508.9443
+====> Generation loss: 2506.7118
+Train Epoch: 4 [0/9500 (0%)]	Loss: 2379.278076	GenLoss: 2376.291992
+Train Epoch: 4 [640/9500 (7%)]	Loss: 2377.252441	GenLoss: 2373.329346
+Train Epoch: 4 [1280/9500 (13%)]	Loss: 2377.245117	GenLoss: 2373.696533
+Train Epoch: 4 [1920/9500 (20%)]	Loss: 2513.397217	GenLoss: 2509.028564
+Train Epoch: 4 [2560/9500 (27%)]	Loss: 2493.318604	GenLoss: 2490.058594
+Train Epoch: 4 [3200/9500 (34%)]	Loss: 2481.407471	GenLoss: 2477.570557
+Train Epoch: 4 [3840/9500 (40%)]	Loss: 2344.032471	GenLoss: 2340.306885
+Train Epoch: 4 [4480/9500 (47%)]	Loss: 2567.622803	GenLoss: 2563.225098
+Train Epoch: 4 [5120/9500 (54%)]	Loss: 2482.621582	GenLoss: 2478.426758
+Train Epoch: 4 [5760/9500 (60%)]	Loss: 2480.339600	GenLoss: 2476.885986
+Train Epoch: 4 [6400/9500 (67%)]	Loss: 2438.387207	GenLoss: 2434.261719
+Train Epoch: 4 [7040/9500 (74%)]	Loss: 2453.041748	GenLoss: 2448.915039
+Train Epoch: 4 [7680/9500 (81%)]	Loss: 2406.074951	GenLoss: 2402.874756
+Train Epoch: 4 [8320/9500 (87%)]	Loss: 2389.123291	GenLoss: 2385.477295
+Train Epoch: 4 [8960/9500 (94%)]	Loss: 2369.961182	GenLoss: 2366.076172
+====> Epoch: 4 Average loss: 2424.2193
+====> Test set loss: 2503.9118
+====> Generation loss: 2500.8225
+Train Epoch: 5 [0/9500 (0%)]	Loss: 2536.887695	GenLoss: 2534.224121
+Train Epoch: 5 [640/9500 (7%)]	Loss: 2464.224365	GenLoss: 2460.710205
+Train Epoch: 5 [1280/9500 (13%)]	Loss: 2447.259766	GenLoss: 2443.931396
+Train Epoch: 5 [1920/9500 (20%)]	Loss: 2429.913818	GenLoss: 2427.103760
+Train Epoch: 5 [2560/9500 (27%)]	Loss: 2426.676758	GenLoss: 2421.871582
+Train Epoch: 5 [3200/9500 (34%)]	Loss: 2425.030762	GenLoss: 2421.772217
+Train Epoch: 5 [3840/9500 (40%)]	Loss: 2370.663818	GenLoss: 2367.799072
+Train Epoch: 5 [4480/9500 (47%)]	Loss: 2379.625977	GenLoss: 2376.480957
+Train Epoch: 5 [5120/9500 (54%)]	Loss: 2552.896729	GenLoss: 2547.666260
+Train Epoch: 5 [5760/9500 (60%)]	Loss: 2426.071045	GenLoss: 2422.884766
+Train Epoch: 5 [6400/9500 (67%)]	Loss: 2475.513916	GenLoss: 2471.889648
+Train Epoch: 5 [7040/9500 (74%)]	Loss: 2417.511475	GenLoss: 2413.803467
+Train Epoch: 5 [7680/9500 (81%)]	Loss: 2327.894775	GenLoss: 2325.160645
+Train Epoch: 5 [8320/9500 (87%)]	Loss: 2504.883301	GenLoss: 2502.510742
+Train Epoch: 5 [8960/9500 (94%)]	Loss: 2339.666748	GenLoss: 2336.733398
+====> Epoch: 5 Average loss: 2419.7238
+====> Test set loss: 2498.8934
+====> Generation loss: 2496.2247
+Train Epoch: 6 [0/9500 (0%)]	Loss: 2519.738281	GenLoss: 2515.660889
+Train Epoch: 6 [640/9500 (7%)]	Loss: 2294.466309	GenLoss: 2291.975098
+Train Epoch: 6 [1280/9500 (13%)]	Loss: 2417.097412	GenLoss: 2413.775391
+Train Epoch: 6 [1920/9500 (20%)]	Loss: 2409.055908	GenLoss: 2405.134766
+Train Epoch: 6 [2560/9500 (27%)]	Loss: 2414.253662	GenLoss: 2411.156494
+Train Epoch: 6 [3200/9500 (34%)]	Loss: 2366.680664	GenLoss: 2364.185547
+Train Epoch: 6 [3840/9500 (40%)]	Loss: 2496.419678	GenLoss: 2492.851318
+Train Epoch: 6 [4480/9500 (47%)]	Loss: 2490.590576	GenLoss: 2487.843018
+Train Epoch: 6 [5120/9500 (54%)]	Loss: 2413.475098	GenLoss: 2408.910645
+Train Epoch: 6 [5760/9500 (60%)]	Loss: 2350.536621	GenLoss: 2347.376465
+Train Epoch: 6 [6400/9500 (67%)]	Loss: 2360.757812	GenLoss: 2357.857666
+Train Epoch: 6 [7040/9500 (74%)]	Loss: 2363.873047	GenLoss: 2361.011963
+Train Epoch: 6 [7680/9500 (81%)]	Loss: 2430.598633	GenLoss: 2427.503418
+Train Epoch: 6 [8320/9500 (87%)]	Loss: 2516.057373	GenLoss: 2512.528564
+Train Epoch: 6 [8960/9500 (94%)]	Loss: 2367.140381	GenLoss: 2364.145508
+====> Epoch: 6 Average loss: 2415.4143
+====> Test set loss: 2502.4010
+====> Generation loss: 2499.3165
+Train Epoch: 7 [0/9500 (0%)]	Loss: 2389.517090	GenLoss: 2387.187988
+Train Epoch: 7 [640/9500 (7%)]	Loss: 2377.505371	GenLoss: 2373.952637
+Train Epoch: 7 [1280/9500 (13%)]	Loss: 2347.495117	GenLoss: 2342.968994
+Train Epoch: 7 [1920/9500 (20%)]	Loss: 2458.576904	GenLoss: 2455.850342
+Train Epoch: 7 [2560/9500 (27%)]	Loss: 2404.564453	GenLoss: 2401.782471
+Train Epoch: 7 [3200/9500 (34%)]	Loss: 2364.231201	GenLoss: 2361.005859
+Train Epoch: 7 [3840/9500 (40%)]	Loss: 2435.830322	GenLoss: 2432.843506
+Train Epoch: 7 [4480/9500 (47%)]	Loss: 2484.856445	GenLoss: 2481.643555
+Train Epoch: 7 [5120/9500 (54%)]	Loss: 2374.619629	GenLoss: 2371.704346
+Train Epoch: 7 [5760/9500 (60%)]	Loss: 2463.895020	GenLoss: 2460.593262
+Train Epoch: 7 [6400/9500 (67%)]	Loss: 2381.116943	GenLoss: 2377.881592
+Train Epoch: 7 [7040/9500 (74%)]	Loss: 2512.214600	GenLoss: 2508.959717
+Train Epoch: 7 [7680/9500 (81%)]	Loss: 2383.060791	GenLoss: 2380.284424
+Train Epoch: 7 [8320/9500 (87%)]	Loss: 2456.697998	GenLoss: 2454.903809
+Train Epoch: 7 [8960/9500 (94%)]	Loss: 2430.206299	GenLoss: 2427.028320
+====> Epoch: 7 Average loss: 2412.7891
+====> Test set loss: 2505.2033
+====> Generation loss: 2501.1273
+Train Epoch: 8 [0/9500 (0%)]	Loss: 2352.953125	GenLoss: 2349.247559
+Train Epoch: 8 [640/9500 (7%)]	Loss: 2358.242188	GenLoss: 2355.052002
+Train Epoch: 8 [1280/9500 (13%)]	Loss: 2435.275635	GenLoss: 2431.839844
+Train Epoch: 8 [1920/9500 (20%)]	Loss: 2359.002686	GenLoss: 2356.233154
+Train Epoch: 8 [2560/9500 (27%)]	Loss: 2426.874268	GenLoss: 2423.664795
+Train Epoch: 8 [3200/9500 (34%)]	Loss: 2401.357910	GenLoss: 2398.495605
+Train Epoch: 8 [3840/9500 (40%)]	Loss: 2388.699463	GenLoss: 2385.794678
+Train Epoch: 8 [4480/9500 (47%)]	Loss: 2545.387939	GenLoss: 2541.827637
+Train Epoch: 8 [5120/9500 (54%)]	Loss: 2358.260254	GenLoss: 2355.873291
+Train Epoch: 8 [5760/9500 (60%)]	Loss: 2411.399902	GenLoss: 2408.296631
+Train Epoch: 8 [6400/9500 (67%)]	Loss: 2455.052734	GenLoss: 2451.915527
+Train Epoch: 8 [7040/9500 (74%)]	Loss: 2373.410156	GenLoss: 2370.321533
+Train Epoch: 8 [7680/9500 (81%)]	Loss: 2458.491455	GenLoss: 2454.435059
+Train Epoch: 8 [8320/9500 (87%)]	Loss: 2378.408447	GenLoss: 2375.562012
+Train Epoch: 8 [8960/9500 (94%)]	Loss: 2415.396240	GenLoss: 2412.138428
+====> Epoch: 8 Average loss: 2411.1207
+====> Test set loss: 2501.9642
+====> Generation loss: 2497.6125
+Train Epoch: 9 [0/9500 (0%)]	Loss: 2382.573730	GenLoss: 2378.635742
+Train Epoch: 9 [640/9500 (7%)]	Loss: 2484.529053	GenLoss: 2480.246582
+Train Epoch: 9 [1280/9500 (13%)]	Loss: 2454.553711	GenLoss: 2450.001709
+Train Epoch: 9 [1920/9500 (20%)]	Loss: 2351.737305	GenLoss: 2347.791504
+Train Epoch: 9 [2560/9500 (27%)]	Loss: 2323.314453	GenLoss: 2320.865967
+Train Epoch: 9 [3200/9500 (34%)]	Loss: 2359.306885	GenLoss: 2356.247314
+Train Epoch: 9 [3840/9500 (40%)]	Loss: 2476.749756	GenLoss: 2473.430420
+Train Epoch: 9 [4480/9500 (47%)]	Loss: 2418.107422	GenLoss: 2414.507568
+Train Epoch: 9 [5120/9500 (54%)]	Loss: 2357.451416	GenLoss: 2354.157227
+Train Epoch: 9 [5760/9500 (60%)]	Loss: 2469.015869	GenLoss: 2464.870850
+Train Epoch: 9 [6400/9500 (67%)]	Loss: 2364.802002	GenLoss: 2362.046875
+Train Epoch: 9 [7040/9500 (74%)]	Loss: 2516.764404	GenLoss: 2514.058105
+Train Epoch: 9 [7680/9500 (81%)]	Loss: 2376.128418	GenLoss: 2372.347168
+Train Epoch: 9 [8320/9500 (87%)]	Loss: 2438.620117	GenLoss: 2436.245117
+Train Epoch: 9 [8960/9500 (94%)]	Loss: 2543.128174	GenLoss: 2540.297852
+====> Epoch: 9 Average loss: 2407.4845
+====> Test set loss: 2493.8096
+====> Generation loss: 2491.5483
+Train Epoch: 10 [0/9500 (0%)]	Loss: 2509.541260	GenLoss: 2506.725586
+Train Epoch: 10 [640/9500 (7%)]	Loss: 2341.221436	GenLoss: 2337.005127
+Train Epoch: 10 [1280/9500 (13%)]	Loss: 2466.016113	GenLoss: 2463.266357
+Train Epoch: 10 [1920/9500 (20%)]	Loss: 2364.274414	GenLoss: 2360.778320
+Train Epoch: 10 [2560/9500 (27%)]	Loss: 2365.068848	GenLoss: 2361.602051
+Train Epoch: 10 [3200/9500 (34%)]	Loss: 2460.896240	GenLoss: 2457.825439
+Train Epoch: 10 [3840/9500 (40%)]	Loss: 2422.428467	GenLoss: 2419.328125
+Train Epoch: 10 [4480/9500 (47%)]	Loss: 2383.972656	GenLoss: 2379.744873
+Train Epoch: 10 [5120/9500 (54%)]	Loss: 2345.353027	GenLoss: 2342.101318
+Train Epoch: 10 [5760/9500 (60%)]	Loss: 2422.115723	GenLoss: 2419.005615
+Train Epoch: 10 [6400/9500 (67%)]	Loss: 2414.113037	GenLoss: 2411.741211
+Train Epoch: 10 [7040/9500 (74%)]	Loss: 2367.929932	GenLoss: 2365.057373
+Train Epoch: 10 [7680/9500 (81%)]	Loss: 2511.488770	GenLoss: 2508.526611
+Train Epoch: 10 [8320/9500 (87%)]	Loss: 2391.772705	GenLoss: 2389.084961
+Train Epoch: 10 [8960/9500 (94%)]	Loss: 2326.024414	GenLoss: 2323.815918
+====> Epoch: 10 Average loss: 2404.4939
+====> Test set loss: 2511.6606
+====> Generation loss: 2507.7726
+Train Epoch: 11 [0/9500 (0%)]	Loss: 2381.227783	GenLoss: 2377.479980
+Train Epoch: 11 [640/9500 (7%)]	Loss: 2426.638428	GenLoss: 2423.214600
+Train Epoch: 11 [1280/9500 (13%)]	Loss: 2527.457031	GenLoss: 2524.157227
+Train Epoch: 11 [1920/9500 (20%)]	Loss: 2377.801025	GenLoss: 2375.169922
+Train Epoch: 11 [2560/9500 (27%)]	Loss: 2320.931641	GenLoss: 2317.528564
+Train Epoch: 11 [3200/9500 (34%)]	Loss: 2396.913818	GenLoss: 2394.093750
+Train Epoch: 11 [3840/9500 (40%)]	Loss: 2394.094727	GenLoss: 2391.104004
+Train Epoch: 11 [4480/9500 (47%)]	Loss: 2347.226074	GenLoss: 2344.319336
+Train Epoch: 11 [5120/9500 (54%)]	Loss: 2402.359619	GenLoss: 2398.799805
+Train Epoch: 11 [5760/9500 (60%)]	Loss: 2398.354980	GenLoss: 2396.006592
+Train Epoch: 11 [6400/9500 (67%)]	Loss: 2468.174561	GenLoss: 2464.276855
+Train Epoch: 11 [7040/9500 (74%)]	Loss: 2384.296387	GenLoss: 2381.129883
+Train Epoch: 11 [7680/9500 (81%)]	Loss: 2352.980225	GenLoss: 2350.452148
+Train Epoch: 11 [8320/9500 (87%)]	Loss: 2397.944092	GenLoss: 2395.711182
+Train Epoch: 11 [8960/9500 (94%)]	Loss: 2401.989014	GenLoss: 2400.552246
+====> Epoch: 11 Average loss: 2403.5129
+====> Test set loss: 2505.8319
+====> Generation loss: 2502.7292
+Train Epoch: 12 [0/9500 (0%)]	Loss: 2507.222168	GenLoss: 2505.077393
+Train Epoch: 12 [640/9500 (7%)]	Loss: 2387.089111	GenLoss: 2384.208496
+Train Epoch: 12 [1280/9500 (13%)]	Loss: 2414.373779	GenLoss: 2411.058594
+Train Epoch: 12 [1920/9500 (20%)]	Loss: 2496.056396	GenLoss: 2492.758301
+Train Epoch: 12 [2560/9500 (27%)]	Loss: 2332.029785	GenLoss: 2328.879395
+Train Epoch: 12 [3200/9500 (34%)]	Loss: 2417.098145	GenLoss: 2414.843506
+Train Epoch: 12 [3840/9500 (40%)]	Loss: 2394.793945	GenLoss: 2391.747559
+Train Epoch: 12 [4480/9500 (47%)]	Loss: 2446.424072	GenLoss: 2443.723389
+Train Epoch: 12 [5120/9500 (54%)]	Loss: 2470.479004	GenLoss: 2467.676758
+Train Epoch: 12 [5760/9500 (60%)]	Loss: 2405.158936	GenLoss: 2402.605957
+Train Epoch: 12 [6400/9500 (67%)]	Loss: 2546.343994	GenLoss: 2543.972168
+Train Epoch: 12 [7040/9500 (74%)]	Loss: 2256.162842	GenLoss: 2253.294434
+Train Epoch: 12 [7680/9500 (81%)]	Loss: 2371.798828	GenLoss: 2369.249023
+Train Epoch: 12 [8320/9500 (87%)]	Loss: 2387.213135	GenLoss: 2384.137939
+Train Epoch: 12 [8960/9500 (94%)]	Loss: 2370.553711	GenLoss: 2367.331299
+====> Epoch: 12 Average loss: 2402.1916
+====> Test set loss: 2487.2399
+====> Generation loss: 2484.7394
+Train Epoch: 13 [0/9500 (0%)]	Loss: 2375.241943	GenLoss: 2372.267822
+Train Epoch: 13 [640/9500 (7%)]	Loss: 2392.410156	GenLoss: 2388.681641
+Train Epoch: 13 [1280/9500 (13%)]	Loss: 2349.479004	GenLoss: 2346.101074
+Train Epoch: 13 [1920/9500 (20%)]	Loss: 2422.809570	GenLoss: 2420.505859
+Train Epoch: 13 [2560/9500 (27%)]	Loss: 2550.535400	GenLoss: 2546.639893
+Train Epoch: 13 [3200/9500 (34%)]	Loss: 2383.665527	GenLoss: 2381.505127
+Train Epoch: 13 [3840/9500 (40%)]	Loss: 2449.291504	GenLoss: 2445.268799
+Train Epoch: 13 [4480/9500 (47%)]	Loss: 2398.534912	GenLoss: 2394.750488
+Train Epoch: 13 [5120/9500 (54%)]	Loss: 2337.096680	GenLoss: 2334.847656
+Train Epoch: 13 [5760/9500 (60%)]	Loss: 2375.339111	GenLoss: 2372.962891
+Train Epoch: 13 [6400/9500 (67%)]	Loss: 2377.883301	GenLoss: 2373.086182
+Train Epoch: 13 [7040/9500 (74%)]	Loss: 2388.680420	GenLoss: 2386.191650
+Train Epoch: 13 [7680/9500 (81%)]	Loss: 2367.516846	GenLoss: 2364.339600
+Train Epoch: 13 [8320/9500 (87%)]	Loss: 2446.524170	GenLoss: 2444.467529
+Train Epoch: 13 [8960/9500 (94%)]	Loss: 2443.154053	GenLoss: 2440.137207
+====> Epoch: 13 Average loss: 2400.6168
+====> Test set loss: 2502.7016
+====> Generation loss: 2500.4971
+Train Epoch: 14 [0/9500 (0%)]	Loss: 2234.569824	GenLoss: 2232.203125
+Train Epoch: 14 [640/9500 (7%)]	Loss: 2374.759766	GenLoss: 2371.605713
+Train Epoch: 14 [1280/9500 (13%)]	Loss: 2451.179688	GenLoss: 2448.639404
+Train Epoch: 14 [1920/9500 (20%)]	Loss: 2491.903564	GenLoss: 2488.032715
+Train Epoch: 14 [2560/9500 (27%)]	Loss: 2423.223633	GenLoss: 2420.893311
+Train Epoch: 14 [3200/9500 (34%)]	Loss: 2392.385742	GenLoss: 2390.317139
+Train Epoch: 14 [3840/9500 (40%)]	Loss: 2440.450439	GenLoss: 2438.060303
+Train Epoch: 14 [4480/9500 (47%)]	Loss: 2448.312012	GenLoss: 2444.671631
+Train Epoch: 14 [5120/9500 (54%)]	Loss: 2325.654541	GenLoss: 2321.612549
+Train Epoch: 14 [5760/9500 (60%)]	Loss: 2422.696289	GenLoss: 2419.477539
+Train Epoch: 14 [6400/9500 (67%)]	Loss: 2401.173584	GenLoss: 2398.859863
+Train Epoch: 14 [7040/9500 (74%)]	Loss: 2432.511475	GenLoss: 2429.602051
+Train Epoch: 14 [7680/9500 (81%)]	Loss: 2365.935547	GenLoss: 2363.465088
+Train Epoch: 14 [8320/9500 (87%)]	Loss: 2446.736816	GenLoss: 2443.377197
+Train Epoch: 14 [8960/9500 (94%)]	Loss: 2397.573242	GenLoss: 2394.725830
+====> Epoch: 14 Average loss: 2395.9294
+====> Test set loss: 2516.1603
+====> Generation loss: 2512.5511
+Train Epoch: 15 [0/9500 (0%)]	Loss: 2497.004150	GenLoss: 2493.653564
+Train Epoch: 15 [640/9500 (7%)]	Loss: 2366.159912	GenLoss: 2363.902344
+Train Epoch: 15 [1280/9500 (13%)]	Loss: 2472.177246	GenLoss: 2469.597900
+Train Epoch: 15 [1920/9500 (20%)]	Loss: 2367.610840	GenLoss: 2364.141602
+Train Epoch: 15 [2560/9500 (27%)]	Loss: 2382.092529	GenLoss: 2378.357422
+Train Epoch: 15 [3200/9500 (34%)]	Loss: 2391.620361	GenLoss: 2389.000488
+Train Epoch: 15 [3840/9500 (40%)]	Loss: 2287.925781	GenLoss: 2283.460205
+Train Epoch: 15 [4480/9500 (47%)]	Loss: 2519.829590	GenLoss: 2517.018066
+Train Epoch: 15 [5120/9500 (54%)]	Loss: 2316.519775	GenLoss: 2313.716064
+Train Epoch: 15 [5760/9500 (60%)]	Loss: 2384.886719	GenLoss: 2381.211670
+Train Epoch: 15 [6400/9500 (67%)]	Loss: 2363.799805	GenLoss: 2360.883545
+Train Epoch: 15 [7040/9500 (74%)]	Loss: 2364.628174	GenLoss: 2361.266113
+Train Epoch: 15 [7680/9500 (81%)]	Loss: 2555.263672	GenLoss: 2553.110107
+Train Epoch: 15 [8320/9500 (87%)]	Loss: 2381.244873	GenLoss: 2377.568604
+Train Epoch: 15 [8960/9500 (94%)]	Loss: 2384.676758	GenLoss: 2381.088623
+====> Epoch: 15 Average loss: 2391.1607
+====> Test set loss: 2494.8484
+====> Generation loss: 2491.7961
+Train Epoch: 16 [0/9500 (0%)]	Loss: 2362.840820	GenLoss: 2358.819580
+Train Epoch: 16 [640/9500 (7%)]	Loss: 2384.188232	GenLoss: 2380.984619
+Train Epoch: 16 [1280/9500 (13%)]	Loss: 2415.619873	GenLoss: 2413.361816
+Train Epoch: 16 [1920/9500 (20%)]	Loss: 2377.298584	GenLoss: 2374.975830
+Train Epoch: 16 [2560/9500 (27%)]	Loss: 2498.081543	GenLoss: 2492.257324
+Train Epoch: 16 [3200/9500 (34%)]	Loss: 2295.812500	GenLoss: 2292.605225
+Train Epoch: 16 [3840/9500 (40%)]	Loss: 2301.933594	GenLoss: 2299.042725
+Train Epoch: 16 [4480/9500 (47%)]	Loss: 2394.401367	GenLoss: 2391.476318
+Train Epoch: 16 [5120/9500 (54%)]	Loss: 2417.480713	GenLoss: 2414.631348
+Train Epoch: 16 [5760/9500 (60%)]	Loss: 2361.883545	GenLoss: 2359.049561
+Train Epoch: 16 [6400/9500 (67%)]	Loss: 2378.373535	GenLoss: 2375.431396
+Train Epoch: 16 [7040/9500 (74%)]	Loss: 2334.179199	GenLoss: 2331.834473
+Train Epoch: 16 [7680/9500 (81%)]	Loss: 2467.405273	GenLoss: 2464.207764
+Train Epoch: 16 [8320/9500 (87%)]	Loss: 2505.052490	GenLoss: 2500.415039
+Train Epoch: 16 [8960/9500 (94%)]	Loss: 2307.085205	GenLoss: 2304.807617
+====> Epoch: 16 Average loss: 2393.6352
+====> Test set loss: 2490.4803
+====> Generation loss: 2487.9503
+Train Epoch: 17 [0/9500 (0%)]	Loss: 2331.221680	GenLoss: 2327.484863
+Train Epoch: 17 [640/9500 (7%)]	Loss: 2479.400635	GenLoss: 2475.365723
+Train Epoch: 17 [1280/9500 (13%)]	Loss: 2449.316406	GenLoss: 2445.547363
+Train Epoch: 17 [1920/9500 (20%)]	Loss: 2329.925781	GenLoss: 2327.322266
+Train Epoch: 17 [2560/9500 (27%)]	Loss: 2365.012695	GenLoss: 2361.771973
+Train Epoch: 17 [3200/9500 (34%)]	Loss: 2348.506104	GenLoss: 2345.926758
+Train Epoch: 17 [3840/9500 (40%)]	Loss: 2257.817139	GenLoss: 2254.460938
+Train Epoch: 17 [4480/9500 (47%)]	Loss: 2325.065674	GenLoss: 2321.878662
+Train Epoch: 17 [5120/9500 (54%)]	Loss: 2365.143799	GenLoss: 2362.814941
+Train Epoch: 17 [5760/9500 (60%)]	Loss: 2468.852295	GenLoss: 2466.310791
+Train Epoch: 17 [6400/9500 (67%)]	Loss: 2501.740234	GenLoss: 2498.786133
+Train Epoch: 17 [7040/9500 (74%)]	Loss: 2346.638672	GenLoss: 2343.864258
+Train Epoch: 17 [7680/9500 (81%)]	Loss: 2507.254639	GenLoss: 2503.843018
+Train Epoch: 17 [8320/9500 (87%)]	Loss: 2422.561768	GenLoss: 2419.433594
+Train Epoch: 17 [8960/9500 (94%)]	Loss: 2396.431396	GenLoss: 2392.979980
+====> Epoch: 17 Average loss: 2386.8564
+====> Test set loss: 2493.6924
+====> Generation loss: 2490.6362
+Train Epoch: 18 [0/9500 (0%)]	Loss: 2458.499756	GenLoss: 2456.041260
+Train Epoch: 18 [640/9500 (7%)]	Loss: 2310.380615	GenLoss: 2307.573975
+Train Epoch: 18 [1280/9500 (13%)]	Loss: 2324.705078	GenLoss: 2320.804443
+Train Epoch: 18 [1920/9500 (20%)]	Loss: 2343.995850	GenLoss: 2340.763672
+Train Epoch: 18 [2560/9500 (27%)]	Loss: 2356.864502	GenLoss: 2353.686035
+Train Epoch: 18 [3200/9500 (34%)]	Loss: 2485.393066	GenLoss: 2482.052490
+Train Epoch: 18 [3840/9500 (40%)]	Loss: 2345.711182	GenLoss: 2343.217773
+Train Epoch: 18 [4480/9500 (47%)]	Loss: 2402.814697	GenLoss: 2400.301025
+Train Epoch: 18 [5120/9500 (54%)]	Loss: 2420.625977	GenLoss: 2417.628906
+Train Epoch: 18 [5760/9500 (60%)]	Loss: 2371.763916	GenLoss: 2368.824463
+Train Epoch: 18 [6400/9500 (67%)]	Loss: 2399.498779	GenLoss: 2396.510742
+Train Epoch: 18 [7040/9500 (74%)]	Loss: 2336.521240	GenLoss: 2333.244873
+Train Epoch: 18 [7680/9500 (81%)]	Loss: 2465.718994	GenLoss: 2462.733154
+Train Epoch: 18 [8320/9500 (87%)]	Loss: 2304.424561	GenLoss: 2300.747070
+Train Epoch: 18 [8960/9500 (94%)]	Loss: 2354.976807	GenLoss: 2351.939209
+====> Epoch: 18 Average loss: 2389.5666
+====> Test set loss: 2488.4594
+====> Generation loss: 2485.6949
+Train Epoch: 19 [0/9500 (0%)]	Loss: 2443.947754	GenLoss: 2441.069580
+Train Epoch: 19 [640/9500 (7%)]	Loss: 2330.565430	GenLoss: 2328.140625
+Train Epoch: 19 [1280/9500 (13%)]	Loss: 2417.632568	GenLoss: 2413.987793
+Train Epoch: 19 [1920/9500 (20%)]	Loss: 2446.171143	GenLoss: 2443.628906
+Train Epoch: 19 [2560/9500 (27%)]	Loss: 2338.876709	GenLoss: 2336.386963
+Train Epoch: 19 [3200/9500 (34%)]	Loss: 2406.574219	GenLoss: 2403.806885
+Train Epoch: 19 [3840/9500 (40%)]	Loss: 2352.983887	GenLoss: 2350.007812
+Train Epoch: 19 [4480/9500 (47%)]	Loss: 2383.544434	GenLoss: 2381.280762
+Train Epoch: 19 [5120/9500 (54%)]	Loss: 2409.405518	GenLoss: 2406.893555
+Train Epoch: 19 [5760/9500 (60%)]	Loss: 2530.059814	GenLoss: 2527.868164
+Train Epoch: 19 [6400/9500 (67%)]	Loss: 2367.932617	GenLoss: 2365.721680
+Train Epoch: 19 [7040/9500 (74%)]	Loss: 2382.361084	GenLoss: 2379.266113
+Train Epoch: 19 [7680/9500 (81%)]	Loss: 2247.920166	GenLoss: 2245.670898
+Train Epoch: 19 [8320/9500 (87%)]	Loss: 2417.113525	GenLoss: 2414.778076
+Train Epoch: 19 [8960/9500 (94%)]	Loss: 2401.653320	GenLoss: 2398.640137
+====> Epoch: 19 Average loss: 2385.5621
+====> Test set loss: 2487.0700
+====> Generation loss: 2484.9315
+Train Epoch: 20 [0/9500 (0%)]	Loss: 2367.058838	GenLoss: 2363.822021
+Train Epoch: 20 [640/9500 (7%)]	Loss: 2375.810059	GenLoss: 2373.272949
+Train Epoch: 20 [1280/9500 (13%)]	Loss: 2319.009033	GenLoss: 2315.011719
+Train Epoch: 20 [1920/9500 (20%)]	Loss: 2487.515381	GenLoss: 2483.926025
+Train Epoch: 20 [2560/9500 (27%)]	Loss: 2356.849609	GenLoss: 2352.950684
+Train Epoch: 20 [3200/9500 (34%)]	Loss: 2352.215088	GenLoss: 2349.243408
+Train Epoch: 20 [3840/9500 (40%)]	Loss: 2388.934326	GenLoss: 2385.713867
+Train Epoch: 20 [4480/9500 (47%)]	Loss: 2347.594971	GenLoss: 2345.490479
+Train Epoch: 20 [5120/9500 (54%)]	Loss: 2463.856934	GenLoss: 2461.095215
+Train Epoch: 20 [5760/9500 (60%)]	Loss: 2300.553223	GenLoss: 2297.641602
+Train Epoch: 20 [6400/9500 (67%)]	Loss: 2440.616943	GenLoss: 2437.180908
+Train Epoch: 20 [7040/9500 (74%)]	Loss: 2260.552002	GenLoss: 2257.091064
+Train Epoch: 20 [7680/9500 (81%)]	Loss: 2400.904541	GenLoss: 2397.594238
+Train Epoch: 20 [8320/9500 (87%)]	Loss: 2370.742432	GenLoss: 2368.110107
+Train Epoch: 20 [8960/9500 (94%)]	Loss: 2453.828125	GenLoss: 2450.138184
+====> Epoch: 20 Average loss: 2384.5831
+====> Test set loss: 2498.7150
+====> Generation loss: 2495.4293
+Train Epoch: 21 [0/9500 (0%)]	Loss: 2378.866943	GenLoss: 2376.387695
+Train Epoch: 21 [640/9500 (7%)]	Loss: 2520.577148	GenLoss: 2518.079590
+Train Epoch: 21 [1280/9500 (13%)]	Loss: 2423.920898	GenLoss: 2421.789795
+Train Epoch: 21 [1920/9500 (20%)]	Loss: 2370.203857	GenLoss: 2367.736084
+Train Epoch: 21 [2560/9500 (27%)]	Loss: 2392.331543	GenLoss: 2389.324219
+Train Epoch: 21 [3200/9500 (34%)]	Loss: 2386.626953	GenLoss: 2384.868164
+Train Epoch: 21 [3840/9500 (40%)]	Loss: 2394.269043	GenLoss: 2390.829590
+Train Epoch: 21 [4480/9500 (47%)]	Loss: 2436.862305	GenLoss: 2434.073486
+Train Epoch: 21 [5120/9500 (54%)]	Loss: 2354.115723	GenLoss: 2351.189453
+Train Epoch: 21 [5760/9500 (60%)]	Loss: 2311.707275	GenLoss: 2307.385254
+Train Epoch: 21 [6400/9500 (67%)]	Loss: 2498.317383	GenLoss: 2495.621582
+Train Epoch: 21 [7040/9500 (74%)]	Loss: 2335.092529	GenLoss: 2332.560059
+Train Epoch: 21 [7680/9500 (81%)]	Loss: 2329.468018	GenLoss: 2327.197021
+Train Epoch: 21 [8320/9500 (87%)]	Loss: 2434.149414	GenLoss: 2431.610107
+Train Epoch: 21 [8960/9500 (94%)]	Loss: 2280.545166	GenLoss: 2277.086182
+====> Epoch: 21 Average loss: 2385.5859
+====> Test set loss: 2498.4862
+====> Generation loss: 2495.4077
+Train Epoch: 22 [0/9500 (0%)]	Loss: 2443.329590	GenLoss: 2440.079102
+Train Epoch: 22 [640/9500 (7%)]	Loss: 2365.147217	GenLoss: 2361.824219
+Train Epoch: 22 [1280/9500 (13%)]	Loss: 2324.373535	GenLoss: 2322.084961
+Train Epoch: 22 [1920/9500 (20%)]	Loss: 2579.149170	GenLoss: 2576.853760
+Train Epoch: 22 [2560/9500 (27%)]	Loss: 2367.167480	GenLoss: 2365.079346
+Train Epoch: 22 [3200/9500 (34%)]	Loss: 2336.610107	GenLoss: 2334.541748
+Train Epoch: 22 [3840/9500 (40%)]	Loss: 2336.849854	GenLoss: 2334.322754
+Train Epoch: 22 [4480/9500 (47%)]	Loss: 2376.270752	GenLoss: 2372.827148
+Train Epoch: 22 [5120/9500 (54%)]	Loss: 2455.500488	GenLoss: 2452.328369
+Train Epoch: 22 [5760/9500 (60%)]	Loss: 2476.551514	GenLoss: 2473.175537
+Train Epoch: 22 [6400/9500 (67%)]	Loss: 2293.619629	GenLoss: 2290.439209
+Train Epoch: 22 [7040/9500 (74%)]	Loss: 2331.217529	GenLoss: 2327.930420
+Train Epoch: 22 [7680/9500 (81%)]	Loss: 2345.737305	GenLoss: 2343.410156
+Train Epoch: 22 [8320/9500 (87%)]	Loss: 2303.932373	GenLoss: 2301.210938
+Train Epoch: 22 [8960/9500 (94%)]	Loss: 2461.412598	GenLoss: 2457.800781
+====> Epoch: 22 Average loss: 2378.6192
+====> Test set loss: 2489.8024
+====> Generation loss: 2486.5341
+Train Epoch: 23 [0/9500 (0%)]	Loss: 2314.122314	GenLoss: 2311.261475
+Train Epoch: 23 [640/9500 (7%)]	Loss: 2487.406738	GenLoss: 2484.410645
+Train Epoch: 23 [1280/9500 (13%)]	Loss: 2377.399170	GenLoss: 2375.092773
+Train Epoch: 23 [1920/9500 (20%)]	Loss: 2402.410889	GenLoss: 2398.869629
+Train Epoch: 23 [2560/9500 (27%)]	Loss: 2327.360596	GenLoss: 2324.514893
+Train Epoch: 23 [3200/9500 (34%)]	Loss: 2458.337402	GenLoss: 2454.894531
+Train Epoch: 23 [3840/9500 (40%)]	Loss: 2263.371094	GenLoss: 2260.938477
+Train Epoch: 23 [4480/9500 (47%)]	Loss: 2290.213135	GenLoss: 2287.681885
+Train Epoch: 23 [5120/9500 (54%)]	Loss: 2273.866943	GenLoss: 2271.240234
+Train Epoch: 23 [5760/9500 (60%)]	Loss: 2317.750000	GenLoss: 2315.818115
+Train Epoch: 23 [6400/9500 (67%)]	Loss: 2347.850830	GenLoss: 2345.512451
+Train Epoch: 23 [7040/9500 (74%)]	Loss: 2461.788086	GenLoss: 2458.660645
+Train Epoch: 23 [7680/9500 (81%)]	Loss: 2436.777344	GenLoss: 2434.392090
+Train Epoch: 23 [8320/9500 (87%)]	Loss: 2320.406250	GenLoss: 2317.456787
+Train Epoch: 23 [8960/9500 (94%)]	Loss: 2365.276611	GenLoss: 2363.133545
+====> Epoch: 23 Average loss: 2374.6139
+====> Test set loss: 2483.5418
+====> Generation loss: 2479.9023
+Train Epoch: 24 [0/9500 (0%)]	Loss: 2341.310303	GenLoss: 2338.861572
+Train Epoch: 24 [640/9500 (7%)]	Loss: 2300.042480	GenLoss: 2296.956299
+Train Epoch: 24 [1280/9500 (13%)]	Loss: 2402.935303	GenLoss: 2399.339355
+Train Epoch: 24 [1920/9500 (20%)]	Loss: 2365.344238	GenLoss: 2363.462158
+Train Epoch: 24 [2560/9500 (27%)]	Loss: 2331.845215	GenLoss: 2328.618652
+Train Epoch: 24 [3200/9500 (34%)]	Loss: 2419.787354	GenLoss: 2417.387695
+Train Epoch: 24 [3840/9500 (40%)]	Loss: 2380.273682	GenLoss: 2378.464111
+Train Epoch: 24 [4480/9500 (47%)]	Loss: 2391.817383	GenLoss: 2389.003174
+Train Epoch: 24 [5120/9500 (54%)]	Loss: 2424.460205	GenLoss: 2422.055664
+Train Epoch: 24 [5760/9500 (60%)]	Loss: 2349.117188	GenLoss: 2346.400879
+Train Epoch: 24 [6400/9500 (67%)]	Loss: 2400.547119	GenLoss: 2397.903076
+Train Epoch: 24 [7040/9500 (74%)]	Loss: 2395.909424	GenLoss: 2393.047119
+Train Epoch: 24 [7680/9500 (81%)]	Loss: 2418.547363	GenLoss: 2416.453125
+Train Epoch: 24 [8320/9500 (87%)]	Loss: 2446.597900	GenLoss: 2443.686035
+Train Epoch: 24 [8960/9500 (94%)]	Loss: 2345.486816	GenLoss: 2342.794922
+====> Epoch: 24 Average loss: 2374.1922
+====> Test set loss: 2495.2154
+====> Generation loss: 2492.7231
+Train Epoch: 25 [0/9500 (0%)]	Loss: 2399.668701	GenLoss: 2395.710449
+Train Epoch: 25 [640/9500 (7%)]	Loss: 2406.581299	GenLoss: 2403.814209
+Train Epoch: 25 [1280/9500 (13%)]	Loss: 2313.816162	GenLoss: 2311.418213
+Train Epoch: 25 [1920/9500 (20%)]	Loss: 2354.941162	GenLoss: 2352.080566
+Train Epoch: 25 [2560/9500 (27%)]	Loss: 2380.600830	GenLoss: 2378.779297
+Train Epoch: 25 [3200/9500 (34%)]	Loss: 2319.284180	GenLoss: 2316.268066
+Train Epoch: 25 [3840/9500 (40%)]	Loss: 2449.912354	GenLoss: 2447.068604
+Train Epoch: 25 [4480/9500 (47%)]	Loss: 2437.332031	GenLoss: 2433.283936
+Train Epoch: 25 [5120/9500 (54%)]	Loss: 2310.846924	GenLoss: 2307.285889
+Train Epoch: 25 [5760/9500 (60%)]	Loss: 2328.690430	GenLoss: 2326.278564
+Train Epoch: 25 [6400/9500 (67%)]	Loss: 2272.767822	GenLoss: 2270.694092
+Train Epoch: 25 [7040/9500 (74%)]	Loss: 2380.135986	GenLoss: 2377.586426
+Train Epoch: 25 [7680/9500 (81%)]	Loss: 2384.193359	GenLoss: 2381.817627
+Train Epoch: 25 [8320/9500 (87%)]	Loss: 2332.299805	GenLoss: 2329.716553
+Train Epoch: 25 [8960/9500 (94%)]	Loss: 2441.611816	GenLoss: 2439.255615
+====> Epoch: 25 Average loss: 2370.6086
+====> Test set loss: 2486.9707
+====> Generation loss: 2484.6162
+Train Epoch: 26 [0/9500 (0%)]	Loss: 2353.826172	GenLoss: 2350.985352
+Train Epoch: 26 [640/9500 (7%)]	Loss: 2455.327881	GenLoss: 2453.116211
+Train Epoch: 26 [1280/9500 (13%)]	Loss: 2358.809082	GenLoss: 2356.489746
+Train Epoch: 26 [1920/9500 (20%)]	Loss: 2367.657715	GenLoss: 2365.378174
+Train Epoch: 26 [2560/9500 (27%)]	Loss: 2315.045654	GenLoss: 2313.363525
+Train Epoch: 26 [3200/9500 (34%)]	Loss: 2456.829834	GenLoss: 2452.650146
+Train Epoch: 26 [3840/9500 (40%)]	Loss: 2447.157715	GenLoss: 2442.717285
+Train Epoch: 26 [4480/9500 (47%)]	Loss: 2299.707031	GenLoss: 2295.592529
+Train Epoch: 26 [5120/9500 (54%)]	Loss: 2253.061279	GenLoss: 2250.765137
+Train Epoch: 26 [5760/9500 (60%)]	Loss: 2249.755615	GenLoss: 2247.348145
+Train Epoch: 26 [6400/9500 (67%)]	Loss: 2386.332031	GenLoss: 2383.815430
+Train Epoch: 26 [7040/9500 (74%)]	Loss: 2368.112061	GenLoss: 2364.823242
+Train Epoch: 26 [7680/9500 (81%)]	Loss: 2423.844482	GenLoss: 2421.633545
+Train Epoch: 26 [8320/9500 (87%)]	Loss: 2327.975830	GenLoss: 2325.369385
+Train Epoch: 26 [8960/9500 (94%)]	Loss: 2398.588867	GenLoss: 2396.587646
+====> Epoch: 26 Average loss: 2371.6641
+====> Test set loss: 2504.8693
+====> Generation loss: 2502.8270
+Train Epoch: 27 [0/9500 (0%)]	Loss: 2413.377686	GenLoss: 2411.797119
+Train Epoch: 27 [640/9500 (7%)]	Loss: 2359.799072	GenLoss: 2357.481934
+Train Epoch: 27 [1280/9500 (13%)]	Loss: 2395.139160	GenLoss: 2392.376953
+Train Epoch: 27 [1920/9500 (20%)]	Loss: 2481.095947	GenLoss: 2478.587402
+Train Epoch: 27 [2560/9500 (27%)]	Loss: 2488.628662	GenLoss: 2485.599365
+Train Epoch: 27 [3200/9500 (34%)]	Loss: 2403.146484	GenLoss: 2400.710205
+Train Epoch: 27 [3840/9500 (40%)]	Loss: 2329.052979	GenLoss: 2326.372070
+Train Epoch: 27 [4480/9500 (47%)]	Loss: 2348.154785	GenLoss: 2344.822266
+Train Epoch: 27 [5120/9500 (54%)]	Loss: 2533.491211	GenLoss: 2530.778809
+Train Epoch: 27 [5760/9500 (60%)]	Loss: 2362.890869	GenLoss: 2360.394775
+Train Epoch: 27 [6400/9500 (67%)]	Loss: 2417.759033	GenLoss: 2415.191895
+Train Epoch: 27 [7040/9500 (74%)]	Loss: 2438.562012	GenLoss: 2436.033203
+Train Epoch: 27 [7680/9500 (81%)]	Loss: 2336.702637	GenLoss: 2334.368408
+Train Epoch: 27 [8320/9500 (87%)]	Loss: 2281.348389	GenLoss: 2278.382812
+Train Epoch: 27 [8960/9500 (94%)]	Loss: 2365.049316	GenLoss: 2362.968018
+====> Epoch: 27 Average loss: 2370.4293
+====> Test set loss: 2485.6391
+====> Generation loss: 2482.7941
+Train Epoch: 28 [0/9500 (0%)]	Loss: 2269.164795	GenLoss: 2266.170166
+Train Epoch: 28 [640/9500 (7%)]	Loss: 2255.812012	GenLoss: 2252.752197
+Train Epoch: 28 [1280/9500 (13%)]	Loss: 2411.678955	GenLoss: 2408.525146
+Train Epoch: 28 [1920/9500 (20%)]	Loss: 2426.557129	GenLoss: 2424.081299
+Train Epoch: 28 [2560/9500 (27%)]	Loss: 2434.771973	GenLoss: 2429.664062
+Train Epoch: 28 [3200/9500 (34%)]	Loss: 2381.364258	GenLoss: 2378.285645
+Train Epoch: 28 [3840/9500 (40%)]	Loss: 2521.014648	GenLoss: 2517.941895
+Train Epoch: 28 [4480/9500 (47%)]	Loss: 2311.378418	GenLoss: 2309.069580
+Train Epoch: 28 [5120/9500 (54%)]	Loss: 2497.206299	GenLoss: 2494.147949
+Train Epoch: 28 [5760/9500 (60%)]	Loss: 2239.710938	GenLoss: 2236.336182
+Train Epoch: 28 [6400/9500 (67%)]	Loss: 2317.204590	GenLoss: 2314.396240
+Train Epoch: 28 [7040/9500 (74%)]	Loss: 2226.272217	GenLoss: 2223.061523
+Train Epoch: 28 [7680/9500 (81%)]	Loss: 2362.621338	GenLoss: 2359.765625
+Train Epoch: 28 [8320/9500 (87%)]	Loss: 2381.481689	GenLoss: 2379.683594
+Train Epoch: 28 [8960/9500 (94%)]	Loss: 2276.585938	GenLoss: 2274.153809
+====> Epoch: 28 Average loss: 2366.7054
+====> Test set loss: 2483.9073
+====> Generation loss: 2481.0176
+Train Epoch: 29 [0/9500 (0%)]	Loss: 2440.332520	GenLoss: 2438.098145
+Train Epoch: 29 [640/9500 (7%)]	Loss: 2354.246826	GenLoss: 2351.982422
+Train Epoch: 29 [1280/9500 (13%)]	Loss: 2304.170654	GenLoss: 2302.047119
+Train Epoch: 29 [1920/9500 (20%)]	Loss: 2209.819580	GenLoss: 2207.158691
+Train Epoch: 29 [2560/9500 (27%)]	Loss: 2405.419189	GenLoss: 2403.688965
+Train Epoch: 29 [3200/9500 (34%)]	Loss: 2310.760986	GenLoss: 2306.530273
+Train Epoch: 29 [3840/9500 (40%)]	Loss: 2442.190186	GenLoss: 2438.170166
+Train Epoch: 29 [4480/9500 (47%)]	Loss: 2339.788574	GenLoss: 2337.067871
+Train Epoch: 29 [5120/9500 (54%)]	Loss: 2321.448730	GenLoss: 2319.450439
+Train Epoch: 29 [5760/9500 (60%)]	Loss: 2330.275879	GenLoss: 2327.744385
+Train Epoch: 29 [6400/9500 (67%)]	Loss: 2437.510010	GenLoss: 2434.168945
+Train Epoch: 29 [7040/9500 (74%)]	Loss: 2367.717041	GenLoss: 2365.353027
+Train Epoch: 29 [7680/9500 (81%)]	Loss: 2568.400391	GenLoss: 2566.046631
+Train Epoch: 29 [8320/9500 (87%)]	Loss: 2341.085449	GenLoss: 2339.167480
+Train Epoch: 29 [8960/9500 (94%)]	Loss: 2439.021973	GenLoss: 2436.473389
+====> Epoch: 29 Average loss: 2362.6687
+====> Test set loss: 2496.9025
+====> Generation loss: 2494.5033
+Train Epoch: 30 [0/9500 (0%)]	Loss: 2361.882324	GenLoss: 2358.878662
+Train Epoch: 30 [640/9500 (7%)]	Loss: 2288.281494	GenLoss: 2285.693604
+Train Epoch: 30 [1280/9500 (13%)]	Loss: 2282.098633	GenLoss: 2279.526367
+Train Epoch: 30 [1920/9500 (20%)]	Loss: 2409.376709	GenLoss: 2406.769043
+Train Epoch: 30 [2560/9500 (27%)]	Loss: 2293.766846	GenLoss: 2290.848389
+Train Epoch: 30 [3200/9500 (34%)]	Loss: 2358.902344	GenLoss: 2355.298584
+Train Epoch: 30 [3840/9500 (40%)]	Loss: 2412.837646	GenLoss: 2410.867432
+Train Epoch: 30 [4480/9500 (47%)]	Loss: 2495.974121	GenLoss: 2493.724121
+Train Epoch: 30 [5120/9500 (54%)]	Loss: 2461.468262	GenLoss: 2459.365723
+Train Epoch: 30 [5760/9500 (60%)]	Loss: 2385.188965	GenLoss: 2383.354492
+Train Epoch: 30 [6400/9500 (67%)]	Loss: 2345.091553	GenLoss: 2342.465820
+Train Epoch: 30 [7040/9500 (74%)]	Loss: 2414.836914	GenLoss: 2412.357178
+Train Epoch: 30 [7680/9500 (81%)]	Loss: 2416.897705	GenLoss: 2414.767578
+Train Epoch: 30 [8320/9500 (87%)]	Loss: 2412.667725	GenLoss: 2410.239990
+Train Epoch: 30 [8960/9500 (94%)]	Loss: 2299.470703	GenLoss: 2297.063721
+====> Epoch: 30 Average loss: 2367.4695
+====> Test set loss: 2481.2131
+====> Generation loss: 2478.6969
+--- 3963.0911569595337 seconds ---
+----------------------------------------------------------------
+        Layer (type)               Output Shape         Param #
+================================================================
+            Conv3d-1        [-1, 8, 18, 56, 56]           1,952
+            Conv3d-2       [-1, 16, 16, 22, 22]          18,832
+            Conv3d-3          [-1, 32, 4, 6, 6]          92,192
+            Conv3d-4          [-1, 64, 2, 2, 2]         153,664
+            Linear-5                   [-1, 16]           8,208
+            Linear-6                   [-1, 16]           8,208
+            Conv3d-7       [-1, 16, 20, 64, 64]           8,224
+            Conv3d-8       [-1, 16, 20, 64, 64]           6,928
+            Conv3d-9       [-1, 16, 20, 64, 64]           6,928
+           Conv3d-10       [-1, 16, 20, 64, 64]           6,928
+           Conv3d-11        [-1, 1, 20, 64, 64]              17
+================================================================
+Total params: 312,081
+Trainable params: 312,081
+Non-trainable params: 0
+----------------------------------------------------------------
+Input size (MB): 0.31
+Forward/backward pass size (MB): 45.05
+Params size (MB): 1.19
+Estimated Total Size (MB): 46.56
+----------------------------------------------------------------
+====> Test set loss: 2651.7096
+====> Generation loss: 2649.6359
+--- 7.337204456329346 seconds ---
+Train Epoch: 1 [0/9500 (0%)]	Loss: 2560.474121	GenLoss: 2559.005127
+Train Epoch: 1 [1280/9500 (13%)]	Loss: 2483.388916	GenLoss: 2480.887207
+Train Epoch: 1 [2560/9500 (27%)]	Loss: 2608.203857	GenLoss: 2605.854004
+Train Epoch: 1 [3840/9500 (40%)]	Loss: 2520.236328	GenLoss: 2518.445801
+Train Epoch: 1 [5120/9500 (53%)]	Loss: 2702.479980	GenLoss: 2700.109131
+Train Epoch: 1 [6400/9500 (67%)]	Loss: 2515.295654	GenLoss: 2512.923584
+Train Epoch: 1 [7680/9500 (80%)]	Loss: 2594.609375	GenLoss: 2592.052490
+Train Epoch: 1 [8960/9500 (93%)]	Loss: 2486.599121	GenLoss: 2483.811035
+====> Epoch: 1 Average loss: 2575.8232
+====> Test set loss: 2633.3149
+====> Generation loss: 2631.6331
+Train Epoch: 2 [0/9500 (0%)]	Loss: 2619.162354	GenLoss: 2616.912598
+Train Epoch: 2 [1280/9500 (13%)]	Loss: 2549.852783	GenLoss: 2548.236816
+Train Epoch: 2 [2560/9500 (27%)]	Loss: 2532.317139	GenLoss: 2530.015625
+Train Epoch: 2 [3840/9500 (40%)]	Loss: 2563.011963	GenLoss: 2560.729004
+Train Epoch: 2 [5120/9500 (53%)]	Loss: 2512.610107	GenLoss: 2510.426270
+Train Epoch: 2 [6400/9500 (67%)]	Loss: 2573.339600	GenLoss: 2571.214355
+Train Epoch: 2 [7680/9500 (80%)]	Loss: 2452.084229	GenLoss: 2450.247803
+Train Epoch: 2 [8960/9500 (93%)]	Loss: 2552.832764	GenLoss: 2550.460693
+====> Epoch: 2 Average loss: 2565.6742
+====> Test set loss: 2611.4416
+====> Generation loss: 2609.6499
+Train Epoch: 3 [0/9500 (0%)]	Loss: 2470.730469	GenLoss: 2468.676514
+Train Epoch: 3 [1280/9500 (13%)]	Loss: 2610.529053	GenLoss: 2608.240967
+Train Epoch: 3 [2560/9500 (27%)]	Loss: 2520.386475	GenLoss: 2518.010986
+Train Epoch: 3 [3840/9500 (40%)]	Loss: 2647.152344	GenLoss: 2645.902100
+Train Epoch: 3 [5120/9500 (53%)]	Loss: 2507.940918	GenLoss: 2505.914551
+Train Epoch: 3 [6400/9500 (67%)]	Loss: 2628.352783	GenLoss: 2625.399658
+Train Epoch: 3 [7680/9500 (80%)]	Loss: 2619.449219	GenLoss: 2617.582520
+Train Epoch: 3 [8960/9500 (93%)]	Loss: 2553.079834	GenLoss: 2551.113281
+====> Epoch: 3 Average loss: 2567.3757
+====> Test set loss: 2636.6102
+====> Generation loss: 2633.8517
+Train Epoch: 4 [0/9500 (0%)]	Loss: 2608.368652	GenLoss: 2606.513184
+Train Epoch: 4 [1280/9500 (13%)]	Loss: 2538.754639	GenLoss: 2536.527588
+Train Epoch: 4 [2560/9500 (27%)]	Loss: 2589.853027	GenLoss: 2587.389404
+Train Epoch: 4 [3840/9500 (40%)]	Loss: 2473.342773	GenLoss: 2470.702637
+Train Epoch: 4 [5120/9500 (53%)]	Loss: 2591.117676	GenLoss: 2588.313477
+Train Epoch: 4 [6400/9500 (67%)]	Loss: 2548.754395	GenLoss: 2546.652344
+Train Epoch: 4 [7680/9500 (80%)]	Loss: 2530.034912	GenLoss: 2528.315918
+Train Epoch: 4 [8960/9500 (93%)]	Loss: 2508.196045	GenLoss: 2506.076660
+====> Epoch: 4 Average loss: 2554.7666
+====> Test set loss: 2624.8749
+====> Generation loss: 2622.4341
+Train Epoch: 5 [0/9500 (0%)]	Loss: 2565.101318	GenLoss: 2563.151855
+Train Epoch: 5 [1280/9500 (13%)]	Loss: 2547.485352	GenLoss: 2544.796631
+Train Epoch: 5 [2560/9500 (27%)]	Loss: 2566.828857	GenLoss: 2564.531982
+Train Epoch: 5 [3840/9500 (40%)]	Loss: 2528.793457	GenLoss: 2526.573975
+Train Epoch: 5 [5120/9500 (53%)]	Loss: 2603.183350	GenLoss: 2601.332520
+Train Epoch: 5 [6400/9500 (67%)]	Loss: 2602.277100	GenLoss: 2600.033447
+Train Epoch: 5 [7680/9500 (80%)]	Loss: 2551.785156	GenLoss: 2549.487061
+Train Epoch: 5 [8960/9500 (93%)]	Loss: 2455.222900	GenLoss: 2453.046631
+====> Epoch: 5 Average loss: 2548.8012
+====> Test set loss: 2596.4722
+====> Generation loss: 2594.4920
+Train Epoch: 6 [0/9500 (0%)]	Loss: 2619.135498	GenLoss: 2617.660156
+Train Epoch: 6 [1280/9500 (13%)]	Loss: 2533.668213	GenLoss: 2531.571533
+Train Epoch: 6 [2560/9500 (27%)]	Loss: 2675.933350	GenLoss: 2674.075195
+Train Epoch: 6 [3840/9500 (40%)]	Loss: 2643.660400	GenLoss: 2641.495117
+Train Epoch: 6 [5120/9500 (53%)]	Loss: 2480.320312	GenLoss: 2477.162354
+Train Epoch: 6 [6400/9500 (67%)]	Loss: 2479.963867	GenLoss: 2477.759766
+Train Epoch: 6 [7680/9500 (80%)]	Loss: 2523.583008	GenLoss: 2521.105713
+Train Epoch: 6 [8960/9500 (93%)]	Loss: 2484.554443	GenLoss: 2482.248291
+====> Epoch: 6 Average loss: 2537.6690
+====> Test set loss: 2601.9174
+====> Generation loss: 2600.2134
+Train Epoch: 7 [0/9500 (0%)]	Loss: 2552.371582	GenLoss: 2550.365723
+Train Epoch: 7 [1280/9500 (13%)]	Loss: 2456.640381	GenLoss: 2454.486328
+Train Epoch: 7 [2560/9500 (27%)]	Loss: 2488.798584	GenLoss: 2486.726562
+Train Epoch: 7 [3840/9500 (40%)]	Loss: 2597.406250	GenLoss: 2594.928955
+Train Epoch: 7 [5120/9500 (53%)]	Loss: 2556.290039	GenLoss: 2554.286377
+Train Epoch: 7 [6400/9500 (67%)]	Loss: 2506.086426	GenLoss: 2503.475342
+Train Epoch: 7 [7680/9500 (80%)]	Loss: 2518.930908	GenLoss: 2517.184326
+Train Epoch: 7 [8960/9500 (93%)]	Loss: 2633.093262	GenLoss: 2630.730469
+====> Epoch: 7 Average loss: 2534.6560
+====> Test set loss: 2597.1017
+====> Generation loss: 2594.8467
+Train Epoch: 8 [0/9500 (0%)]	Loss: 2517.698730	GenLoss: 2515.002441
+Train Epoch: 8 [1280/9500 (13%)]	Loss: 2519.863037	GenLoss: 2517.448486
+Train Epoch: 8 [2560/9500 (27%)]	Loss: 2581.222412	GenLoss: 2579.020020
+Train Epoch: 8 [3840/9500 (40%)]	Loss: 2509.493652	GenLoss: 2507.829834
+Train Epoch: 8 [5120/9500 (53%)]	Loss: 2479.540771	GenLoss: 2477.664551
+Train Epoch: 8 [6400/9500 (67%)]	Loss: 2485.585449	GenLoss: 2483.399902
+Train Epoch: 8 [7680/9500 (80%)]	Loss: 2597.417969	GenLoss: 2594.482422
+Train Epoch: 8 [8960/9500 (93%)]	Loss: 2537.331787	GenLoss: 2534.785645
+====> Epoch: 8 Average loss: 2536.5022
+====> Test set loss: 2596.1312
+====> Generation loss: 2593.9940
+Train Epoch: 9 [0/9500 (0%)]	Loss: 2558.268066	GenLoss: 2556.032959
+Train Epoch: 9 [1280/9500 (13%)]	Loss: 2542.773438	GenLoss: 2540.936523
+Train Epoch: 9 [2560/9500 (27%)]	Loss: 2520.000977	GenLoss: 2517.081299
+Train Epoch: 9 [3840/9500 (40%)]	Loss: 2499.524658	GenLoss: 2497.976318
+Train Epoch: 9 [5120/9500 (53%)]	Loss: 2453.807129	GenLoss: 2451.779785
+Train Epoch: 9 [6400/9500 (67%)]	Loss: 2531.751953	GenLoss: 2529.634521
+Train Epoch: 9 [7680/9500 (80%)]	Loss: 2447.074951	GenLoss: 2445.582275
+Train Epoch: 9 [8960/9500 (93%)]	Loss: 2592.311523	GenLoss: 2590.243164
+====> Epoch: 9 Average loss: 2528.1892
+====> Test set loss: 2590.4961
+====> Generation loss: 2588.8146
+Train Epoch: 10 [0/9500 (0%)]	Loss: 2620.752197	GenLoss: 2619.188965
+Train Epoch: 10 [1280/9500 (13%)]	Loss: 2594.455566	GenLoss: 2592.581299
+Train Epoch: 10 [2560/9500 (27%)]	Loss: 2495.314941	GenLoss: 2493.560547
+Train Epoch: 10 [3840/9500 (40%)]	Loss: 2493.140137	GenLoss: 2491.066162
+Train Epoch: 10 [5120/9500 (53%)]	Loss: 2462.101807	GenLoss: 2458.953857
+Train Epoch: 10 [6400/9500 (67%)]	Loss: 2559.612549	GenLoss: 2556.339111
+Train Epoch: 10 [7680/9500 (80%)]	Loss: 2648.585449	GenLoss: 2645.728027
+Train Epoch: 10 [8960/9500 (93%)]	Loss: 2439.155518	GenLoss: 2436.563965
+====> Epoch: 10 Average loss: 2521.6161
+====> Test set loss: 2603.0904
+====> Generation loss: 2600.3176
+Train Epoch: 11 [0/9500 (0%)]	Loss: 2509.005859	GenLoss: 2506.092285
+Train Epoch: 11 [1280/9500 (13%)]	Loss: 2619.307129	GenLoss: 2617.166748
+Train Epoch: 11 [2560/9500 (27%)]	Loss: 2450.024414	GenLoss: 2447.553223
+Train Epoch: 11 [3840/9500 (40%)]	Loss: 2494.675049	GenLoss: 2492.006836
+Train Epoch: 11 [5120/9500 (53%)]	Loss: 2472.298340	GenLoss: 2469.994141
+Train Epoch: 11 [6400/9500 (67%)]	Loss: 2540.812744	GenLoss: 2538.885254
+Train Epoch: 11 [7680/9500 (80%)]	Loss: 2465.200928	GenLoss: 2463.001709
+Train Epoch: 11 [8960/9500 (93%)]	Loss: 2549.697754	GenLoss: 2547.436279
+====> Epoch: 11 Average loss: 2519.2213
+====> Test set loss: 2588.8361
+====> Generation loss: 2586.5111
+Train Epoch: 12 [0/9500 (0%)]	Loss: 2618.665527	GenLoss: 2617.067383
+Train Epoch: 12 [1280/9500 (13%)]	Loss: 2446.261475	GenLoss: 2444.309082
+Train Epoch: 12 [2560/9500 (27%)]	Loss: 2514.553467	GenLoss: 2512.112793
+Train Epoch: 12 [3840/9500 (40%)]	Loss: 2464.519043	GenLoss: 2462.402100
+Train Epoch: 12 [5120/9500 (53%)]	Loss: 2585.450928	GenLoss: 2583.417969
+Train Epoch: 12 [6400/9500 (67%)]	Loss: 2634.609619	GenLoss: 2632.760010
+Train Epoch: 12 [7680/9500 (80%)]	Loss: 2414.776123	GenLoss: 2412.886963
+Train Epoch: 12 [8960/9500 (93%)]	Loss: 2477.633545	GenLoss: 2475.292480
+====> Epoch: 12 Average loss: 2509.5185
+====> Test set loss: 2563.5777
+====> Generation loss: 2561.6728
+Train Epoch: 13 [0/9500 (0%)]	Loss: 2481.814697	GenLoss: 2479.778809
+Train Epoch: 13 [1280/9500 (13%)]	Loss: 2551.098877	GenLoss: 2548.742432
+Train Epoch: 13 [2560/9500 (27%)]	Loss: 2571.085693	GenLoss: 2568.690430
+Train Epoch: 13 [3840/9500 (40%)]	Loss: 2503.222412	GenLoss: 2501.168213
+Train Epoch: 13 [5120/9500 (53%)]	Loss: 2417.444092	GenLoss: 2415.558105
+Train Epoch: 13 [6400/9500 (67%)]	Loss: 2465.712402	GenLoss: 2463.396729
+Train Epoch: 13 [7680/9500 (80%)]	Loss: 2550.148193	GenLoss: 2547.866455
+Train Epoch: 13 [8960/9500 (93%)]	Loss: 2527.522461	GenLoss: 2525.772949
+====> Epoch: 13 Average loss: 2506.9350
+====> Test set loss: 2606.1168
+====> Generation loss: 2604.0275
+Train Epoch: 14 [0/9500 (0%)]	Loss: 2436.634277	GenLoss: 2434.158447
+Train Epoch: 14 [1280/9500 (13%)]	Loss: 2641.031006	GenLoss: 2638.503418
+Train Epoch: 14 [2560/9500 (27%)]	Loss: 2516.554199	GenLoss: 2513.737793
+Train Epoch: 14 [3840/9500 (40%)]	Loss: 2501.230957	GenLoss: 2498.933105
+Train Epoch: 14 [5120/9500 (53%)]	Loss: 2515.796387	GenLoss: 2514.125977
+Train Epoch: 14 [6400/9500 (67%)]	Loss: 2427.265625	GenLoss: 2425.247070
+Train Epoch: 14 [7680/9500 (80%)]	Loss: 2527.233643	GenLoss: 2524.703613
+Train Epoch: 14 [8960/9500 (93%)]	Loss: 2496.858398	GenLoss: 2494.470703
+====> Epoch: 14 Average loss: 2508.5097
+====> Test set loss: 2597.8664
+====> Generation loss: 2596.3914
+Train Epoch: 15 [0/9500 (0%)]	Loss: 2573.039307	GenLoss: 2571.317871
+Train Epoch: 15 [1280/9500 (13%)]	Loss: 2600.217041	GenLoss: 2597.970215
+Train Epoch: 15 [2560/9500 (27%)]	Loss: 2488.090332	GenLoss: 2485.836914
+Train Epoch: 15 [3840/9500 (40%)]	Loss: 2470.484375	GenLoss: 2467.963135
+Train Epoch: 15 [5120/9500 (53%)]	Loss: 2459.924561	GenLoss: 2457.597656
+Train Epoch: 15 [6400/9500 (67%)]	Loss: 2442.399902	GenLoss: 2439.724609
+Train Epoch: 15 [7680/9500 (80%)]	Loss: 2541.467041	GenLoss: 2539.209473
+Train Epoch: 15 [8960/9500 (93%)]	Loss: 2515.914307	GenLoss: 2513.711670
+====> Epoch: 15 Average loss: 2500.0052
+====> Test set loss: 2558.0336
+====> Generation loss: 2555.8641
+Train Epoch: 16 [0/9500 (0%)]	Loss: 2434.900635	GenLoss: 2432.947266
+Train Epoch: 16 [1280/9500 (13%)]	Loss: 2484.757812	GenLoss: 2482.009521
+Train Epoch: 16 [2560/9500 (27%)]	Loss: 2519.482910	GenLoss: 2517.484131
+Train Epoch: 16 [3840/9500 (40%)]	Loss: 2428.124268	GenLoss: 2426.024902
+Train Epoch: 16 [5120/9500 (53%)]	Loss: 2547.017578	GenLoss: 2545.287842
+Train Epoch: 16 [6400/9500 (67%)]	Loss: 2499.270996	GenLoss: 2496.547607
+Train Epoch: 16 [7680/9500 (80%)]	Loss: 2578.443115	GenLoss: 2576.134521
+Train Epoch: 16 [8960/9500 (93%)]	Loss: 2461.714844	GenLoss: 2459.115479
+====> Epoch: 16 Average loss: 2498.4170
+====> Test set loss: 2566.4921
+====> Generation loss: 2564.2968
+Train Epoch: 17 [0/9500 (0%)]	Loss: 2477.736328	GenLoss: 2475.298828
+Train Epoch: 17 [1280/9500 (13%)]	Loss: 2573.163574	GenLoss: 2570.514404
+Train Epoch: 17 [2560/9500 (27%)]	Loss: 2465.382080	GenLoss: 2463.354004
+Train Epoch: 17 [3840/9500 (40%)]	Loss: 2380.826660	GenLoss: 2379.076416
+Train Epoch: 17 [5120/9500 (53%)]	Loss: 2446.181396	GenLoss: 2443.933105
+Train Epoch: 17 [6400/9500 (67%)]	Loss: 2532.494141	GenLoss: 2530.020264
+Train Epoch: 17 [7680/9500 (80%)]	Loss: 2606.190918	GenLoss: 2603.422119
+Train Epoch: 17 [8960/9500 (93%)]	Loss: 2512.783691	GenLoss: 2510.334961
+====> Epoch: 17 Average loss: 2497.6431
+====> Test set loss: 2577.0842
+====> Generation loss: 2574.6629
+Train Epoch: 18 [0/9500 (0%)]	Loss: 2592.014648	GenLoss: 2589.740723
+Train Epoch: 18 [1280/9500 (13%)]	Loss: 2462.541504	GenLoss: 2460.399170
+Train Epoch: 18 [2560/9500 (27%)]	Loss: 2464.598633	GenLoss: 2462.611328
+Train Epoch: 18 [3840/9500 (40%)]	Loss: 2482.620605	GenLoss: 2480.135498
+Train Epoch: 18 [5120/9500 (53%)]	Loss: 2549.976562	GenLoss: 2547.216309
+Train Epoch: 18 [6400/9500 (67%)]	Loss: 2531.725586	GenLoss: 2529.944336
+Train Epoch: 18 [7680/9500 (80%)]	Loss: 2505.938477	GenLoss: 2502.959717
+Train Epoch: 18 [8960/9500 (93%)]	Loss: 2464.482178	GenLoss: 2461.972412
+====> Epoch: 18 Average loss: 2494.3541
+====> Test set loss: 2585.7632
+====> Generation loss: 2583.9675
+Train Epoch: 19 [0/9500 (0%)]	Loss: 2559.701416	GenLoss: 2558.260742
+Train Epoch: 19 [1280/9500 (13%)]	Loss: 2510.234863	GenLoss: 2508.130615
+Train Epoch: 19 [2560/9500 (27%)]	Loss: 2487.387939	GenLoss: 2485.174072
+Train Epoch: 19 [3840/9500 (40%)]	Loss: 2495.206787	GenLoss: 2492.857666
+Train Epoch: 19 [5120/9500 (53%)]	Loss: 2456.829590	GenLoss: 2454.671875
+Train Epoch: 19 [6400/9500 (67%)]	Loss: 2443.921143	GenLoss: 2442.032227
+Train Epoch: 19 [7680/9500 (80%)]	Loss: 2402.735596	GenLoss: 2400.322021
+Train Epoch: 19 [8960/9500 (93%)]	Loss: 2531.313965	GenLoss: 2528.889404
+====> Epoch: 19 Average loss: 2493.7922
+====> Test set loss: 2576.8886
+====> Generation loss: 2575.3973
+Train Epoch: 20 [0/9500 (0%)]	Loss: 2569.050537	GenLoss: 2567.135498
+Train Epoch: 20 [1280/9500 (13%)]	Loss: 2443.729004	GenLoss: 2441.542725
+Train Epoch: 20 [2560/9500 (27%)]	Loss: 2455.212646	GenLoss: 2453.067871
+Train Epoch: 20 [3840/9500 (40%)]	Loss: 2493.312988	GenLoss: 2491.323486
+Train Epoch: 20 [5120/9500 (53%)]	Loss: 2555.188232	GenLoss: 2553.076660
+Train Epoch: 20 [6400/9500 (67%)]	Loss: 2510.172852	GenLoss: 2508.012451
+Train Epoch: 20 [7680/9500 (80%)]	Loss: 2531.840820	GenLoss: 2529.178955
+Train Epoch: 20 [8960/9500 (93%)]	Loss: 2528.989990	GenLoss: 2526.534180
+====> Epoch: 20 Average loss: 2487.6181
+====> Test set loss: 2561.6794
+====> Generation loss: 2559.6057
+Train Epoch: 21 [0/9500 (0%)]	Loss: 2530.240967	GenLoss: 2528.245850
+Train Epoch: 21 [1280/9500 (13%)]	Loss: 2409.190186	GenLoss: 2406.391113
+Train Epoch: 21 [2560/9500 (27%)]	Loss: 2485.911377	GenLoss: 2483.534668
+Train Epoch: 21 [3840/9500 (40%)]	Loss: 2497.972412	GenLoss: 2495.467773
+Train Epoch: 21 [5120/9500 (53%)]	Loss: 2446.217285	GenLoss: 2443.836914
+Train Epoch: 21 [6400/9500 (67%)]	Loss: 2555.128418	GenLoss: 2553.346924
+Train Epoch: 21 [7680/9500 (80%)]	Loss: 2390.532471	GenLoss: 2388.720215
+Train Epoch: 21 [8960/9500 (93%)]	Loss: 2480.185303	GenLoss: 2478.135498
+====> Epoch: 21 Average loss: 2477.5508
+====> Test set loss: 2572.6171
+====> Generation loss: 2570.1306
+Train Epoch: 22 [0/9500 (0%)]	Loss: 2550.569092	GenLoss: 2547.979736
+Train Epoch: 22 [1280/9500 (13%)]	Loss: 2412.513428	GenLoss: 2410.064453
+Train Epoch: 22 [2560/9500 (27%)]	Loss: 2428.434082	GenLoss: 2426.015625
+Train Epoch: 22 [3840/9500 (40%)]	Loss: 2451.719971	GenLoss: 2449.546631
+Train Epoch: 22 [5120/9500 (53%)]	Loss: 2532.453857	GenLoss: 2530.597900
+Train Epoch: 22 [6400/9500 (67%)]	Loss: 2509.694580	GenLoss: 2508.174561
+Train Epoch: 22 [7680/9500 (80%)]	Loss: 2423.689941	GenLoss: 2421.624023
+Train Epoch: 22 [8960/9500 (93%)]	Loss: 2474.239014	GenLoss: 2472.302490
+====> Epoch: 22 Average loss: 2478.8743
+====> Test set loss: 2549.7481
+====> Generation loss: 2547.0001
+Train Epoch: 23 [0/9500 (0%)]	Loss: 2482.557129	GenLoss: 2480.370117
+Train Epoch: 23 [1280/9500 (13%)]	Loss: 2429.711426	GenLoss: 2427.535645
+Train Epoch: 23 [2560/9500 (27%)]	Loss: 2432.830811	GenLoss: 2430.878418
+Train Epoch: 23 [3840/9500 (40%)]	Loss: 2341.944092	GenLoss: 2340.181152
+Train Epoch: 23 [5120/9500 (53%)]	Loss: 2438.825439	GenLoss: 2436.329102
+Train Epoch: 23 [6400/9500 (67%)]	Loss: 2463.215576	GenLoss: 2461.135742
+Train Epoch: 23 [7680/9500 (80%)]	Loss: 2545.723633	GenLoss: 2543.654541
+Train Epoch: 23 [8960/9500 (93%)]	Loss: 2444.860840	GenLoss: 2442.217041
+====> Epoch: 23 Average loss: 2468.5233
+====> Test set loss: 2553.9727
+====> Generation loss: 2551.7517
+Train Epoch: 24 [0/9500 (0%)]	Loss: 2469.549316	GenLoss: 2466.986084
+Train Epoch: 24 [1280/9500 (13%)]	Loss: 2507.059082	GenLoss: 2505.025635
+Train Epoch: 24 [2560/9500 (27%)]	Loss: 2420.690674	GenLoss: 2418.260010
+Train Epoch: 24 [3840/9500 (40%)]	Loss: 2483.969238	GenLoss: 2481.489258
+Train Epoch: 24 [5120/9500 (53%)]	Loss: 2483.243408	GenLoss: 2481.125488
+Train Epoch: 24 [6400/9500 (67%)]	Loss: 2438.606689	GenLoss: 2436.574707
+Train Epoch: 24 [7680/9500 (80%)]	Loss: 2518.511475	GenLoss: 2516.261475
+Train Epoch: 24 [8960/9500 (93%)]	Loss: 2432.358887	GenLoss: 2430.065674
+====> Epoch: 24 Average loss: 2473.1434
+====> Test set loss: 2692.9293
+====> Generation loss: 2689.8911
+Train Epoch: 25 [0/9500 (0%)]	Loss: 2644.152832	GenLoss: 2641.346680
+Train Epoch: 25 [1280/9500 (13%)]	Loss: 2479.236572	GenLoss: 2476.638428
+Train Epoch: 25 [2560/9500 (27%)]	Loss: 2464.134033	GenLoss: 2462.064209
+Train Epoch: 25 [3840/9500 (40%)]	Loss: 2476.052979	GenLoss: 2474.102783
+Train Epoch: 25 [5120/9500 (53%)]	Loss: 2496.832764	GenLoss: 2494.696045
+Train Epoch: 25 [6400/9500 (67%)]	Loss: 2339.258301	GenLoss: 2336.786377
+Train Epoch: 25 [7680/9500 (80%)]	Loss: 2469.050537	GenLoss: 2466.969971
+Train Epoch: 25 [8960/9500 (93%)]	Loss: 2494.677002	GenLoss: 2492.354980
+====> Epoch: 25 Average loss: 2494.2810
+====> Test set loss: 2557.2474
+====> Generation loss: 2554.3651
+Train Epoch: 26 [0/9500 (0%)]	Loss: 2414.861084	GenLoss: 2412.194092
+Train Epoch: 26 [1280/9500 (13%)]	Loss: 2451.999023	GenLoss: 2449.497314
+Train Epoch: 26 [2560/9500 (27%)]	Loss: 2434.116699	GenLoss: 2432.529053
+Train Epoch: 26 [3840/9500 (40%)]	Loss: 2525.489746	GenLoss: 2523.022461
+Train Epoch: 26 [5120/9500 (53%)]	Loss: 2418.331055	GenLoss: 2416.355469
+Train Epoch: 26 [6400/9500 (67%)]	Loss: 2438.489990	GenLoss: 2436.111084
+Train Epoch: 26 [7680/9500 (80%)]	Loss: 2455.183838	GenLoss: 2453.120605
+Train Epoch: 26 [8960/9500 (93%)]	Loss: 2461.733154	GenLoss: 2459.609375
+====> Epoch: 26 Average loss: 2465.3587
+====> Test set loss: 2534.7306
+====> Generation loss: 2532.2228
+Train Epoch: 27 [0/9500 (0%)]	Loss: 2451.244873	GenLoss: 2448.949463
+Train Epoch: 27 [1280/9500 (13%)]	Loss: 2479.033936	GenLoss: 2476.757812
+Train Epoch: 27 [2560/9500 (27%)]	Loss: 2492.138184	GenLoss: 2490.038574
+Train Epoch: 27 [3840/9500 (40%)]	Loss: 2428.973389	GenLoss: 2426.160156
+Train Epoch: 27 [5120/9500 (53%)]	Loss: 2611.831787	GenLoss: 2609.351318
+Train Epoch: 27 [6400/9500 (67%)]	Loss: 2505.567871	GenLoss: 2503.102783
+Train Epoch: 27 [7680/9500 (80%)]	Loss: 2455.475830	GenLoss: 2453.606445
+Train Epoch: 27 [8960/9500 (93%)]	Loss: 2420.036621	GenLoss: 2418.186035
+====> Epoch: 27 Average loss: 2459.3470
+====> Test set loss: 2541.4086
+====> Generation loss: 2539.1823
+Train Epoch: 28 [0/9500 (0%)]	Loss: 2374.089844	GenLoss: 2371.652344
+Train Epoch: 28 [1280/9500 (13%)]	Loss: 2482.392334	GenLoss: 2480.417969
+Train Epoch: 28 [2560/9500 (27%)]	Loss: 2436.457520	GenLoss: 2434.288330
+Train Epoch: 28 [3840/9500 (40%)]	Loss: 2471.050781	GenLoss: 2469.152344
+Train Epoch: 28 [5120/9500 (53%)]	Loss: 2517.857666	GenLoss: 2516.376465
+Train Epoch: 28 [6400/9500 (67%)]	Loss: 2378.160645	GenLoss: 2375.990967
+Train Epoch: 28 [7680/9500 (80%)]	Loss: 2435.695068	GenLoss: 2433.485352
+Train Epoch: 28 [8960/9500 (93%)]	Loss: 2399.276367	GenLoss: 2396.795166
+====> Epoch: 28 Average loss: 2456.0915
+====> Test set loss: 2545.5776
+====> Generation loss: 2543.6279
+Train Epoch: 29 [0/9500 (0%)]	Loss: 2508.588623	GenLoss: 2506.780029
+Train Epoch: 29 [1280/9500 (13%)]	Loss: 2377.465088	GenLoss: 2374.987061
+Train Epoch: 29 [2560/9500 (27%)]	Loss: 2469.173096	GenLoss: 2467.135498
+Train Epoch: 29 [3840/9500 (40%)]	Loss: 2435.494629	GenLoss: 2433.337646
+Train Epoch: 29 [5120/9500 (53%)]	Loss: 2476.042725	GenLoss: 2473.963867
+Train Epoch: 29 [6400/9500 (67%)]	Loss: 2520.472900	GenLoss: 2518.170654
+Train Epoch: 29 [7680/9500 (80%)]	Loss: 2542.045898	GenLoss: 2540.177246
+Train Epoch: 29 [8960/9500 (93%)]	Loss: 2473.516602	GenLoss: 2471.104492
+====> Epoch: 29 Average loss: 2459.8536
+====> Test set loss: 2566.5911
+====> Generation loss: 2564.9298
+Train Epoch: 30 [0/9500 (0%)]	Loss: 2504.934082	GenLoss: 2503.248047
+Train Epoch: 30 [1280/9500 (13%)]	Loss: 2401.578613	GenLoss: 2399.749512
+Train Epoch: 30 [2560/9500 (27%)]	Loss: 2359.364746	GenLoss: 2356.486816
+Train Epoch: 30 [3840/9500 (40%)]	Loss: 2473.668945	GenLoss: 2470.879395
+Train Epoch: 30 [5120/9500 (53%)]	Loss: 2453.614746	GenLoss: 2450.794678
+Train Epoch: 30 [6400/9500 (67%)]	Loss: 2447.180664	GenLoss: 2444.460205
+Train Epoch: 30 [7680/9500 (80%)]	Loss: 2442.029541	GenLoss: 2439.831299
+Train Epoch: 30 [8960/9500 (93%)]	Loss: 2441.272949	GenLoss: 2439.487793
+====> Epoch: 30 Average loss: 2453.1111
+====> Test set loss: 2544.3313
+====> Generation loss: 2541.7742
+--- 2973.0438120365143 seconds ---
+----------------------------------------------------------------
+        Layer (type)               Output Shape         Param #
+================================================================
+            Conv3d-1        [-1, 8, 18, 56, 56]           1,952
+            Conv3d-2       [-1, 16, 16, 22, 22]          18,832
+            Conv3d-3          [-1, 32, 4, 6, 6]          92,192
+            Conv3d-4          [-1, 64, 2, 2, 2]         153,664
+            Linear-5                   [-1, 16]           8,208
+            Linear-6                   [-1, 16]           8,208
+            Conv3d-7       [-1, 16, 20, 64, 64]           8,224
+            Conv3d-8       [-1, 16, 20, 64, 64]           6,928
+            Conv3d-9       [-1, 16, 20, 64, 64]           6,928
+           Conv3d-10       [-1, 16, 20, 64, 64]           6,928
+           Conv3d-11        [-1, 1, 20, 64, 64]              17
+================================================================
+Total params: 312,081
+Trainable params: 312,081
+Non-trainable params: 0
+----------------------------------------------------------------
+Input size (MB): 0.31
+Forward/backward pass size (MB): 45.05
+Params size (MB): 1.19
+Estimated Total Size (MB): 46.56
+----------------------------------------------------------------
+====> Test set loss: 2623.6598
+====> Generation loss: 2621.9758
+--- 6.841162204742432 seconds ---
+Train Epoch: 1 [0/9500 (0%)]	Loss: 2559.638906	GenLoss: 2558.247344
+Train Epoch: 1 [2000/9500 (21%)]	Loss: 2533.768594	GenLoss: 2532.250469
+Train Epoch: 1 [4000/9500 (42%)]	Loss: 2549.182500	GenLoss: 2547.355937
+Train Epoch: 1 [6000/9500 (62%)]	Loss: 2479.300156	GenLoss: 2477.288750
+Train Epoch: 1 [8000/9500 (83%)]	Loss: 2435.966875	GenLoss: 2434.487500
+====> Epoch: 1 Average loss: 2555.8149
+====> Test set loss: 2598.6516
+====> Generation loss: 2596.7922
+Train Epoch: 2 [0/9500 (0%)]	Loss: 2590.970938	GenLoss: 2589.630781
+Train Epoch: 2 [2000/9500 (21%)]	Loss: 2518.140781	GenLoss: 2516.312656
+Train Epoch: 2 [4000/9500 (42%)]	Loss: 2562.756563	GenLoss: 2561.367813
+Train Epoch: 2 [6000/9500 (62%)]	Loss: 2562.830000	GenLoss: 2560.839219
+Train Epoch: 2 [8000/9500 (83%)]	Loss: 2578.703750	GenLoss: 2576.977656
+====> Epoch: 2 Average loss: 2552.1472
+====> Test set loss: 2648.3281
+====> Generation loss: 2646.8707
+Train Epoch: 3 [0/9500 (0%)]	Loss: 2549.935469	GenLoss: 2548.780156
+Train Epoch: 3 [2000/9500 (21%)]	Loss: 2582.597500	GenLoss: 2581.020937
+Train Epoch: 3 [4000/9500 (42%)]	Loss: 2590.717813	GenLoss: 2588.951562
+Train Epoch: 3 [6000/9500 (62%)]	Loss: 2543.514688	GenLoss: 2541.888125
+Train Epoch: 3 [8000/9500 (83%)]	Loss: 2514.605156	GenLoss: 2512.897969
+====> Epoch: 3 Average loss: 2548.8098
+====> Test set loss: 2594.2192
+====> Generation loss: 2591.4122
+Train Epoch: 4 [0/9500 (0%)]	Loss: 2548.238438	GenLoss: 2547.197344
+Train Epoch: 4 [2000/9500 (21%)]	Loss: 2536.363594	GenLoss: 2534.863438
+Train Epoch: 4 [4000/9500 (42%)]	Loss: 2503.657969	GenLoss: 2501.736875
+Train Epoch: 4 [6000/9500 (62%)]	Loss: 2582.083906	GenLoss: 2580.291563
+Train Epoch: 4 [8000/9500 (83%)]	Loss: 2497.684375	GenLoss: 2496.379219
+====> Epoch: 4 Average loss: 2539.1966
+====> Test set loss: 2586.9182
+====> Generation loss: 2584.8049
+Train Epoch: 5 [0/9500 (0%)]	Loss: 2538.184844	GenLoss: 2536.561875
+Train Epoch: 5 [2000/9500 (21%)]	Loss: 2567.273906	GenLoss: 2565.453281
+Train Epoch: 5 [4000/9500 (42%)]	Loss: 2580.534219	GenLoss: 2579.199219
+Train Epoch: 5 [6000/9500 (62%)]	Loss: 2523.352969	GenLoss: 2521.545156
+Train Epoch: 5 [8000/9500 (83%)]	Loss: 2541.701250	GenLoss: 2539.906406
+====> Epoch: 5 Average loss: 2534.2039
+====> Test set loss: 2576.8409
+====> Generation loss: 2575.2464
+Train Epoch: 6 [0/9500 (0%)]	Loss: 2600.556875	GenLoss: 2599.375156
+Train Epoch: 6 [2000/9500 (21%)]	Loss: 2502.637031	GenLoss: 2501.240313
+Train Epoch: 6 [4000/9500 (42%)]	Loss: 2606.431719	GenLoss: 2603.840625
+Train Epoch: 6 [6000/9500 (62%)]	Loss: 2566.475313	GenLoss: 2565.202344
+Train Epoch: 6 [8000/9500 (83%)]	Loss: 2603.032344	GenLoss: 2601.162031
+====> Epoch: 6 Average loss: 2543.0506
+====> Test set loss: 2575.1382
+====> Generation loss: 2573.1447
+Train Epoch: 7 [0/9500 (0%)]	Loss: 2550.222500	GenLoss: 2548.740313
+Train Epoch: 7 [2000/9500 (21%)]	Loss: 2561.130000	GenLoss: 2559.128438
+Train Epoch: 7 [4000/9500 (42%)]	Loss: 2522.797187	GenLoss: 2521.153594
+Train Epoch: 7 [6000/9500 (62%)]	Loss: 2581.246719	GenLoss: 2579.414688
+Train Epoch: 7 [8000/9500 (83%)]	Loss: 2528.456250	GenLoss: 2526.502344
+====> Epoch: 7 Average loss: 2521.0524
+====> Test set loss: 2569.9123
+====> Generation loss: 2567.5860
+Train Epoch: 8 [0/9500 (0%)]	Loss: 2560.070938	GenLoss: 2557.813750
+Train Epoch: 8 [2000/9500 (21%)]	Loss: 2529.289844	GenLoss: 2527.983281
+Train Epoch: 8 [4000/9500 (42%)]	Loss: 2559.000469	GenLoss: 2557.560781
+Train Epoch: 8 [6000/9500 (62%)]	Loss: 2588.126719	GenLoss: 2586.310625
+Train Epoch: 8 [8000/9500 (83%)]	Loss: 2548.493750	GenLoss: 2546.895625
+====> Epoch: 8 Average loss: 2537.8956
+====> Test set loss: 2596.8916
+====> Generation loss: 2595.1329
+Train Epoch: 9 [0/9500 (0%)]	Loss: 2570.738281	GenLoss: 2568.854063
+Train Epoch: 9 [2000/9500 (21%)]	Loss: 2528.062812	GenLoss: 2526.186094
+Train Epoch: 9 [4000/9500 (42%)]	Loss: 2505.747969	GenLoss: 2503.962500
+Train Epoch: 9 [6000/9500 (62%)]	Loss: 2523.521094	GenLoss: 2521.597656
+Train Epoch: 9 [8000/9500 (83%)]	Loss: 2536.155938	GenLoss: 2534.366562
+====> Epoch: 9 Average loss: 2521.9456
+====> Test set loss: 2561.1642
+====> Generation loss: 2559.1250
+Train Epoch: 10 [0/9500 (0%)]	Loss: 2586.400000	GenLoss: 2584.567656
+Train Epoch: 10 [2000/9500 (21%)]	Loss: 2514.026250	GenLoss: 2512.329531
+Train Epoch: 10 [4000/9500 (42%)]	Loss: 2461.203281	GenLoss: 2459.116562
+Train Epoch: 10 [6000/9500 (62%)]	Loss: 2562.007187	GenLoss: 2560.372656
+Train Epoch: 10 [8000/9500 (83%)]	Loss: 2526.174844	GenLoss: 2524.687188
+====> Epoch: 10 Average loss: 2507.7775
+====> Test set loss: 2549.4434
+====> Generation loss: 2547.2797
+Train Epoch: 11 [0/9500 (0%)]	Loss: 2525.843750	GenLoss: 2524.366406
+Train Epoch: 11 [2000/9500 (21%)]	Loss: 2488.401250	GenLoss: 2486.606094
+Train Epoch: 11 [4000/9500 (42%)]	Loss: 2606.150000	GenLoss: 2604.500312
+Train Epoch: 11 [6000/9500 (62%)]	Loss: 2461.491562	GenLoss: 2459.859531
+Train Epoch: 11 [8000/9500 (83%)]	Loss: 2477.631875	GenLoss: 2475.956719
+====> Epoch: 11 Average loss: 2505.1546
+====> Test set loss: 2562.2878
+====> Generation loss: 2560.2964
+Train Epoch: 12 [0/9500 (0%)]	Loss: 2540.194063	GenLoss: 2538.345781
+Train Epoch: 12 [2000/9500 (21%)]	Loss: 2517.106250	GenLoss: 2515.390156
+Train Epoch: 12 [4000/9500 (42%)]	Loss: 2549.655000	GenLoss: 2547.570625
+Train Epoch: 12 [6000/9500 (62%)]	Loss: 2514.405000	GenLoss: 2512.652031
+Train Epoch: 12 [8000/9500 (83%)]	Loss: 2494.221250	GenLoss: 2492.110000
+====> Epoch: 12 Average loss: 2522.5747
+====> Test set loss: 2544.3047
+====> Generation loss: 2542.3345
+Train Epoch: 13 [0/9500 (0%)]	Loss: 2477.460781	GenLoss: 2475.255156
+Train Epoch: 13 [2000/9500 (21%)]	Loss: 2517.814844	GenLoss: 2515.974844
+Train Epoch: 13 [4000/9500 (42%)]	Loss: 2467.769688	GenLoss: 2466.091875
+Train Epoch: 13 [6000/9500 (62%)]	Loss: 2470.597969	GenLoss: 2468.599531
+Train Epoch: 13 [8000/9500 (83%)]	Loss: 2544.538906	GenLoss: 2542.877500
+====> Epoch: 13 Average loss: 2495.8904
+====> Test set loss: 2548.3780
+====> Generation loss: 2546.2932
+Train Epoch: 14 [0/9500 (0%)]	Loss: 2421.796719	GenLoss: 2419.967500
+Train Epoch: 14 [2000/9500 (21%)]	Loss: 2521.040312	GenLoss: 2519.359063
+Train Epoch: 14 [4000/9500 (42%)]	Loss: 2479.329531	GenLoss: 2477.396563
+Train Epoch: 14 [6000/9500 (62%)]	Loss: 2432.291875	GenLoss: 2430.409219
+Train Epoch: 14 [8000/9500 (83%)]	Loss: 2493.295469	GenLoss: 2491.620937
+====> Epoch: 14 Average loss: 2491.5613
+====> Test set loss: 2545.6378
+====> Generation loss: 2543.8316
+Train Epoch: 15 [0/9500 (0%)]	Loss: 2467.582031	GenLoss: 2465.798594
+Train Epoch: 15 [2000/9500 (21%)]	Loss: 2639.919063	GenLoss: 2638.209688
+Train Epoch: 15 [4000/9500 (42%)]	Loss: 2473.842656	GenLoss: 2471.650000
+Train Epoch: 15 [6000/9500 (62%)]	Loss: 2486.907656	GenLoss: 2485.369375
+Train Epoch: 15 [8000/9500 (83%)]	Loss: 2546.784062	GenLoss: 2545.292344
+====> Epoch: 15 Average loss: 2515.5795
+====> Test set loss: 2562.8775
+====> Generation loss: 2560.7501
+Train Epoch: 16 [0/9500 (0%)]	Loss: 2517.564531	GenLoss: 2515.630156
+Train Epoch: 16 [2000/9500 (21%)]	Loss: 2521.484375	GenLoss: 2519.763906
+Train Epoch: 16 [4000/9500 (42%)]	Loss: 2433.216406	GenLoss: 2431.146094
+Train Epoch: 16 [6000/9500 (62%)]	Loss: 2507.385469	GenLoss: 2505.507187
+Train Epoch: 16 [8000/9500 (83%)]	Loss: 2408.498906	GenLoss: 2406.733750
+====> Epoch: 16 Average loss: 2494.8020
+====> Test set loss: 2549.7677
+====> Generation loss: 2547.9679
+Train Epoch: 17 [0/9500 (0%)]	Loss: 2436.928750	GenLoss: 2435.071562
+Train Epoch: 17 [2000/9500 (21%)]	Loss: 2542.107656	GenLoss: 2540.116250
+Train Epoch: 17 [4000/9500 (42%)]	Loss: 2471.938281	GenLoss: 2470.223125
+Train Epoch: 17 [6000/9500 (62%)]	Loss: 2484.916250	GenLoss: 2483.006094
+Train Epoch: 17 [8000/9500 (83%)]	Loss: 2428.631719	GenLoss: 2426.736406
+====> Epoch: 17 Average loss: 2485.0683
+====> Test set loss: 2533.2812
+====> Generation loss: 2530.6618
+Train Epoch: 18 [0/9500 (0%)]	Loss: 2551.695938	GenLoss: 2549.749063
+Train Epoch: 18 [2000/9500 (21%)]	Loss: 2544.926094	GenLoss: 2542.525625
+Train Epoch: 18 [4000/9500 (42%)]	Loss: 2450.929844	GenLoss: 2449.072031
+Train Epoch: 18 [6000/9500 (62%)]	Loss: 2499.428281	GenLoss: 2497.883125
+Train Epoch: 18 [8000/9500 (83%)]	Loss: 2505.771563	GenLoss: 2504.184375
+====> Epoch: 18 Average loss: 2486.9937
+====> Test set loss: 2538.2787
+====> Generation loss: 2536.0613
+Train Epoch: 19 [0/9500 (0%)]	Loss: 2484.746875	GenLoss: 2482.767188
+Train Epoch: 19 [2000/9500 (21%)]	Loss: 2598.393594	GenLoss: 2596.422031
+Train Epoch: 19 [4000/9500 (42%)]	Loss: 2449.618281	GenLoss: 2447.754063
+Train Epoch: 19 [6000/9500 (62%)]	Loss: 2447.579219	GenLoss: 2445.864844
+Train Epoch: 19 [8000/9500 (83%)]	Loss: 2463.817500	GenLoss: 2462.465469
+====> Epoch: 19 Average loss: 2485.5957
+====> Test set loss: 2548.0463
+====> Generation loss: 2546.0137
+Train Epoch: 20 [0/9500 (0%)]	Loss: 2494.708906	GenLoss: 2492.608438
+Train Epoch: 20 [2000/9500 (21%)]	Loss: 2426.920938	GenLoss: 2425.178281
+Train Epoch: 20 [4000/9500 (42%)]	Loss: 2492.288125	GenLoss: 2490.542656
+Train Epoch: 20 [6000/9500 (62%)]	Loss: 2474.391719	GenLoss: 2472.693594
+Train Epoch: 20 [8000/9500 (83%)]	Loss: 2472.970313	GenLoss: 2470.868750
+====> Epoch: 20 Average loss: 2479.7566
+====> Test set loss: 2560.4246
+====> Generation loss: 2558.2850
+Train Epoch: 21 [0/9500 (0%)]	Loss: 2509.625312	GenLoss: 2507.945781
+Train Epoch: 21 [2000/9500 (21%)]	Loss: 2418.074531	GenLoss: 2416.612500
+Train Epoch: 21 [4000/9500 (42%)]	Loss: 2502.136406	GenLoss: 2500.450156
+Train Epoch: 21 [6000/9500 (62%)]	Loss: 2457.349688	GenLoss: 2455.523125
+Train Epoch: 21 [8000/9500 (83%)]	Loss: 2436.401250	GenLoss: 2434.435469
+====> Epoch: 21 Average loss: 2476.9317
+====> Test set loss: 2533.8373
+====> Generation loss: 2531.6697
+Train Epoch: 22 [0/9500 (0%)]	Loss: 2480.552500	GenLoss: 2479.130156
+Train Epoch: 22 [2000/9500 (21%)]	Loss: 2471.987969	GenLoss: 2470.105937
+Train Epoch: 22 [4000/9500 (42%)]	Loss: 2436.711250	GenLoss: 2434.527344
+Train Epoch: 22 [6000/9500 (62%)]	Loss: 2455.048750	GenLoss: 2453.292031
+Train Epoch: 22 [8000/9500 (83%)]	Loss: 2415.415625	GenLoss: 2413.385469
+====> Epoch: 22 Average loss: 2466.4034
+====> Test set loss: 2517.9164
+====> Generation loss: 2515.4402
+Train Epoch: 23 [0/9500 (0%)]	Loss: 2488.061094	GenLoss: 2486.312500
+Train Epoch: 23 [2000/9500 (21%)]	Loss: 2502.801875	GenLoss: 2501.102500
+Train Epoch: 23 [4000/9500 (42%)]	Loss: 2400.014062	GenLoss: 2398.107656
+Train Epoch: 23 [6000/9500 (62%)]	Loss: 2424.921875	GenLoss: 2422.901094
+Train Epoch: 23 [8000/9500 (83%)]	Loss: 2465.333125	GenLoss: 2463.727031
+====> Epoch: 23 Average loss: 2473.2993
+====> Test set loss: 2536.0350
+====> Generation loss: 2533.9493
+Train Epoch: 24 [0/9500 (0%)]	Loss: 2510.016719	GenLoss: 2508.340625
+Train Epoch: 24 [2000/9500 (21%)]	Loss: 2462.086250	GenLoss: 2460.089375
+Train Epoch: 24 [4000/9500 (42%)]	Loss: 2421.386719	GenLoss: 2419.731250
+Train Epoch: 24 [6000/9500 (62%)]	Loss: 2476.161719	GenLoss: 2474.742500
+Train Epoch: 24 [8000/9500 (83%)]	Loss: 2462.654219	GenLoss: 2461.041563
+====> Epoch: 24 Average loss: 2469.6523
+====> Test set loss: 2519.6548
+====> Generation loss: 2516.5110
+Train Epoch: 25 [0/9500 (0%)]	Loss: 2499.927656	GenLoss: 2497.985469
+Train Epoch: 25 [2000/9500 (21%)]	Loss: 2448.272031	GenLoss: 2446.359063
+Train Epoch: 25 [4000/9500 (42%)]	Loss: 2470.316094	GenLoss: 2468.871719
+Train Epoch: 25 [6000/9500 (62%)]	Loss: 2484.124219	GenLoss: 2482.411250
+Train Epoch: 25 [8000/9500 (83%)]	Loss: 2440.975313	GenLoss: 2439.255938
+====> Epoch: 25 Average loss: 2461.5677
+====> Test set loss: 2515.0251
+====> Generation loss: 2512.5020
+Train Epoch: 26 [0/9500 (0%)]	Loss: 2389.123906	GenLoss: 2386.961250
+Train Epoch: 26 [2000/9500 (21%)]	Loss: 2461.054062	GenLoss: 2458.969844
+Train Epoch: 26 [4000/9500 (42%)]	Loss: 2397.595625	GenLoss: 2395.470781
+Train Epoch: 26 [6000/9500 (62%)]	Loss: 2474.705781	GenLoss: 2472.558906
+Train Epoch: 26 [8000/9500 (83%)]	Loss: 2488.684844	GenLoss: 2487.128594
+====> Epoch: 26 Average loss: 2457.8066
+====> Test set loss: 2534.8955
+====> Generation loss: 2532.4381
+Train Epoch: 27 [0/9500 (0%)]	Loss: 2501.983281	GenLoss: 2500.645000
+Train Epoch: 27 [2000/9500 (21%)]	Loss: 2402.859219	GenLoss: 2401.181719
+Train Epoch: 27 [4000/9500 (42%)]	Loss: 2404.886406	GenLoss: 2402.945156
+Train Epoch: 27 [6000/9500 (62%)]	Loss: 2502.270625	GenLoss: 2500.700156
+Train Epoch: 27 [8000/9500 (83%)]	Loss: 2461.473437	GenLoss: 2459.656250
+====> Epoch: 27 Average loss: 2481.7350
+====> Test set loss: 2524.9479
+====> Generation loss: 2523.0258
+Train Epoch: 28 [0/9500 (0%)]	Loss: 2414.200781	GenLoss: 2412.915469
+Train Epoch: 28 [2000/9500 (21%)]	Loss: 2524.959375	GenLoss: 2523.076562
+Train Epoch: 28 [4000/9500 (42%)]	Loss: 2427.567031	GenLoss: 2425.836875
+Train Epoch: 28 [6000/9500 (62%)]	Loss: 2423.230000	GenLoss: 2420.875469
+Train Epoch: 28 [8000/9500 (83%)]	Loss: 2446.730312	GenLoss: 2444.897812
+====> Epoch: 28 Average loss: 2458.2642
+====> Test set loss: 2512.2139
+====> Generation loss: 2509.8726
+Train Epoch: 29 [0/9500 (0%)]	Loss: 2461.792969	GenLoss: 2459.989687
+Train Epoch: 29 [2000/9500 (21%)]	Loss: 2426.218906	GenLoss: 2424.549375
+Train Epoch: 29 [4000/9500 (42%)]	Loss: 2405.597188	GenLoss: 2403.946719
+Train Epoch: 29 [6000/9500 (62%)]	Loss: 2472.879844	GenLoss: 2471.045625
+Train Epoch: 29 [8000/9500 (83%)]	Loss: 2447.008438	GenLoss: 2444.638750
+====> Epoch: 29 Average loss: 2448.3407
+====> Test set loss: 2517.2031
+====> Generation loss: 2514.9240
+Train Epoch: 30 [0/9500 (0%)]	Loss: 2488.824375	GenLoss: 2486.793906
+Train Epoch: 30 [2000/9500 (21%)]	Loss: 2554.263125	GenLoss: 2552.430937
+Train Epoch: 30 [4000/9500 (42%)]	Loss: 2417.845469	GenLoss: 2415.664219
+Train Epoch: 30 [6000/9500 (62%)]	Loss: 2459.159844	GenLoss: 2457.522031
+Train Epoch: 30 [8000/9500 (83%)]	Loss: 2483.256406	GenLoss: 2481.756094
+====> Epoch: 30 Average loss: 2457.3036
+====> Test set loss: 2516.3320
+====> Generation loss: 2514.0627
+--- 2513.024571418762 seconds ---
+(null): can't open file '3Dconv.py': [Errno 2] No such file or directory
+(null): can't open file '3Dconv.py': [Errno 2] No such file or directory
+(null): can't open file '3Dconv.py': [Errno 2] No such file or directory
