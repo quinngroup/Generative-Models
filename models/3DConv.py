@@ -249,6 +249,14 @@ if __name__ == "__main__":
                         help='length and height of one image')
     parser.add_argument('--input_depth', type=int, default=20, metavar='id',
                         help='number of frames in one video')
+    parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
+                        help='learning rate')
+    parser.add_argument('--graph', action='store_true', default= False,
+                    help='flag to determine whether or not to run automatic graphing')      
+    parser.add_argument('--repeat', action='store_true', default=False,
+                    help='determines whether to enact further training after loading weights')
+
+
     args = parser.parse_args()
     args.cuda = not args.no_cuda and torch.cuda.is_available()
     if(args.cuda):
@@ -269,7 +277,7 @@ if __name__ == "__main__":
     train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args.seed, args.testSplit)
     enumerate(train_loader)
     model = Conv3DVAE(args.input_length, args.input_depth, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
     def train(epoch):
         model.train()
@@ -343,27 +351,24 @@ if __name__ == "__main__":
                             }, args.save)
             print("--- %s seconds ---" % (time.time() - startTime))
             cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
-            
-            #Handling different dimensionalities
-            if (args.lsdim < 3) :
-                z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
-                z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-                scatterPlot = plt.scatter(z1, z2, s = 4) #Regular 2dim plot, RE-ADD CMAP = CMAP
-            elif (args.lsdim == 3) :
-                fig=plt.figure()
-                ax=fig.gca(projection='3d')
-                z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
-                z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-                z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
-                scatterPlot = ax.scatter(z1, z2, z3, s = 4) #Regular 3dim plot
-            else:    
-                Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())        
-                z1 = Z_embedded[:, 0]
-                z2 = Z_embedded[:, 1]
-                scatterPlot = plt.scatter(z1, z2, s = 4) #TSNE projection for >3dim 
-
-            plt.show()
-            temp = model.means(model.idle_input).view(-1,args.input_length,args.input_length).detach().cpu()
+            if(args.graph):
+                #Handling different dimensionalities
+                if (args.lsdim < 3) :
+                    z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
+                    z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
+                    scatterPlot = plt.scatter(z1, z2, s = 4) #Regular 2dim plot, RE-ADD CMAP = CMAP
+                elif (args.lsdim == 3) :
+                    fig=plt.figure()
+                    ax=fig.gca(projection='3d')
+                    z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
+                    z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
+                    z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
+                    scatterPlot = ax.scatter(z1, z2, z3, s = 4) #Regular 3dim plot
+                else:    
+                    Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())        
+                    z1 = Z_embedded[:, 0]
+                    z2 = Z_embedded[:, 1]
+                    scatterPlot = plt.scatter(z1, z2, s = 4) #TSNE projection for >3dim
              
     def dplot(x):
         img = decode(x)
@@ -374,11 +379,12 @@ if __name__ == "__main__":
         for epoch in range(1, args.epochs + 1):
             train(epoch)
             test(epoch, args.epochs, startTime)
-    elif(args.cuda == True):
+    else:
         checkpoint=torch.load(args.load)
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         test(args.epochs, args.epochs, startTime)
-    else:
-        model.load_state_dict(torch.load(args.load, map_location= device))
-        test(args.epochs, args.epochs, startTime)
+        if(args.repeat==True):
+            for epoch in range(1, args.epochs + 1):
+                train(epoch)
+                test(epoch, args.epochs, startTime)

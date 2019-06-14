@@ -2,12 +2,10 @@
 
 dir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 
-python VtPVAE.py  --epochs 30 --lsdim 16 --gamma .05 --save weights/exp3/b0.h5 --pseudos 25; 
-
-python VtPVAE.py  --epochs 30 --lsdim 16 --gamma .15 --save weights/exp3/b1.h5 --pseudos 25 --batch-size 1000; 
-
-python VtPVAE.py  --epochs 10 --lsdim 16 --gamma .05 --save weights/exp3/_b2.h5 --pseudos 25; 
-python VtPVAE.py  --epochs 20 --lsdim 16 --gamma .15 --save weights/exp3/b2.h5 --pseudos 25 --load weights/exp3/_b2.h5 --batch-size 1000; 
-
-python VtPVAE.py  --epochs 20 --lsdim 16 --gamma .05 --save weights/exp3/_b3.h5 --pseudos 25;
-python VtPVAE.py  --epochs 10 --lsdim 16 --gamma .15 --save weights/exp3/b3.h5 --pseudos 25 --load weights/exp3/_b3.h5 --batch-size 1000; 
+python VtPVAE.py  --epochs 30 --pseudos 25 --lsdim 2 --save weights/exp5/w1.h5; 
+python VtPVAE.py  --epochs 30 --pseudos 25 --lsdim 4 --save weights/exp5/w2.h5; 
+python VtPVAE.py  --epochs 30 --pseudos 25 --lsdim 8 --save weights/exp5/w3.h5; 
+python VtPVAE.py  --epochs 30 --pseudos 25 --lsdim 16 --save weights/exp5/w4.h5; 
+python VtPVAE.py  --epochs 30 --pseudos 25 --lsdim 32 --save weights/exp5/w5.h5; 
+python VtPVAE.py  --epochs 30 --pseudos 25 --lsdim 64 --save weights/exp5/w6.h5; 
+python VtPVAE.py  --epochs 30 --pseudos 25 --lsdim 128 --save weights/exp5/w7.h5; 

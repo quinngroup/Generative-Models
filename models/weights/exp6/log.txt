@@ -1,0 +1,3 @@
+Experiment Log
+==============
+Comparing old/new SBD method wherein w1 is the old, w2 is the new, following the parameter setup of exp3
