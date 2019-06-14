@@ -3,6 +3,7 @@ import sys
 sys.path.insert(0,'../')
 
 import argparse
+import cv2
 import torch
 import torch.utils.data
 import time
@@ -250,6 +251,9 @@ if __name__ == "__main__":
                         help='number of frames in one video')
     args = parser.parse_args()
     args.cuda = not args.no_cuda and torch.cuda.is_available()
+    if(args.cuda):
+        with torch.cuda.device(0):
+            torch.tensor([1.]).cuda()
 
     torch.manual_seed(args.seed)
 
@@ -274,12 +278,22 @@ if __name__ == "__main__":
             data = data.to(device)
             optimizer.zero_grad()
             recon_batch, mu, logvar, z = model(data)
-            pseudos = model.means(model.idle_input).view(-1, 1, args.input_depth, args.input_length, args.input_length).to(device)
+            with torch.no_grad():
+                pseudos = model.means(model.idle_input).view(-1, 1, args.input_depth, args.input_length, args.input_length).to(device)
             recon_pseudos, p_mu, p_logvar, p_z = model(pseudos)
             loss = model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z)
             loss.backward()
             train_loss += loss.item()
             optimizer.step()
+            '''
+            for i in range(args.pseudos):
+                fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+                out = cv2.VideoWriter('output' + str(i) + '.avi', fourcc, 10.0, (64,64))
+                for j in range(args.input_depth):
+                    pseudoinput = pseudos[i,0,j].cpu().numpy()
+                    pseudoinput *= 255.0/pseudoinput.max()
+                    out.write(np.uint8(pseudoinput))
+                out.release()'''
             if batch_idx % args.log_interval == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tGenLoss: {:.6f}'.format(
                     epoch, batch_idx * len(data), len(train_loader.dataset),
@@ -295,16 +309,23 @@ if __name__ == "__main__":
         test_loss = 0
         gen_loss = 0
         zTensor = torch.empty(0,args.lsdim).to(device)
-        pseudos = model.means(model.idle_input).view(-1, 1, args.input_depth, args.input_length, args.input_length).to(device)
-        recon_pseudos, p_mu, p_logvar, p_z = model(pseudos)
         with torch.no_grad():
+            pseudos = model.means(model.idle_input).view(-1, 1, args.input_depth, args.input_length, args.input_length).to(device)
+            recon_pseudos, p_mu, p_logvar, p_z = model(pseudos)
             for i, data in enumerate(test_loader):
                 data = data.to(device)
                 recon_batch, mu, logvar, z = model(data)
                 test_loss += model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z).item()
                 gen_loss += model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0).item()
                 zTensor = torch.cat((zTensor, z), 0)
-        
+            for i in range(args.pseudos):
+                fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+                out = cv2.VideoWriter('output' + str(i) + '.avi', fourcc, 10.0, (64,64), False)
+                for j in range(args.input_depth):
+                    pseudoinput = pseudos[i,0,j].cpu().numpy()
+                    pseudoinput *= 255.0/pseudoinput.max()
+                    out.write(np.uint8(pseudoinput))
+                out.release()
         if (args.dbscan == True) :
             zScaled = StandardScaler().fit_transform((torch.Tensor.cpu(zTensor).numpy())) #re-add StandardScaler().fit_transform
             db = DBSCAN(eps= 0.7, min_samples= 3).fit(zScaled)
@@ -343,9 +364,6 @@ if __name__ == "__main__":
 
             plt.show()
             temp = model.means(model.idle_input).view(-1,args.input_length,args.input_length).detach().cpu()
-            for x in range(args.pseudos):
-                plt.matshow(temp[x].numpy())
-                plt.show()
              
     def dplot(x):
         img = decode(x)
