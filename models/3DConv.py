@@ -219,7 +219,6 @@ if __name__ == "__main__":
 
     startTime = time.time()
 
-    writer = SummaryWriter()
 
     
     parser = argparse.ArgumentParser(description='3DConv')
@@ -280,6 +279,9 @@ if __name__ == "__main__":
 
     kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
     fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+    if(args.log):
+        writer = SummaryWriter()
+
     #Loads moving MNIST dataset
     mnist = np.load(args.source)
 
