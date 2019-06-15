@@ -283,7 +283,10 @@ if __name__ == "__main__":
     fourcc = cv2.VideoWriter_fourcc(*"MJPG")
     writer=None
     if(args.log!='!'):
-        writer = SummaryWriter(comment=args.log)
+        if(args.log=='$'):
+            writer = SummaryWriter()
+        else:
+            writer = SummaryWriter(logdir==args.log)
 
     #Loads moving MNIST dataset
     mnist = np.load(args.source)
