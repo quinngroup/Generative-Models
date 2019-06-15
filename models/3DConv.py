@@ -279,6 +279,7 @@ if __name__ == "__main__":
 
     kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
     fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+    writer=None
     if(args.log):
         writer = SummaryWriter()
 
@@ -397,7 +398,7 @@ if __name__ == "__main__":
             for epoch in range(1, args.epochs + 1):
                 train(epoch)
                 test(epoch, args.epochs, startTime)
-                
-    #res = torch.autograd.Variable(torch.Tensor(1,1,20,64,64), requires_grad=True).to(device)
-    #writer.add_graph(model,res,verbose=True)
-    writer.close()
+    if(args.log):
+        #res = torch.autograd.Variable(torch.Tensor(1,1,20,64,64), requires_grad=True).to(device)
+        #writer.add_graph(model,res,verbose=True)
+        writer.close()
