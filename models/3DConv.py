@@ -263,9 +263,11 @@ if __name__ == "__main__":
                     help='determines whether to enact further training after loading weights')
     parser.add_argument('--pseudostring', type=str, default='output', metavar='ps',
                     help='string beginning the filename of each pseudoinput')
-    parser.add_argument('--log', action='store_true', default= False,
-                    help='flag to determine whether to use tensorboard for logging')      
-    parser.add_argument('--pp', type = int, default=10, metavar='pp',
+    parser.add_argument('--log', type=str, default='!', metavar='lg',
+                    help='flag to determine whether to use tensorboard for logging. Default \'!\' is read to mean no logging')      
+    parser.add_argument('--save', type=str, default='', metavar='s',
+                        help='saves the weights to a given filepath')
+    parser.add_argument('--pp', type = int, default=0, metavar='pp',
                     help='Plot pseudos. Controls the number of pseudo inputs to be displayed')
 
 
@@ -282,8 +284,8 @@ if __name__ == "__main__":
     kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
     fourcc = cv2.VideoWriter_fourcc(*"MJPG")
     writer=None
-    if(args.log):
-        writer = SummaryWriter()
+    if(args.log!='!'):
+        writer = SummaryWriter(comment=args.log)
 
     #Loads moving MNIST dataset
     mnist = np.load(args.source)
@@ -312,7 +314,7 @@ if __name__ == "__main__":
             train_loss += loss.item()
             optimizer.step()
             step=epoch*len(train_loader)+batch_idx
-            if(args.log):
+            if(args.log!='!'):
                 writer.add_scalar('loss',loss.item(),global_step=step)
             
             if batch_idx % args.log_interval == 0:
@@ -400,7 +402,7 @@ if __name__ == "__main__":
             for epoch in range(1, args.epochs + 1):
                 train(epoch)
                 test(epoch, args.epochs, startTime)
-    if(args.log):
+    if(args.log!='!'):
         #res = torch.autograd.Variable(torch.Tensor(1,1,20,64,64), requires_grad=True).to(device)
         #writer.add_graph(model,res,verbose=True)
         writer.close()
