@@ -21,11 +21,14 @@ from mpl_toolkits.mplot3d import Axes3D
 from mMNISTflat import genLoaders
 from vamps.NatVampPrior import log_Normal_diag
 
+from torch.utils.tensorboard import SummaryWriter
+
 import math
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
+
 
 """
 3D Convolutional Network for use on Moving MNIST dataset
@@ -48,7 +51,6 @@ class Conv3DVAE(nn.Module):
         self.finalConvLength = ((input_length - 4)//2 - 6)//2 - 10
         self.finalConvDepth = (input_depth - 4)//2 - 6
         
-        layers = [(
         #(1,20,64,64) -> (8,18,56,56)
         self.conv1 = nn.Conv3d(1, 8, (3,9,9))
         
@@ -77,16 +79,16 @@ class Conv3DVAE(nn.Module):
     # THE MODEL: VARIATIONAL POSTERIOR
     def q_z(self, x):
         #(1,20,64,64) -> (8,18,56,56) -> (8,18,28,28)
-        x = F.max_pool3d(LeakyReLU(0.1)(self.conv1(x)), (1,2,2))
+        x = F.max_pool3d(F.leaky_relu(self.conv1(x)), (1,2,2))
         
         #(8,18,30,30) -> (16,16,22,22) -> (16,8,11,11)
-        x = F.max_pool3d(LeakyReLU(0.1)(self.conv2(x)), (2,2,2))
+        x = F.max_pool3d(F.leaky_relu(self.conv2(x)), (2,2,2))
         
         #(16,8,11,11) -> (32,4,6,6)
-        x = LeakyReLU(0.1)(self.conv3(x))
+        x = F.leaky_relu(self.conv3(x))
         
         #(32,4,6,6) -> (64,2,2,2)
-        x = LeakyReLU(0.1)(self.conv4(x))
+        x = F.leaky_relu(self.conv4(x))
         
         #(64,2,2,2) -> 64*2*2*2
         x = x.view(-1, 64*self.finalConvDepth*self.finalConvLength*self.finalConvLength)
@@ -216,6 +218,10 @@ class movingMNISTDataset(Dataset):
 if __name__ == "__main__":
 
     startTime = time.time()
+
+    writer = SummaryWriter()
+
+    
     parser = argparse.ArgumentParser(description='3DConv')
     parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                         help='input batch size for training (default: 128)')
@@ -258,6 +264,8 @@ if __name__ == "__main__":
                     help='determines whether to enact further training after loading weights')
     parser.add_argument('--pseudostring', type=str, default='output', metavar='ps',
                     help='string beginning the filename of each pseudoinput')
+    parser.add_argument('--log', action='store_true', default= False,
+                    help='flag to determine whether to use tensorboard for logging')      
 
 
     args = parser.parse_args()
@@ -298,13 +306,17 @@ if __name__ == "__main__":
             loss.backward()
             train_loss += loss.item()
             optimizer.step()
+            step=epoch*len(train_loader)+batch_idx
+            if(args.log):
+                writer.add_scalar('loss',loss.item(),global_step=step)
+            
             if batch_idx % args.log_interval == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tGenLoss: {:.6f}'.format(
                     epoch, batch_idx * len(data), len(train_loader.dataset),
                     100. * batch_idx / len(train_loader),
                     loss.item() / len(data),
                     model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0).item() / len(data)))
-
+            
         print('====> Epoch: {} Average loss: {:.4f}'.format(
               epoch, train_loss / len(train_loader.dataset)))
 
@@ -383,3 +395,7 @@ if __name__ == "__main__":
             for epoch in range(1, args.epochs + 1):
                 train(epoch)
                 test(epoch, args.epochs, startTime)
+                
+    #res = torch.autograd.Variable(torch.Tensor(1,1,20,64,64), requires_grad=True).to(device)
+    #writer.add_graph(model,res,verbose=True)
+    writer.close()
