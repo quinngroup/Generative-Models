@@ -265,8 +265,6 @@ if __name__ == "__main__":
                     help='string beginning the filename of each pseudoinput')
     parser.add_argument('--log', type=str, default='!', metavar='lg',
                     help='flag to determine whether to use tensorboard for logging. Default \'!\' is read to mean no logging')      
-    parser.add_argument('--save', type=str, default='', metavar='s',
-                        help='saves the weights to a given filepath')
     parser.add_argument('--pp', type = int, default=0, metavar='pp',
                     help='Plot pseudos. Controls the number of pseudo inputs to be displayed')
 
