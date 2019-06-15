@@ -265,6 +265,8 @@ if __name__ == "__main__":
                     help='string beginning the filename of each pseudoinput')
     parser.add_argument('--log', action='store_true', default= False,
                     help='flag to determine whether to use tensorboard for logging')      
+    parser.add_argument('--pp', type = int, default=10, metavar='pp',
+                    help='Plot pseudos. Controls the number of pseudo inputs to be displayed')
 
 
     args = parser.parse_args()
@@ -337,7 +339,7 @@ if __name__ == "__main__":
                 test_loss += model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z).item()
                 gen_loss += model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0).item()
                 zTensor = torch.cat((zTensor, z), 0)
-            for i in range(args.pseudos):
+            for i in range(args.pp):
                 out = cv2.VideoWriter('temps\\' + args.pseudostring + str(i) + '.avi', fourcc, 10.0, (64,64), False)
                 for j in range(args.input_depth):
                     pseudoinput = pseudos[i,0,j].cpu().numpy()
