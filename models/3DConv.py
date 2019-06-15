@@ -48,6 +48,7 @@ class Conv3DVAE(nn.Module):
         self.finalConvLength = ((input_length - 4)//2 - 6)//2 - 10
         self.finalConvDepth = (input_depth - 4)//2 - 6
         
+        layers = [(
         #(1,20,64,64) -> (8,18,56,56)
         self.conv1 = nn.Conv3d(1, 8, (3,9,9))
         
@@ -238,9 +239,9 @@ if __name__ == "__main__":
                         help='sets the value of beta for a beta-vae implementation')
     parser.add_argument('--gamma', type=float, default=.05, metavar='%',
                         help='Pseudo-loss weight (default: .05)')
-    parser.add_argument('--pseudos', type=int, default=10, metavar='p',
+    parser.add_argument('--pseudos', type=int, default=25, metavar='p',
                         help='Number of pseudo-inputs (default:10)')
-    parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
+    parser.add_argument('--lsdim', type = int, default=16, metavar='ld',
                         help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
                         #current implementation may not be optimal for dims above 4
     parser.add_argument('--dbscan', type= bool, default= False, metavar='db',
@@ -255,6 +256,8 @@ if __name__ == "__main__":
                     help='flag to determine whether or not to run automatic graphing')      
     parser.add_argument('--repeat', action='store_true', default=False,
                     help='determines whether to enact further training after loading weights')
+    parser.add_argument('--pseudostring', type=str, default='output', metavar='ps',
+                    help='string beginning the filename of each pseudoinput')
 
 
     args = parser.parse_args()
@@ -268,7 +271,7 @@ if __name__ == "__main__":
     device = torch.device("cuda" if args.cuda else "cpu")
 
     kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
-
+    fourcc = cv2.VideoWriter_fourcc(*"MJPG")
     #Loads moving MNIST dataset
     mnist = np.load(args.source)
 
@@ -277,6 +280,8 @@ if __name__ == "__main__":
     train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args.seed, args.testSplit)
     enumerate(train_loader)
     model = Conv3DVAE(args.input_length, args.input_depth, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
+    
+    model_params = []
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
     def train(epoch):
@@ -293,15 +298,6 @@ if __name__ == "__main__":
             loss.backward()
             train_loss += loss.item()
             optimizer.step()
-            '''
-            for i in range(args.pseudos):
-                fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-                out = cv2.VideoWriter('output' + str(i) + '.avi', fourcc, 10.0, (64,64))
-                for j in range(args.input_depth):
-                    pseudoinput = pseudos[i,0,j].cpu().numpy()
-                    pseudoinput *= 255.0/pseudoinput.max()
-                    out.write(np.uint8(pseudoinput))
-                out.release()'''
             if batch_idx % args.log_interval == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tGenLoss: {:.6f}'.format(
                     epoch, batch_idx * len(data), len(train_loader.dataset),
@@ -327,8 +323,7 @@ if __name__ == "__main__":
                 gen_loss += model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0).item()
                 zTensor = torch.cat((zTensor, z), 0)
             for i in range(args.pseudos):
-                fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-                out = cv2.VideoWriter('output' + str(i) + '.avi', fourcc, 10.0, (64,64), False)
+                out = cv2.VideoWriter('temps\\' + args.pseudostring + str(i) + '.avi', fourcc, 10.0, (64,64), False)
                 for j in range(args.input_depth):
                     pseudoinput = pseudos[i,0,j].cpu().numpy()
                     pseudoinput *= 255.0/pseudoinput.max()
