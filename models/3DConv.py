@@ -269,6 +269,8 @@ if __name__ == "__main__":
                     help='Plot pseudos. Controls the number of pseudo inputs to be displayed')
     parser.add_argument('--reg2', type = float, default=0, metavar='rg2',
                         help='coefficient for L2 weight decay')
+    parser.add_argument('--debug', action='store_true', default=False,
+                    help='print debug info for every batch')
 
 
     args = parser.parse_args()
@@ -321,7 +323,7 @@ if __name__ == "__main__":
                 per_item_loss=loss.item()/len(data)
                 writer.add_scalar('item_loss',per_item_loss,global_step=step)
             
-            if batch_idx % args.log_interval == 0:
+            if args.debug or (batch_idx % args.log_interval == 0):
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tGenLoss: {:.6f}'.format(
                     epoch, batch_idx * len(data), len(train_loader.dataset),
                     100. * batch_idx / len(train_loader),
