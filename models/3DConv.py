@@ -316,7 +316,8 @@ if __name__ == "__main__":
             optimizer.step()
             step=epoch*len(train_loader)+batch_idx
             if(args.log!='!'):
-                writer.add_scalar('loss',loss.item(),global_step=step)
+                per_item_loss=loss.item()/len(data)
+                writer.add_scalar('item_loss',per_item_loss,global_step=step)
             
             if batch_idx % args.log_interval == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tGenLoss: {:.6f}'.format(
