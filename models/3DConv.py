@@ -267,6 +267,8 @@ if __name__ == "__main__":
                     help='flag to determine whether to use tensorboard for logging. Default \'!\' is read to mean no logging')      
     parser.add_argument('--pp', type = int, default=0, metavar='pp',
                     help='Plot pseudos. Controls the number of pseudo inputs to be displayed')
+    parser.add_argument('--reg2', type = float, default=0, metavar='rg2',
+                        help='coefficient for L2 weight decay')
 
 
     args = parser.parse_args()
@@ -298,7 +300,7 @@ if __name__ == "__main__":
     model = Conv3DVAE(args.input_length, args.input_depth, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
     
     model_params = []
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
+    optimizer = optim.Adam(model.parameters(), lr=args.lr,weight_decay=args.reg2)
 
     def train(epoch):
         model.train()
