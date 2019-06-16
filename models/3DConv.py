@@ -286,7 +286,7 @@ if __name__ == "__main__":
         if(args.log=='$'):
             writer = SummaryWriter()
         else:
-            writer = SummaryWriter(logdir==args.log)
+            writer = SummaryWriter(log_dir='runs/'+args.log)
 
     #Loads moving MNIST dataset
     mnist = np.load(args.source)
