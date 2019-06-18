@@ -176,9 +176,15 @@ class Conv3DVAE(nn.Module):
         plog_q_z = torch.sum(log_Normal_diag(p_z, p_mu, p_logvar, dim=1),0)
         pKL = -(plog_p_z - plog_q_z)
         if(args.debug):
+            print()
+            print()
+            print()
             print("Reconstruction Loss: ",RE.item())
+            print()
             print("Psuedos Reconstruction Loss: ",pRE.item())
+            print()
             print("KL Divergence: ",KL.item())
+            print()
             print("Pseudos KL Divergence: ",pKL.item())
         
         if gamma is None:
