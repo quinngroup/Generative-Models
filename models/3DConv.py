@@ -35,17 +35,13 @@ import matplotlib.colors as colors
 
 @author Quinn Wyner
 """
-class Conv3DVAE(nn.Module):
-    def __init__(self, input_length, input_depth, lsdim, pseudos, beta, gamma, batch_size, device):
-        super(Conv3DVAE, self).__init__()
+class VAE(nn.Module):
+    def __init__(self, input_length, input_depth, lsdim, device):
+        super(VAE, self).__init__()
         
         self.input_length = input_length
         self.input_depth = input_depth
         self.lsdim = lsdim
-        self.pseudos = pseudos
-        self.beta = beta
-        self.gamma = gamma
-        self.batch_size = batch_size
         self.device = device
         
         self.finalConvLength = ((input_length - 4)//2 - 6)//2 - 10
@@ -72,9 +68,6 @@ class Conv3DVAE(nn.Module):
         self.conv7 = nn.Conv3d(16, 16, 3, padding=1)
         self.conv8 = nn.Conv3d(16, 16, 3, padding=1)
         self.conv9 = nn.Conv3d(16, 1, 1)
-        
-        self.means = nn.Linear(pseudos, input_depth * input_length * input_length, bias=False)
-        self.idle_input = torch.eye(pseudos, pseudos, requires_grad=True).cuda()
         
     # THE MODEL: VARIATIONAL POSTERIOR
     def q_z(self, x):
@@ -131,12 +124,45 @@ class Conv3DVAE(nn.Module):
         
         return x
         
+    def forward(self, x):
+        
+        #z~q(z|x)
+        mu, logvar = self.q_z(x)
+
+        z = self.reparameterize(mu, logvar)
+        
+        #decode code
+        x_mean=self.p_x(z)
+        return x_mean, mu, logvar, z
+        
+class PseudoGen(nn.Module):
+    def __init__(self, input_length, input_depth, pseudos):
+        super(PseudoGen, self).__init__()
+        
+        self.means = nn.Linear(pseudos, input_depth*input_length*input_length, bias=False)
+        
+    def forward(self, x):
+        return self.means(x)
+        
+class Conv3DVAE(nn.Module):
+    def __init__(self, input_length, input_depth, lsdim, pseudos, beta, gamma, device):
+        super(Conv3DVAE, self).__init__()
+        
+        self.pseudos = pseudos
+        self.beta = beta
+        self.gamma = gamma
+        
+        self.vae = VAE(input_length, input_depth, lsdim, device)
+        self.pseudoGen = PseudoGen(input_length, input_depth, pseudos)
+        
+        self.idle_input = torch.eye(pseudos, pseudos, requires_grad=True).cuda()
+        
     def log_p_z(self, z):
         #calculate params
-        x = self.means(self.idle_input)
+        x = self.pseudoGen.forward(self.idle_input)
         
         #calculate params for given data
-        z_p_mean, z_p_logvar = self.q_z(x.view(-1, 1, self.input_depth, self.input_length, self.input_length))
+        z_p_mean, z_p_logvar = self.vae.q_z(x.view(-1, 1, self.vae.input_depth, self.vae.input_length, self.vae.input_length))
         
         #expand z
         z_expand = z.unsqueeze(1)
@@ -151,18 +177,10 @@ class Conv3DVAE(nn.Module):
         return torch.sum(log_prior, 0)
         
     def forward(self, x):
-        
-        #z~q(z|x)
-        mu, logvar = self.q_z(x)
-
-        z = self.reparameterize(mu, logvar)
-        
-        #decode code
-        x_mean=self.p_x(z)
-        return x_mean, mu, logvar, z
+        return self.vae.forward(x)
         
     def loss_function(self, recon_x, x, mu, logvar, z_q, pseudo, recon_pseudo, p_mu, p_logvar, p_z, gamma=None):
-        RE = F.mse_loss(recon_x.view(-1, self.input_depth*self.input_length*self.input_length), x.view(-1, self.input_depth*self.input_length*self.input_length), reduction = 'sum')
+        RE = F.mse_loss(recon_x.view(-1, self.vae.input_depth*self.vae.input_length*self.vae.input_length), x.view(-1, self.vae.input_depth*self.vae.input_length*self.vae.input_length), reduction = 'sum')
         
         #KL
         log_p_z = self.log_p_z(z_q)
@@ -170,7 +188,7 @@ class Conv3DVAE(nn.Module):
         KL = -(log_p_z - log_q_z)
         
         #pseudo-loss
-        pRE = F.mse_loss(recon_pseudo.view(-1, self.input_depth*self.input_length*self.input_length), pseudo.view(-1, self.input_depth*self.input_length*self.input_length), reduction = 'sum')
+        pRE = F.mse_loss(recon_pseudo.view(-1, self.vae.input_depth*self.vae.input_length*self.vae.input_length), pseudo.view(-1, self.vae.input_depth*self.vae.input_length*self.vae.input_length), reduction = 'sum')
         
         plog_p_z = self.log_p_z(p_z)
         plog_q_z = torch.sum(log_Normal_diag(p_z, p_mu, p_logvar, dim=1),0)
@@ -310,10 +328,12 @@ if __name__ == "__main__":
     data = movingMNISTDataset(npArray=mnist, transform=videoTransform)
     train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args.seed, args.testSplit)
     enumerate(train_loader)
-    model = Conv3DVAE(args.input_length, args.input_depth, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
+    model = Conv3DVAE(args.input_length, args.input_depth, args.lsdim, args.pseudos, args.beta, args.gamma, device).to(device)
     
     model_params = []
-    optimizer = optim.Adam(model.parameters(), lr=args.lr,weight_decay=args.reg2)
+    optimizer = optim.Adam([{'params': model.vae.parameters()},
+                            {'params': model.pseudoGen.parameters(), 'lr': 1e-4}],
+                            lr=args.lr, weight_decay=args.reg2)
 
     def train(epoch):
         model.train()
@@ -323,7 +343,7 @@ if __name__ == "__main__":
             optimizer.zero_grad()
             recon_batch, mu, logvar, z = model(data)
             with torch.no_grad():
-                pseudos = model.means(model.idle_input).view(-1, 1, args.input_depth, args.input_length, args.input_length).to(device)
+                pseudos = model.pseudoGen.means(model.idle_input).view(-1, 1, args.input_depth, args.input_length, args.input_length).to(device)
             recon_pseudos, p_mu, p_logvar, p_z = model(pseudos)
             loss = model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z)
             loss.backward()
@@ -350,7 +370,7 @@ if __name__ == "__main__":
         gen_loss = 0
         zTensor = torch.empty(0,args.lsdim).to(device)
         with torch.no_grad():
-            pseudos = model.means(model.idle_input).view(-1, 1, args.input_depth, args.input_length, args.input_length).to(device)
+            pseudos = model.pseudoGen.means(model.idle_input).view(-1, 1, args.input_depth, args.input_length, args.input_length).to(device)
             recon_pseudos, p_mu, p_logvar, p_z = model(pseudos)
             for i, data in enumerate(test_loader):
                 data = data.to(device)
