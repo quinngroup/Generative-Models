@@ -83,7 +83,7 @@ class VAE(nn.Module):
     def generate_x(self, N=None):
         if N is None:
             N = self.pseudos
-        means = self.means(self.idle_input)[0:N]
+        means = F.leaky_relu((F.leaky_relu(self.means(self.idle_input)[0:N]) * -1.0 + 1.0)) - 1.0 * -1.0
         z_sample_gen_mean, z_sample_gen_logvar = self.q_z(means)
         z_sample_rand = self.reparameterize(z_sample_gen_mean, z_sample_gen_logvar)
 
@@ -107,7 +107,7 @@ class VAE(nn.Module):
         x=x.view(-1, 64*self.finalConvLength*self.finalConvLength)
         
         z_q_mean = self.mean(x)
-        z_q_logvar = self.logvar(x)
+        z_q_logvar = F.leaky_relu(self.logvar(x) + 3.0) - 3.0
         return z_q_mean, z_q_logvar
 
     def reparameterize(self, mu, logvar):
@@ -123,7 +123,7 @@ class VAE(nn.Module):
             
     def log_p_z(self,z):
         # calculate params
-        X = self.means(self.idle_input)
+        X = (F.leaky_relu(((F.leaky_relu(self.means(self.idle_input)) * -1.0) + 1.0)) - 1.0) * -1.0
 
         # calculate params for given data
         z_p_mean, z_p_logvar = self.q_z(X.view(-1,1,self.input_length,self.input_length))  # C x M
@@ -132,7 +132,7 @@ class VAE(nn.Module):
         z_expand = z.unsqueeze(1)
         means = z_p_mean.unsqueeze(0)
         logvars = z_p_logvar.unsqueeze(0)
-
+        
         a = log_Normal_diag(z_expand, means, logvars, dim=2) - math.log(self.pseudos)  # MB x C
         a_max, _ = torch.max(a, 1)  # MB x 1
 
@@ -174,6 +174,14 @@ class VAE(nn.Module):
         plog_q_z = torch.sum(log_Normal_diag(p_z, p_mu, p_logvar, dim=1),0)
         pKL= -(plog_p_z - plog_q_z)
 
+        print("log_p_z: ", log_p_z)
+        print("log_q_z: ", log_q_z)
+        print("KL: ", KL)
+        print("pRE: ", pRE)
+        print("plog_p_z: ", plog_p_z)
+        print("plog_q_z: ", plog_q_z)
+        print("pKL: ", pKL)
+
         if gamma is None:
             return (RE + self.beta*KL)+self.gamma*(pRE + self.beta*pKL)
         else:
@@ -181,7 +189,7 @@ class VAE(nn.Module):
         #return (RE + self.beta*KL)+self.gamma*(pRE + self.beta*pKL)/self.batch_size
      
 def log_Normal_diag(x, mean, log_var, average=False, dim=None):
-
+    #print(log_var)
     log_normal = -0.5 * ( log_var + torch.pow( x - mean, 2 ) / torch.exp( log_var ) )
 
     if average:
@@ -245,25 +253,29 @@ if __name__ == "__main__":
 
     kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
     train_loader = torch.utils.data.DataLoader(
-        datasets.MNIST('../data', train=True, download=True,
+        datasets.MNIST('../../data/', train=True, download=False,
                        transform=transforms.ToTensor()),
         batch_size=args.batch_size, shuffle=True, **kwargs)
     test_loader = torch.utils.data.DataLoader(
-        datasets.MNIST('../data', train=False, transform=transforms.ToTensor()),
+        datasets.MNIST('../../data/', train=False, transform=transforms.ToTensor()),
         batch_size=args.batch_size, shuffle=True, **kwargs)
         
     model = VAE(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)            
+    optimizer = optim.Adam(model.parameters(), lr=args.lr)            
             
     def train(epoch):
         model.train()
         train_loss = 0
         for batch_idx, (data, _) in enumerate(train_loader):
+            #print()
+            #for param in model.parameters():
+            #    print(torch.norm(param))
             data = data.to(device)
             optimizer.zero_grad()
             recon_batch, mu, logvar, z = model(data)
             pseudos=model.means(model.idle_input).view(-1,1,args.input_length,args.input_length).to(device)
             recon_pseudos, p_mu, p_logvar, p_z=model(pseudos)
+            print()
             loss = model.loss_function(recon_batch, data, mu, logvar, z,pseudos,recon_pseudos, p_mu, p_logvar, p_z)
             loss.backward()
             train_loss += loss.item()
@@ -273,7 +285,7 @@ if __name__ == "__main__":
                     epoch, batch_idx * len(data), len(train_loader.dataset),
                     100. * batch_idx / len(train_loader),
                     loss.item() / len(data)))
-
+            
         print('====> Epoch: {} Average loss: {:.4f}'.format(
               epoch, train_loss / len(train_loader.dataset)))
      
