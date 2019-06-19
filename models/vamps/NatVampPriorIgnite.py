@@ -279,12 +279,13 @@ if __name__ == "__main__":
     def test(engine, batch):
         model.eval()
         with torch.no_grad():
-            data, _ = batch
-            data = data.to(device)
-            recon_batch, mu, logvar, z = model(data)
+            x, _ = batch
+            x = x.to(device)
+            recon_x, mu, logvar, z = model(x)
             pseudos=model.means(model.idle_input).view(-1,1,args.input_length,args.input_length).to(device)
             recon_pseudos, p_mu, p_logvar, p_z=model(pseudos)
-        return recon_x, x, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, _
+            kwargs = {'mu': mu, 'logvar': logvar, 'z_q': z, 'pseudo': pseudos, 'recon_pseudo': recon_pseudos, 'p_mu': p_mu, 'p_logvar': p_logvar, 'p_z': p_z}
+        return recon_x, x, kwargs
         
     trainer = Engine(train)
     evaluator = Engine(test)
@@ -293,8 +294,8 @@ if __name__ == "__main__":
     RunningAverage(output_transform=lambda x: x[0]).attach(trainer, 'loss')
     RunningAverage(output_transform=lambda x: x[1]).attach(trainer, 'genLoss')
     
-    Loss(model.loss_function, lambda x: [x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9]]).attach(evaluator, 'loss')
-    Loss(model.loss_function, lambda x: [x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], 0]).attach(evaluator, 'genLoss')
+    Loss(model.loss_function, lambda x: [x[0], x[1], x[2]]).attach(evaluator, 'loss')
+    Loss(model.loss_function, lambda x: [x[0], x[1], x[2]]).attach(evaluator, 'genLoss')
     
     @trainer.on(Events.EPOCH_COMPLETED)
     def print_trainer_logs(engine):
@@ -313,18 +314,17 @@ if __name__ == "__main__":
             .format(engine.state.epoch, avg_loss, avg_genLoss))
         for key in evaluator.state.metrics.keys():
             history_dict[key].append(evaluator.state.metrics[key])
+    trainer.add_event_handler(Events.ITERATION_COMPLETED, print_logs, train_loader, 'Training', training_history)
     trainer.add_event_handler(Events.EPOCH_COMPLETED, print_logs, train_loader, 'Training', training_history)
     trainer.add_event_handler(Events.EPOCH_COMPLETED, print_logs, val_loader, 'Validation', validation_history)
-            
+
     def dplot(x):
         img = p_x(x)
         plt.imshow(img)
 
     summary(model,(1,args.input_length,args.input_length),device=device)
     if(args.load == ''):
-        for epoch in range(1, args.epochs + 1):
-            train(epoch)
-            test(epoch, args.epochs, startTime)
+        e = trainer.run(train_loader, max_epochs=2)
     else:
         model.load_state_dict(torch.load(args.load))
         test(args.epochs, args.epochs, startTime)
