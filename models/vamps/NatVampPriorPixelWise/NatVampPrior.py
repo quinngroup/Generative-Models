@@ -13,6 +13,7 @@ from torch.autograd import Variable
 from sklearn.manifold import TSNE
 from sklearn.cluster import DBSCAN
 
+from torch.utils.tensorboard import SummaryWriter
 
 import sys,os
 #print(os.getcwd())
@@ -229,6 +230,8 @@ if __name__ == "__main__":
                         help='to run dbscan clustering')      
     parser.add_argument('--graph', action='store_true', default= False,
                         help='flag to determine whether or not to run automatic graphing')      
+    parser.add_argument('--log', type=str, default='!', metavar='lg',
+                        help='flag to determine whether to use tensorboard for logging. Default \'!\' is read to mean no logging') 
     parser.add_argument('--input_length', type=int, default=28, metavar='il',
                         help='length and height of one image')
     parser.add_argument('--repeat', action='store_true', default=False,
@@ -244,6 +247,13 @@ if __name__ == "__main__":
             torch.tensor([1.]).cuda()
 
     kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
+    writer=None
+    if(args.log!='!'):
+        if(args.log=='$'):
+            writer = SummaryWriter()
+        else:
+            writer = SummaryWriter(log_dir='runs/'+args.log)
+    
     train_loader = torch.utils.data.DataLoader(
         datasets.MNIST('../data', train=True, download=True,
                        transform=transforms.ToTensor()),
@@ -268,6 +278,10 @@ if __name__ == "__main__":
             loss.backward()
             train_loss += loss.item()
             optimizer.step()
+            step=epoch*len(train_loader)+batch_idx
+            if(args.log!='!'):
+                per_item_loss=loss.item()/len(data)
+                writer.add_scalar('item_loss',per_item_loss,global_step=step)
             if batch_idx % args.log_interval == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     epoch, batch_idx * len(data), len(train_loader.dataset),
@@ -351,6 +365,10 @@ if __name__ == "__main__":
                 test(epoch, args.epochs, startTime)
     if(args.save != ''):
         torch.save(model.state_dict(), args.save)
+    if(args.log!='!'):
+        #res = torch.autograd.Variable(torch.Tensor(1,1,20,64,64), requires_grad=True).to(device)
+        #writer.add_graph(model,res,verbose=True)
+        writer.close()
 
         
     
