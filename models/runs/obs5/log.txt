@@ -1,0 +1,4 @@
+Experiment Log
+==============
+
+Corresponding to tb runs/obs5, experimenting with pseudoinput learning rate [7e-5,3e-5,1e-5,7e-6,3e-6,1e-6,7e-7,3e-7,1e-7,7e-8,3e-8,1e-8]

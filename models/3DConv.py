@@ -88,7 +88,7 @@ class VAE(nn.Module):
         
         #64*2*2*2 -> lsdim mean and logvar
         z_q_mean = self.mean(x)
-        z_q_logvar = self.logvar(x)
+        z_q_logvar = F.leaky_relu(self.logvar(x) + 3.0) - 3.0
         
         return z_q_mean, z_q_logvar
         
@@ -142,7 +142,7 @@ class PseudoGen(nn.Module):
         self.means = nn.Linear(pseudos, input_depth*input_length*input_length, bias=False)
         
     def forward(self, x):
-        return self.means(x)
+        return (F.leaky_relu(((F.leaky_relu(self.means(x)) * -1.0) + 1.0)) - 1.0) * -1.0
         
 class Conv3DVAE(nn.Module):
     def __init__(self, input_length, input_depth, lsdim, pseudos, beta, gamma, device):
@@ -345,7 +345,7 @@ if __name__ == "__main__":
             optimizer.zero_grad()
             recon_batch, mu, logvar, z = model(data)
             with torch.no_grad():
-                pseudos = model.pseudoGen.means(model.idle_input).view(-1, 1, args.input_depth, args.input_length, args.input_length).to(device)
+                pseudos = model.pseudoGen.forward(model.idle_input).view(-1, 1, args.input_depth, args.input_length, args.input_length).to(device)
             recon_pseudos, p_mu, p_logvar, p_z = model(pseudos)
             loss = model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z)
             loss.backward()
@@ -372,7 +372,7 @@ if __name__ == "__main__":
         gen_loss = 0
         zTensor = torch.empty(0,args.lsdim).to(device)
         with torch.no_grad():
-            pseudos = model.pseudoGen.means(model.idle_input).view(-1, 1, args.input_depth, args.input_length, args.input_length).to(device)
+            pseudos = model.pseudoGen.forward(model.idle_input).view(-1, 1, args.input_depth, args.input_length, args.input_length).to(device)
             recon_pseudos, p_mu, p_logvar, p_z = model(pseudos)
             for i, data in enumerate(test_loader):
                 data = data.to(device)

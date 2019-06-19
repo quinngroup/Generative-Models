@@ -273,7 +273,7 @@ if __name__ == "__main__":
             data = data.to(device)
             optimizer.zero_grad()
             recon_batch, mu, logvar, z = model(data)
-            pseudos=model.means(model.idle_input).view(-1,1,args.input_length,args.input_length).to(device)
+            pseudos=((leaky_relu((leaky_relu(model.means(model.idle_input)) * -1.0) + 1.0) - 1.0) * -1.0).view(-1,1,args.input_length,args.input_length).to(device)
             recon_pseudos, p_mu, p_logvar, p_z=model(pseudos)
             print()
             loss = model.loss_function(recon_batch, data, mu, logvar, z,pseudos,recon_pseudos, p_mu, p_logvar, p_z)
@@ -295,7 +295,7 @@ if __name__ == "__main__":
         test_loss = 0
         zTensor = torch.empty(0,args.lsdim).to(device)
         labelTensor = torch.empty(0, dtype = torch.long)
-        pseudos=model.means(model.idle_input).view(-1,1,args.input_length,args.input_length).to(device)
+        pseudos=((leaky_relu((leaky_relu(model.means(model.idle_input)) * -1.0) + 1.0) - 1.0) * -1.0).view(-1,1,args.input_length,args.input_length).to(device)
         recon_pseudos, p_mu, p_logvar, p_z=model(pseudos)
         with torch.no_grad():
             for i, (data, _) in enumerate(test_loader):
