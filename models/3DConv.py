@@ -286,6 +286,8 @@ if __name__ == "__main__":
                         help='number of frames in one video')
     parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
                         help='learning rate')
+    parser.add_argument('--plr', type = float, default = 1e-5, metavar='plr',
+                        help='pseudoinput learning rate')
     parser.add_argument('--graph', action='store_true', default= False,
                     help='flag to determine whether or not to run automatic graphing')      
     parser.add_argument('--repeat', action='store_true', default=False,
@@ -332,7 +334,7 @@ if __name__ == "__main__":
     
     model_params = []
     optimizer = optim.Adam([{'params': model.vae.parameters()},
-                            {'params': model.pseudoGen.parameters(), 'lr': 1e-4}],
+                            {'params': model.pseudoGen.parameters(), 'lr': args.plr}],
                             lr=args.lr, weight_decay=args.reg2)
 
     def train(epoch):
