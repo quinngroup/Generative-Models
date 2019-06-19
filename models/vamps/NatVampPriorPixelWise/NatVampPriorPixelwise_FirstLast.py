@@ -20,7 +20,7 @@ import sys,os
 #print(os.listdir())
 
 if(__name__=="__main__"):
-    sys.path.insert(0,'../../')
+    sys.path.insert(0,'../../../')
 
 #print(os.listdir())
 #print(os.getcwd())
