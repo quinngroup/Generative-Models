@@ -1,4 +1,6 @@
 Experiment Log
 ==============
 
-Corresponding to tb runs/obs5, experimenting with pseudoinput learning rate [7e-5,3e-5,1e-5,7e-6,3e-6,1e-6,7e-7,3e-7,1e-7,7e-8,3e-8,1e-8]
+Corresponding to tb runs/obs5, experimenting with pseudoinput learning rates as which are the cartesian product of
+pl([1,4,7]x[e-5,e-6,e-7]) corresponding to designation [1,4,7]x[e5,e6,e7]. Experiment is run for 30 epochs at lsdim 16, pseudos 25, 
+batch-size 50, global lr 1e-3
