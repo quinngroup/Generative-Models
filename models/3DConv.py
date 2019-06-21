@@ -14,6 +14,8 @@ from torch.utils.data import Dataset
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 from torchsummary import summary
+from torch.optim import lr_scheduler
+
 from sklearn.manifold import TSNE
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
@@ -286,7 +288,7 @@ if __name__ == "__main__":
                         help='number of frames in one video')
     parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
                         help='learning rate')
-    parser.add_argument('--plr', type = float, default = 1e-5, metavar='plr',
+    parser.add_argument('--plr', type = float, default = 4e-6, metavar='plr',
                         help='pseudoinput learning rate')
     parser.add_argument('--graph', action='store_true', default= False,
                     help='flag to determine whether or not to run automatic graphing')      
@@ -302,6 +304,8 @@ if __name__ == "__main__":
                         help='coefficient for L2 weight decay')
     parser.add_argument('--debug', action='store_true', default=False,
                     help='print debug info for every batch')
+    parser.add_argument('--schedule', type = int, default=-1, metavar='sp',
+                    help='use learning rate scheduler on loss stagnation with input patience')
 
 
     args = parser.parse_args()
@@ -336,6 +340,9 @@ if __name__ == "__main__":
     optimizer = optim.Adam([{'params': model.vae.parameters()},
                             {'params': model.pseudoGen.parameters(), 'lr': args.plr}],
                             lr=args.lr, weight_decay=args.reg2)
+    scheduler=None
+    if(args.schedule>0):
+        lr_scheduler.ReduceLROnPlateau(optimizer,verbose=true,patience=args.schedule)
 
     def train(epoch):
         model.train()
@@ -365,7 +372,8 @@ if __name__ == "__main__":
             
         print('====> Epoch: {} Average loss: {:.4f}'.format(
               epoch, train_loss / len(train_loader.dataset)))
-
+        if(args.schedule>0):
+            scheduler.step(train_loss / len(train_loader.dataset))
     def test(epoch, max, startTime):
         model.eval()
         test_loss = 0
