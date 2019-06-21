@@ -342,7 +342,7 @@ if __name__ == "__main__":
                             lr=args.lr, weight_decay=args.reg2)
     scheduler=None
     if(args.schedule>0):
-        lr_scheduler.ReduceLROnPlateau(optimizer,verbose=true,patience=args.schedule)
+        scheduler=lr_scheduler.ReduceLROnPlateau(optimizer,verbose=True,patience=args.schedule)
 
     def train(epoch):
         model.train()
@@ -389,6 +389,7 @@ if __name__ == "__main__":
                 gen_loss += model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0).item()
                 zTensor = torch.cat((zTensor, z), 0)
             for i in range(args.pp):
+                print('SAVING VIDEO: ', i)
                 out = cv2.VideoWriter('temps\\' + args.pseudostring + str(i) + '.avi', fourcc, 10.0, (64,64), False)
                 for j in range(args.input_depth):
                     pseudoinput = pseudos[i,0,j].cpu().numpy()
