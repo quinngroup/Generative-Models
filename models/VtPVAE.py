@@ -14,6 +14,8 @@ from sklearn.preprocessing import StandardScaler
 from mpl_toolkits.mplot3d import Axes3D
 from mMNISTflat import genLoaders
 
+from torch.utils.tensorboard import SummaryWriter
+
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -74,6 +76,8 @@ parser.add_argument('--repeat', action='store_true', default=False,
                     help='determines whether to enact further training after loading weights')
 parser.add_argument('--pp', type = int, default=10, metavar='pp',
                     help='Plot pseudos. Controls the number of pseudo inputs to be displayed')
+parser.add_argument('--log', type=str, default='!', metavar='lg',
+                    help='flag to determine whether to use tensorboard for logging. Default \'!\' is read to mean no logging')      
 
 
 args = parser.parse_args()
@@ -91,6 +95,14 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
 #Loads moving MNIST dataset
 mnist = np.load(args.source,allow_pickle=True)
+
+writer=None
+if(args.log!='!'):
+    if(args.log=='$'):
+        writer = SummaryWriter()
+    else:
+        writer = SummaryWriter(log_dir='runs/'+args.log)
+
 
 #movingMNISTDataset class    
 class movingMNISTDataset(Dataset):
@@ -150,10 +162,13 @@ def train(epoch):
                 100. * batch_idx / len(train_loader),
                 loss.item() / len(data),
                 model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0).item() / len(data)))
+        if(args.log!='!'):
+            per_item_loss=loss.item()/len(data)
+            writer.add_scalar('item_loss',per_item_loss,global_step=step)
 
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
-
+    
 
 def test(epoch, max, startTime):
     model.eval()
@@ -248,3 +263,8 @@ if __name__ == "__main__":
             for epoch in range(1, args.epochs + 1):
                 train(epoch)
                 test(epoch, args.epochs, startTime)
+                
+    if(args.log!='!'):
+        #res = torch.autograd.Variable(torch.Tensor(1,1,20,64,64), requires_grad=True).to(device)
+        #writer.add_graph(model,res,verbose=True)
+        writer.close()
