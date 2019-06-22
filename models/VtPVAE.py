@@ -162,6 +162,7 @@ def train(epoch):
                 100. * batch_idx / len(train_loader),
                 loss.item() / len(data),
                 model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0).item() / len(data)))
+        step=epoch*len(train_loader)+batch_idx
         if(args.log!='!'):
             per_item_loss=loss.item()/len(data)
             writer.add_scalar('item_loss',per_item_loss,global_step=step)
