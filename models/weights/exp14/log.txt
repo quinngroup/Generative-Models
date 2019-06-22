@@ -1,0 +1,5 @@
+Experiment Log
+==============
+
+3DConv reg2 parameter testing. Testing from [0,.01,.05,.1,.2,.4,.6,.8] corresponding to designation
+[r0,r1,r2,r3,r4,r5,r6,r7] for 30 epochs each
