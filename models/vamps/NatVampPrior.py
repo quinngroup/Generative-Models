@@ -174,14 +174,6 @@ class VAE(nn.Module):
         plog_q_z = torch.sum(log_Normal_diag(p_z, p_mu, p_logvar, dim=1),0)
         pKL= -(plog_p_z - plog_q_z)
 
-        print("log_p_z: ", log_p_z)
-        print("log_q_z: ", log_q_z)
-        print("KL: ", KL)
-        print("pRE: ", pRE)
-        print("plog_p_z: ", plog_p_z)
-        print("plog_q_z: ", plog_q_z)
-        print("pKL: ", pKL)
-
         if gamma is None:
             return (RE + self.beta*KL)+self.gamma*(pRE + self.beta*pKL)
         else:
@@ -275,7 +267,6 @@ if __name__ == "__main__":
             recon_batch, mu, logvar, z = model(data)
             pseudos=((leaky_relu((leaky_relu(model.means(model.idle_input)) * -1.0) + 1.0) - 1.0) * -1.0).view(-1,1,args.input_length,args.input_length).to(device)
             recon_pseudos, p_mu, p_logvar, p_z=model(pseudos)
-            print()
             loss = model.loss_function(recon_batch, data, mu, logvar, z,pseudos,recon_pseudos, p_mu, p_logvar, p_z)
             loss.backward()
             train_loss += loss.item()
