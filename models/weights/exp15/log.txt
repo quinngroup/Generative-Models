@@ -1,5 +1,0 @@
-Experiment Log
-==============
-
-VtPVAE testing learning rate in 1e(-n) where n ranges from 1,6 corresponding to w1-w6 respectively
-Each run lasts for 50 epochs w/ lsdim 16, pseudos 10

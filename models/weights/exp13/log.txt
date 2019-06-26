@@ -1,5 +1,0 @@
-Experiment Log
-==============
-
-Testing lr scheduler on 3DConv with patience = (-1,5,10) where -1 represents no learning rate scheduling.
-80 epochs each, with lsdim 16 and pseudos 25

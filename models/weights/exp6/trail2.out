@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "vvtp.py", line 131, in <module>
-    model = VAE(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
-  File "/home/zainmeekail/Gits/Generative-Models/models/vamps/NatVampPrior_SBD.py", line 72, in __init__
-    self.sbd=true_spatial_broadcast_decoder(input_length=self.input_length,device=self.device,lsdim=self.lsdim)
-  File "../utils/nn.py", line 55, in __init__
-    super(spatial_broadcast_decoder,self).__init__()
-TypeError: super(type, obj): obj must be an instance or subtype of type

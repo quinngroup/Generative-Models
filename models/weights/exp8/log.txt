@@ -1,6 +1,0 @@
-Experiment Log
-==============
-
-Corresponding to tb runs/obs1, experimenting with the cartesian product of:
-
-batch-size [100,200] x learning rate [1e-3,1e-4,1e-5,1e-6] corresponding to designation [b1,b2] x [l1,l2,l3,l4]

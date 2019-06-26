@@ -1,6 +1,0 @@
-Experiment Log
-==============
-
-Corresponding to tb runs/obs4, experimenting with the cartesian product of:
-
-pseudoinput learning rate [1e-3,1e-4,1e-5] x learning rate [1e-1,1e-2,1e-3,1e-4] corresponding to designation [pl3,pl4,pl5] x [l1,l2,l3,l4]
