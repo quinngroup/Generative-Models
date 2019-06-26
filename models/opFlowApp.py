@@ -29,16 +29,9 @@ for i in range(mnist.shape[1]):
     if i % 500 == 0:
         print(i)
 result = np.swapaxes(result, 0, 1)
-np.save('opflow2', result)     
-   
-#Concatenates the moving mnist numpy array with its optical flow   
-'''
-mnist = np.load('../data/mnist_test_seq.npy')
-opflow = np.load('opticalFlow.npy')
+np.save('../data/opticalFlow', result)     
 
-print(np.expand_dims(mnist,4).shape)
-print(opflow.shape)
-array = np.concatenate((np.expand_dims(np.take(mnist,range(1,20),0),4), opflow), 4)
-print(array.shape)
-np.save('opfaug', array)
-'''
+#Concatenates the moving mnist numpy array with its optical flow   
+mnist = np.load('../data/mnist_test_seq.npy')
+array = np.concatenate((np.expand_dims(np.take(mnist,range(1,20),0),4), result), 4)
+np.save('../data/opfaug', array)
