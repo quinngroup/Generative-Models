@@ -34,4 +34,6 @@ np.save('../data/opticalFlow', result)
 #Concatenates the moving mnist numpy array with its optical flow   
 mnist = np.load('../data/mnist_test_seq.npy')
 array = np.concatenate((np.expand_dims(np.take(mnist,range(1,20),0),4), result), 4)
-np.save('../data/opfaug', array)
+array1, array2 = np.split(array, 2, 1)
+np.save('../data/opfaug1', array1)
+np.save('../data/opfaug2', array2)
