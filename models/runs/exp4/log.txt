@@ -1,0 +1,8 @@
+Experiment Log
+==============
+Comparing 30 epochs of batch-size 128 with 30 epochs of batch-size 128, 1000, and a warm start where in batch size is increased to 1000 after 10 and 20 epochs, lsdim 16, pseudos 25, c.p.
+
+b0: 30@128
+b1: 30@1000
+b2: 10@128, 20@1000
+b3: 20@128, 10@1000

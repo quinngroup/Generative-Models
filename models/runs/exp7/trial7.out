@@ -1,0 +1,21 @@
+usage: 3DConv.py [-h] [--batch-size N] [--no-cuda] [--seed S] [--testSplit %]
+                 [--source S] [--epochs N] [--log-interval N] [--save s]
+                 [--load l] [--beta b] [--gamma %] [--pseudos p] [--lsdim ld]
+                 [--dbscan db] [--input_length il] [--input_depth id]
+                 [--lr lr] [--graph]
+3DConv.py: error: unrecognized arguments: --repeat
+usage: 3DConv.py [-h] [--batch-size N] [--no-cuda] [--seed S] [--testSplit %]
+                 [--source S] [--epochs N] [--log-interval N] [--save s]
+                 [--load l] [--beta b] [--gamma %] [--pseudos p] [--lsdim ld]
+                 [--dbscan db] [--input_length il] [--input_depth id]
+                 [--lr lr] [--graph]
+3DConv.py: error: unrecognized arguments: --repeat
+usage: 3DConv.py [-h] [--batch-size N] [--no-cuda] [--seed S] [--testSplit %]
+                 [--source S] [--epochs N] [--log-interval N] [--save s]
+                 [--load l] [--beta b] [--gamma %] [--pseudos p] [--lsdim ld]
+                 [--dbscan db] [--input_length il] [--input_depth id]
+                 [--lr lr] [--graph]
+3DConv.py: error: unrecognized arguments: --repeat
+(null): can't open file '3Dconv.py': [Errno 2] No such file or directory
+(null): can't open file '3Dconv.py': [Errno 2] No such file or directory
+(null): can't open file '3Dconv.py': [Errno 2] No such file or directory
