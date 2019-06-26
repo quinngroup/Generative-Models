@@ -26,7 +26,7 @@ while(ret):
         k = cv2.waitKey(delay) & 0xff
         if k == 27:
             break
-        elif k == ord('s'):
+        #elif k == ord('s'):
             #cv2.imwrite('opticalfb.png',frame2)
             #cv2.imwrite('opticalhsv.png',bgr)
         prvs = next
