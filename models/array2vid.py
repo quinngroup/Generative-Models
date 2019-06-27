@@ -27,7 +27,7 @@ if(args.save!=''):
 else:
     name=args.load
 
-out = cv2.VideoWriter(name+'.mp4',cv2.VideoWriter_fourcc(*'mp4v'), fps, frame_shape)
+out = cv2.VideoWriter(name+'.mp4',cv2.VideoWriter_fourcc(*'mp4v'), fps, frame_shape,False)
 
 for i in range(length):
         out.write(raw[i])
