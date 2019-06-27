@@ -5,21 +5,16 @@ sys.path.insert(0,'../')
 import argparse
 import cv2
 import torch
-import torch.utils.data
 import time
 from torch import nn, optim, Tensor
 from torch.nn import functional as F
-from torch.nn import LeakyReLU
 from torch.utils.data import Dataset
-from torchvision import datasets, transforms
-from torchvision.utils import save_image
 from torchsummary import summary
 from torch.optim import lr_scheduler
 
 from sklearn.manifold import TSNE
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
-from mpl_toolkits.mplot3d import Axes3D
 from mMNISTflat import genLoaders
 from vamps.NatVampPrior import log_Normal_diag
 
@@ -28,9 +23,7 @@ from torch.utils.tensorboard import SummaryWriter
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.cbook as cbook
 import matplotlib.colors as colors
-
 
 """
 3D Convolutional Network for use on Moving MNIST dataset
@@ -90,8 +83,7 @@ class VAE(nn.Module):
         
         #64*2*2*2 -> lsdim mean and logvar
         z_q_mean = self.mean(x)
-        z_q_logvar = F.leaky_relu(self.logvar(x) + 3.0) - 3.0
-        
+        z_q_logvar = F.elu(self.logvar(x),3.0)        
         return z_q_mean, z_q_logvar
         
     def reparameterize(self, mu, logvar):
@@ -144,7 +136,7 @@ class PseudoGen(nn.Module):
         self.means = nn.Linear(pseudos, input_depth*input_length*input_length, bias=False)
         
     def forward(self, x):
-        return (F.leaky_relu(((F.leaky_relu(self.means(x)) * -1.0) + 1.0)) - 1.0) * -1.0
+        return torch.sigmoid(self.means(x))
         
 class Conv3DVAE(nn.Module):
     def __init__(self, input_length, input_depth, lsdim, pseudos, beta, gamma, device):
@@ -416,15 +408,15 @@ if __name__ == "__main__":
             if(args.graph):
                 #Handling different dimensionalities
                 if (args.lsdim < 3) :
-                    z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
-                    z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
+                    z1 = Tensor.cpu(zTensor[:, 0]).numpy()
+                    z2 = Tensor.cpu(zTensor[:, 1]).numpy()
                     scatterPlot = plt.scatter(z1, z2, s = 4) #Regular 2dim plot, RE-ADD CMAP = CMAP
                 elif (args.lsdim == 3) :
                     fig=plt.figure()
                     ax=fig.gca(projection='3d')
-                    z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
-                    z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-                    z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
+                    z1 = Tensor.cpu(zTensor[:, 0]).numpy()
+                    z2 = Tensor.cpu(zTensor[:, 1]).numpy()
+                    z3 = Tensor.cpu(zTensor[:, 2]).numpy()
                     scatterPlot = ax.scatter(z1, z2, z3, s = 4) #Regular 3dim plot
                 else:    
                     Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())        
@@ -451,6 +443,6 @@ if __name__ == "__main__":
                 train(epoch)
                 test(epoch, args.epochs, startTime)
     if(args.log!='!'):
-        #res = torch.autograd.Variable(torch.Tensor(1,1,20,64,64), requires_grad=True).to(device)
+        #res = torch.autograd.Variable(Tensor(1,1,20,64,64), requires_grad=True).to(device)
         #writer.add_graph(model,res,verbose=True)
         writer.close()
