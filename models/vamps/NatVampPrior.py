@@ -1,17 +1,12 @@
 from __future__ import print_function
 import argparse
 import torch
-import torch.utils.data
 import time
 from torch import nn, optim
 from torch.nn import functional as F
-from torch.nn import LeakyReLU
 from torchvision import datasets, transforms
-from torchvision.utils import save_image
 from torchsummary import summary
-from torch.autograd import Variable
 from sklearn.manifold import TSNE
-from sklearn.cluster import DBSCAN
 
 
 import sys,os
@@ -25,9 +20,7 @@ if(__name__=="__main__"):
 #print(os.getcwd())
 from utils.nn import spatial_broadcast_decoder
 import math
-import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.cbook as cbook
 import matplotlib.colors as colors
     
     
@@ -83,7 +76,7 @@ class VAE(nn.Module):
     def generate_x(self, N=None):
         if N is None:
             N = self.pseudos
-        means = F.leaky_relu((F.leaky_relu(self.means(self.idle_input)[0:N]) * -1.0 + 1.0)) - 1.0 * -1.0
+        means = torch.sigmoid(self.means(self.idle_input)[0:N])
         z_sample_gen_mean, z_sample_gen_logvar = self.q_z(means)
         z_sample_rand = self.reparameterize(z_sample_gen_mean, z_sample_gen_logvar)
 
@@ -94,20 +87,20 @@ class VAE(nn.Module):
     def q_z(self, x):
     
         #(1,28,28) -> (8,26,26) -> (8,13,13)
-        x = F.max_pool2d(LeakyReLU(0.1)(self.conv1(x)), (2,2))
+        x = F.max_pool2d(F.leaky_relu(self.conv1(x)), (2,2))
         
         #(8,13,13) -> (16,12,12) -> (16,6,6)
-        x = F.max_pool2d(LeakyReLU(0.1)(self.conv2(x)), (2,2))
+        x = F.max_pool2d(F.leaky_relu(self.conv2(x)), (2,2))
         
         #(16,6,6) -> (32,4,4)
-        x = LeakyReLU(0.1)(self.conv3(x))
+        x = F.leaky_relu(self.conv3(x))
         
         #(32,4,4) -> (64,2,2)
-        x = LeakyReLU(0.1)(self.conv4(x))
+        x = F.leaky_relu(self.conv4(x))
         x=x.view(-1, 64*self.finalConvLength*self.finalConvLength)
         
         z_q_mean = self.mean(x)
-        z_q_logvar = F.leaky_relu(self.logvar(x) + 3.0) - 3.0
+        z_q_logvar = F.elu(self.logvar(x), 3.0)
         return z_q_mean, z_q_logvar
 
     def reparameterize(self, mu, logvar):
@@ -123,7 +116,7 @@ class VAE(nn.Module):
             
     def log_p_z(self,z):
         # calculate params
-        X = (F.leaky_relu(((F.leaky_relu(self.means(self.idle_input)) * -1.0) + 1.0)) - 1.0) * -1.0
+        X = torch.sigmoid(self.means(self.idle_input))
 
         # calculate params for given data
         z_p_mean, z_p_logvar = self.q_z(X.view(-1,1,self.input_length,self.input_length))  # C x M
@@ -224,9 +217,7 @@ if __name__ == "__main__":
     parser.add_argument('--gamma', type = float, default=10, metavar='g',
                         help='Pseudo-loss weight')
     parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
-                        help='learning rate')
-    parser.add_argument('--dbscan', action='store_true', default= False,
-                        help='to run dbscan clustering')      
+                        help='learning rate')  
     parser.add_argument('--graph', action='store_true', default= False,
                         help='flag to determine whether or not to run automatic graphing')      
     parser.add_argument('--input_length', type=int, default=28, metavar='il',
@@ -265,7 +256,7 @@ if __name__ == "__main__":
             data = data.to(device)
             optimizer.zero_grad()
             recon_batch, mu, logvar, z = model(data)
-            pseudos=((leaky_relu((leaky_relu(model.means(model.idle_input)) * -1.0) + 1.0) - 1.0) * -1.0).view(-1,1,args.input_length,args.input_length).to(device)
+            pseudos=torch.sigmoid(model.means(model.idle_input)).view(-1,1,args.input_length,args.input_length).to(device)
             recon_pseudos, p_mu, p_logvar, p_z=model(pseudos)
             loss = model.loss_function(recon_batch, data, mu, logvar, z,pseudos,recon_pseudos, p_mu, p_logvar, p_z)
             loss.backward()
@@ -286,7 +277,7 @@ if __name__ == "__main__":
         test_loss = 0
         zTensor = torch.empty(0,args.lsdim).to(device)
         labelTensor = torch.empty(0, dtype = torch.long)
-        pseudos=((leaky_relu((leaky_relu(model.means(model.idle_input)) * -1.0) + 1.0) - 1.0) * -1.0).view(-1,1,args.input_length,args.input_length).to(device)
+        pseudos=torch.sigmoid(model.means(model.idle_input)).view(-1,1,args.input_length,args.input_length).to(device)
         recon_pseudos, p_mu, p_logvar, p_z=model(pseudos)
         with torch.no_grad():
             for i, (data, _) in enumerate(test_loader):

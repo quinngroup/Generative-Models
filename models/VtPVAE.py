@@ -1,9 +1,9 @@
 import argparse
 import torch
-import torch.utils.data
 import time
-from torch import nn, optim
+from torch import optim
 from torch.nn import functional as F
+from torch.optim import lr_scheduler
 from torch.utils.data import Dataset
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
@@ -78,7 +78,8 @@ parser.add_argument('--pp', type = int, default=10, metavar='pp',
                     help='Plot pseudos. Controls the number of pseudo inputs to be displayed')
 parser.add_argument('--log', type=str, default='!', metavar='lg',
                     help='flag to determine whether to use tensorboard for logging. Default \'!\' is read to mean no logging')      
-
+parser.add_argument('--schedule', type = int, default=-1, metavar='sp',
+                    help='use learning rate scheduler on loss stagnation with input patience')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -143,6 +144,10 @@ train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args
 model = VAE(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
 optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
+scheduler=None
+if(args.schedule>0):
+    scheduler=lr_scheduler.ReduceLROnPlateau(optimizer,verbose=True,patience=args.schedule)
+
 def train(epoch):
     model.train()
     train_loss = 0
@@ -169,7 +174,8 @@ def train(epoch):
 
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
-    
+    if(args.schedule>0):
+          scheduler.step(train_loss / len(train_loader.dataset))
 
 def test(epoch, max, startTime):
     model.eval()
