@@ -17,7 +17,7 @@ assert args.load!='','Please specify array to convert'
 raw=np.load(args.load,allow_pickle=True)
 frame_shape=raw[0].shape
 length=raw.shape[0]
-
+raw=np.uint8(raw)
 
 
 
