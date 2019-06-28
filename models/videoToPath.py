@@ -32,10 +32,10 @@ def pathMaker(array, weights, input_length, lsdim, pseudos, no_cuda, savefile, p
     
     with torch.no_grad():
         _, _, _, z = model(input)
-        z = (z - z[0]).cpu()
+        z = (z - z[0]).cpu().numpy()
     
-    if plot and lsdim == 2:
-        plt.plot(z[:, 0], data[:, 1])
+    if plot:
+        plt.plot(z[:, 0], z[:, 1])
         plt.show()
     
     np.save(savefile, z)
