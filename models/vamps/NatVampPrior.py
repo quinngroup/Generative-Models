@@ -33,15 +33,11 @@ VampPrior implementation with Spatial Broadcast Decoder for use with MNIST datas
     
     
 class VAE(nn.Module):
-    def __init__(self, input_length, lsdim, pseudos, beta, gamma, batch_size, device):
+    def __init__(self, input_length, lsdim, device):
         super(VAE, self).__init__()
                     
         self.input_length = input_length
         self.lsdim = lsdim
-        self.pseudos = pseudos
-        self.beta = beta
-        self.gamma = gamma
-        self.batch_size = batch_size
         self.device = device
         self.finalConvLength = ((input_length - 2)//2 - 1)//2 - 4
 
@@ -61,28 +57,14 @@ class VAE(nn.Module):
         self.mean = nn.Linear(64*self.finalConvLength*self.finalConvLength, lsdim)
         self.logvar = nn.Linear(64*self.finalConvLength*self.finalConvLength, lsdim)
 
-        self.means = nn.Linear(pseudos, input_length * input_length, bias=False)
         self.sbd=spatial_broadcast_decoder(input_length=self.input_length,device=self.device,lsdim=self.lsdim)
         # create an idle input for calling pseudo-inputs
-        self.idle_input = torch.eye(pseudos,pseudos,requires_grad=True)
-        self.idle_input = self.idle_input.to(device)
 
 
     def reconstruct_x(self, x):
         x_mean, _, _, _ = self.forward(x)
         return x_mean
     
-    # ADDITIONAL METHODS
-    def generate_x(self, N=None):
-        if N is None:
-            N = self.pseudos
-        means = torch.sigmoid(self.means(self.idle_input)[0:N])
-        z_sample_gen_mean, z_sample_gen_logvar = self.q_z(means)
-        z_sample_rand = self.reparameterize(z_sample_gen_mean, z_sample_gen_logvar)
-
-        samples_rand, _ = self.p_x(z_sample_rand)
-        return samples_rand
-        
     # THE MODEL: VARIATIONAL POSTERIOR
     def q_z(self, x):
     
@@ -114,24 +96,6 @@ class VAE(nn.Module):
         
         return self.sbd(z)
             
-    def log_p_z(self,z):
-        # calculate params
-        X = torch.sigmoid(self.means(self.idle_input))
-
-        # calculate params for given data
-        z_p_mean, z_p_logvar = self.q_z(X.view(-1,1,self.input_length,self.input_length))  # C x M
-
-        # expand z
-        z_expand = z.unsqueeze(1)
-        means = z_p_mean.unsqueeze(0)
-        logvars = z_p_logvar.unsqueeze(0)
-        
-        a = log_Normal_diag(z_expand, means, logvars, dim=2) - math.log(self.pseudos)  # MB x C
-        a_max, _ = torch.max(a, 1)  # MB x 1
-
-        # calculate log-sum-exp
-        log_prior = a_max + torch.log(torch.sum(torch.exp(a - a_max.unsqueeze(1)), 1))  # MB x 1
-        return torch.sum(log_prior, 0)
     
     def forward(self, x):
 
@@ -146,6 +110,37 @@ class VAE(nn.Module):
     
     
         
+ 
+ 
+class PseudoGen(nn.Module):
+    def __init__(self, input_length, pseudos):
+        super(PseudoGen, self).__init__()
+        
+        self.means = nn.Linear(pseudos, input_length*input_length, bias=False)
+        self.idle_input = torch.eye(pseudos,pseudos,requires_grad=True)
+        self.idle_input = self.idle_input.to(device)
+
+    def forward(self, x):
+        return torch.sigmoid(self.means(x))
+        
+
+class NatVampPrior(nn.Module):
+    def __init__(self, input_length, lsdim, pseudos, beta, gamma, device):
+        super(NatVampPrior, self).__init__()
+        
+        self.pseudos = pseudos
+        self.beta = beta
+        self.gamma = gamma
+        self.input_length=input_length
+        
+        self.vae = VAE(input_length, lsdim, device)
+        self.pseudoGen = PseudoGen(input_length, pseudos)
+        
+        self.idle_input = torch.eye(pseudos, pseudos, requires_grad=True).cuda()
+
+    def forward(self, x):
+        return self.vae.forward(x)
+  
     # Reconstruction + KL divergence losses summed over all elements and batch
     def loss_function(self, recon_x, x, mu, logvar, z_q, pseudo,recon_pseudo, p_mu, p_logvar, p_z, gamma=None):
         RE = F.mse_loss(recon_x.view(-1,self.input_length*self.input_length), x.view(-1, self.input_length*self.input_length), reduction = 'sum')
@@ -171,8 +166,28 @@ class VAE(nn.Module):
             return (RE + self.beta*KL)+self.gamma*(pRE + self.beta*pKL)
         else:
             return (RE + self.beta*KL)+gamma*(pRE + self.beta*pKL)
-        #return (RE + self.beta*KL)+self.gamma*(pRE + self.beta*pKL)/self.batch_size
-     
+
+    def log_p_z(self,z):
+        # calculate params
+        X = self.pseudoGen.forward(self.idle_input)
+
+        # calculate params for given data
+        z_p_mean, z_p_logvar = self.vae.q_z(X.view(-1,1,self.input_length,self.input_length))  # C x M
+
+        # expand z
+        z_expand = z.unsqueeze(1)
+        means = z_p_mean.unsqueeze(0)
+        logvars = z_p_logvar.unsqueeze(0)
+        
+        a = log_Normal_diag(z_expand, means, logvars, dim=2) - math.log(self.pseudos)  # MB x C
+        a_max, _ = torch.max(a, 1)  # MB x 1
+
+        # calculate log-sum-exp
+        log_prior = a_max + torch.log(torch.sum(torch.exp(a - a_max.unsqueeze(1)), 1))  # MB x 1
+        return torch.sum(log_prior, 0)
+
+
+
 def log_Normal_diag(x, mean, log_var, average=False, dim=None):
     #print(log_var)
     log_normal = -0.5 * ( log_var + torch.pow( x - mean, 2 ) / torch.exp( log_var ) )
@@ -224,6 +239,11 @@ if __name__ == "__main__":
                         help='length and height of one image')
     parser.add_argument('--repeat', action='store_true', default=False,
                         help='determines whether to enact further training after loading weights')
+    parser.add_argument('--plr', type = float, default = 4e-6, metavar='plr',
+                        help='pseudoinput learning rate')
+    parser.add_argument('--reg2', type = float, default=0, metavar='rg2',
+                        help='coefficient for L2 weight decay')
+
     args = parser.parse_args()
     args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -243,8 +263,10 @@ if __name__ == "__main__":
         datasets.MNIST('../../data/', train=False, transform=transforms.ToTensor()),
         batch_size=args.batch_size, shuffle=True, **kwargs)
         
-    model = VAE(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)            
+    model = NatVampPrior(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device).to(device)
+    optimizer = optim.Adam([{'params': model.vae.parameters()},
+                            {'params': model.pseudoGen.parameters(), 'lr': args.plr}],
+                            lr=args.lr, weight_decay=args.reg2)
             
     def train(epoch):
         model.train()
@@ -256,7 +278,7 @@ if __name__ == "__main__":
             data = data.to(device)
             optimizer.zero_grad()
             recon_batch, mu, logvar, z = model(data)
-            pseudos=torch.sigmoid(model.means(model.idle_input)).view(-1,1,args.input_length,args.input_length).to(device)
+            pseudos=model.pseudoGen.forward(model.idle_input).view(-1,1,args.input_length,args.input_length).to(device)
             recon_pseudos, p_mu, p_logvar, p_z=model(pseudos)
             loss = model.loss_function(recon_batch, data, mu, logvar, z,pseudos,recon_pseudos, p_mu, p_logvar, p_z)
             loss.backward()
@@ -277,7 +299,7 @@ if __name__ == "__main__":
         test_loss = 0
         zTensor = torch.empty(0,args.lsdim).to(device)
         labelTensor = torch.empty(0, dtype = torch.long)
-        pseudos=torch.sigmoid(model.means(model.idle_input)).view(-1,1,args.input_length,args.input_length).to(device)
+        pseudos=model.pseudoGen.forward(model.idle_input).view(-1,1,args.input_length,args.input_length).to(device)
         recon_pseudos, p_mu, p_logvar, p_z=model(pseudos)
         with torch.no_grad():
             for i, (data, _) in enumerate(test_loader):

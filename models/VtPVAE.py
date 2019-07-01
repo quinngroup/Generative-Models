@@ -26,7 +26,7 @@ sys.path.insert(0,'../')
 #print(os.getcwd())
 
 #print(os.listdir())
-from vamps.NatVampPrior import VAE
+from vamps.NatVampPrior import NatVampPrior
 
 
 
@@ -77,6 +77,8 @@ parser.add_argument('--log', type=str, default='!', metavar='lg',
                     help='flag to determine whether to use tensorboard for logging. Default \'!\' is read to mean no logging')      
 parser.add_argument('--schedule', type = int, default=-1, metavar='sp',
                     help='use learning rate scheduler on loss stagnation with input patience')
+parser.add_argument('--reg2', type = float, default=0, metavar='rg2',
+                    help='coefficient for L2 weight decay')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -138,8 +140,8 @@ data = movingMNISTDataset(npArray=mnist, transform=transforms.ToTensor())
 train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args.seed, args.testSplit)
     
 
-model = VAE(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
-optimizer = optim.Adam(model.parameters(), lr=args.lr)
+model = NatVampPrior(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device).to(device)
+optimizer = optim.Adam(model.parameters(), lr=args.lr,weight_decay=args.reg2)
 
 scheduler=None
 if(args.schedule>0):
