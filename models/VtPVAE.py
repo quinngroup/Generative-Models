@@ -5,13 +5,11 @@ from torch import optim
 from torch.nn import functional as F
 from torch.optim import lr_scheduler
 from torch.utils.data import Dataset
-from torchvision import datasets, transforms
-from torchvision.utils import save_image
+from torchvision import transforms
 from torchsummary import summary
 from sklearn.manifold import TSNE
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
-from mpl_toolkits.mplot3d import Axes3D
 from mMNISTflat import genLoaders
 
 from torch.utils.tensorboard import SummaryWriter
@@ -19,7 +17,6 @@ from torch.utils.tensorboard import SummaryWriter
 import numpy as np
 
 import matplotlib.pyplot as plt
-import matplotlib.cbook as cbook
 import matplotlib.colors as colors
 
 import sys,os
@@ -29,7 +26,7 @@ sys.path.insert(0,'../')
 #print(os.getcwd())
 
 #print(os.listdir())
-from vamps.NatVampPrior import log_Normal_diag, VAE
+from vamps.NatVampPrior import VAE
 
 
 
