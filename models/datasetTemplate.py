@@ -1,4 +1,4 @@
-from numpy import load, sort
+from numpy import load, newaxis, sort
 import os
 from torch.utils.data import Dataset
 
@@ -89,7 +89,7 @@ class frameDataset(Dataset):
             currVideo += 1
             tempIndex -= self.videoLengths[currVideo]
         tempIndex += self.videoLengths[currVideo]
-        obs = load(self.source + '/' + self.videos[currVideo])[tempIndex]
+        obs = load(self.source + '/' + self.videos[currVideo])[tempIndex, :, :, newaxis]
         if self.transform:
             obs = self.transform(obs)
         return obs
