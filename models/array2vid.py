@@ -8,13 +8,15 @@ parser.add_argument('--load', type=str, default='', metavar='l',help='loads the 
 args = parser.parse_args()
 
 #Determine FPS and respective ms delay
-fps=10
+fps=50
 delay=int(1000/fps)
 
 
 #Loads raw numpy array (hence there are size-limits) and establishes video dimensions
 assert args.load!='','Please specify array to convert'
 raw=np.load(args.load,allow_pickle=True)
+#raw=raw[:,0,:,:]
+print(raw.shape)
 frame_shape=raw[0].shape
 length=raw.shape[0]
 raw=np.uint8(raw)
@@ -25,12 +27,24 @@ raw=np.uint8(raw)
 if(args.save!=''):
     name=args.save
 else:
-    name=args.load
+    name=args.load[:-4]
 
-out = cv2.VideoWriter(name+'.mp4',cv2.VideoWriter_fourcc(*'mp4v'), fps, frame_shape,False)
-
+#Works on moving Mnist with encoding (MP42 or -1) and .mp4 in spite of error
+#encoding=cv2.VideoWriter_fourcc(*'mp4v')
+#encoding=cv2.VideoWriter_fourcc(*'MP42')
+encoding=cv2.VideoWriter_fourcc(*'BID ')
+out = cv2.VideoWriter(name+'.mp4',encoding, fps, frame_shape)
+temp=np.zeros_like(raw[0])
 for i in range(length):
-        out.write(raw[i])
+    print(i)    
+    #temp=cv2.cvtColor(raw[i,:,:],cv2.COLOR_GRAY2BGR)
+    #cv2.imshow('frame',temp)
+    #out.write(temp)
+    temp=np.uint8(np.random.rand(frame_shape[0],frame_shape[1])*255)
+    out.write(temp)
+    #if cv2.waitKey(delay) & 0xFF == ord('q'):
+    #    break
+
 
 #Close
 out.release()
