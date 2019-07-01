@@ -113,7 +113,7 @@ class VAE(nn.Module):
  
  
 class PseudoGen(nn.Module):
-    def __init__(self, input_length, pseudos):
+    def __init__(self, input_length, pseudos,device):
         super(PseudoGen, self).__init__()
         
         self.means = nn.Linear(pseudos, input_length*input_length, bias=False)
@@ -125,7 +125,7 @@ class PseudoGen(nn.Module):
         
 
 class NatVampPrior(nn.Module):
-    def __init__(self, input_length, lsdim, pseudos, beta, gamma, device):
+    def __init__(self, input_length, lsdim, pseudos, beta, gamma, batch_size, device):
         super(NatVampPrior, self).__init__()
         
         self.pseudos = pseudos
@@ -134,7 +134,7 @@ class NatVampPrior(nn.Module):
         self.input_length=input_length
         
         self.vae = VAE(input_length, lsdim, device)
-        self.pseudoGen = PseudoGen(input_length, pseudos)
+        self.pseudoGen = PseudoGen(input_length, pseudos,device)
         
         self.idle_input = torch.eye(pseudos, pseudos, requires_grad=True).cuda()
 
