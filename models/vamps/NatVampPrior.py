@@ -125,7 +125,7 @@ class PseudoGen(nn.Module):
         
 
 class NatVampPrior(nn.Module):
-    def __init__(self, input_length, lsdim, pseudos, beta, gamma, batch_size, device):
+    def __init__(self, input_length, lsdim, pseudos, beta, gamma, device):
         super(NatVampPrior, self).__init__()
         
         self.pseudos = pseudos
