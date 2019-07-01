@@ -17,7 +17,7 @@ class overlapDataset(Dataset):
         self.videos = os.listdir(source)
         sort(self.videos)
         self.clipLength = clipLength
-        self.videoLengths = [load(source + '/' + self.videos[n]).shape[0] - clipLength + 1 for n in range(len(self.videos))]
+        self.videoLengths = [load(source + '/' + self.videos[n],mmap_mode='r').shape[0] - clipLength + 1 for n in range(len(self.videos))]
         self.transform = transform
     def __len__(self):
         return sum(self.videoLengths)
@@ -28,7 +28,7 @@ class overlapDataset(Dataset):
             currVideo += 1
             tempIndex -= self.videoLengths[currVideo]
         tempIndex += self.videoLengths[currVideo]
-        obs = load(self.source + '/' + self.videos[currVideo])[tempIndex:tempIndex+self.clipLength]
+        obs = load(self.source + '/' + self.videos[currVideo],mmap_mode='r+')[tempIndex:tempIndex+self.clipLength]
         if self.transform:
             obs = self.transform(obs)
         return obs
@@ -48,7 +48,7 @@ class nonOverlapDataset(Dataset):
         self.videos = os.listdir(source)
         sort(self.videos)
         self.clipLength = clipLength
-        self.videoLengths = [load(source + '/' + self.videos[n]).shape[0] // clipLength for n in range(len(self.videos))]
+        self.videoLengths = [load(source + '/' + self.videos[n],mmap_mode='r').shape[0] // clipLength for n in range(len(self.videos))]
         self.transform = transform
     def __len__(self):
         return sum(self.videoLengths)
@@ -59,7 +59,7 @@ class nonOverlapDataset(Dataset):
             currVideo += 1
             tempIndex -= self.videoLengths[currVideo]
         tempIndex += self.videoLengths[currVideo]
-        obs = load(self.source + '/' + self.videos[currVideo])[(tempIndex*self.clipLength):(tempIndex*self.clipLength)+self.clipLength]
+        obs = load(self.source + '/' + self.videos[currVideo],mmap_mode='r+')[(tempIndex*self.clipLength):(tempIndex*self.clipLength)+self.clipLength]
         if self.transform:
             obs = self.transform(obs)
         return obs
@@ -77,7 +77,7 @@ class frameDataset(Dataset):
         self.source = source
         self.videos = os.listdir(source)
         sort(self.videos)
-        self.videoLengths = [load(source + '/' + self.videos[n]).shape[0] for n in range(len(self.videos))]
+        self.videoLengths = [load(source + '/' + self.videos[n],mmap_mode='r').shape[0] for n in range(len(self.videos))]
         print(self.videoLengths)
         self.transform = transform
     def __len__(self):
@@ -89,7 +89,7 @@ class frameDataset(Dataset):
             currVideo += 1
             tempIndex -= self.videoLengths[currVideo]
         tempIndex += self.videoLengths[currVideo]
-        obs = load(self.source + '/' + self.videos[currVideo])[tempIndex, :, :, newaxis]
+        obs = load(self.source + '/' + self.videos[currVideo],mmap_mode='r+')[tempIndex, :, :, newaxis]
         if self.transform:
             obs = self.transform(obs)
         return obs
