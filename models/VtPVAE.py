@@ -140,7 +140,7 @@ data = movingMNISTDataset(npArray=mnist, transform=transforms.ToTensor())
 train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args.seed, args.testSplit)
     
 
-model = NatVampPrior(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
+model = NatVampPrior(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device).to(device)
 optimizer = optim.Adam(model.parameters(), lr=args.lr,weight_decay=args.reg2)
 
 scheduler=None
