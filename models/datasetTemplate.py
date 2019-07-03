@@ -78,7 +78,6 @@ class frameDataset(Dataset):
         self.videos = os.listdir(source)
         sort(self.videos)
         self.videoLengths = [load(source + '/' + self.videos[n],mmap_mode='r').shape[0] for n in range(len(self.videos))]
-        print(self.videoLengths)
         self.transform = transform
     def __len__(self):
         return sum(self.videoLengths)
@@ -94,3 +93,46 @@ class frameDataset(Dataset):
             obs = self.transform(obs)
         return obs
         
+'''
+Cilia dataset split into non-overlapping mxn windows of individual frames
+
+@param source directory containing the source videos
+@param m the height of each window
+@param n the width of each window
+@param transform transform to be performed on observations
+
+@author Quinn Wyner
+'''
+class nonOverlapWindowDataset(Dataset):
+    def __init__(self, source, m, n, transform=None):
+        self.source = source
+        self.videos = os.listdir(source)
+        sort(self.videos)
+        self.windowHeight = m
+        self.windowWidth = n
+        self.videoLengths = []
+        for i in range(len(self.videos)):
+            array = load(source + '/' + self.videos[i],mmap_mode='r')
+            self.videoLengths.append(array.shape[0] * (array.shape[1]//m) * (array.shape[2]//n))
+        self.transform = transform
+    def __len__(self):
+        return sum(self.videoLengths)
+    def __getitem__(self, index):
+        tempIndex = index
+        currVideo = -1
+        while(tempIndex >= 0):
+            currVideo += 1
+            tempIndex -= self.videoLengths[currVideo]
+        tempIndex += self.videoLengths[currVideo]
+        array = load(self.source + '/' + self.videos[currVideo],mmap_mode='r+')
+        
+        horFrames = array.shape[2]//self.windowWidth
+        frameSeparator = (array.shape[1]//self.windowHeight) * horFrames
+        
+        row = ((tempIndex % frameSeparator) // horFrames) * self.windowHeight
+        col = tempIndex % horFrames
+        
+        obs = array[tempIndex // frameSeparator, row:(row+self.windowHeight), col:(col+self.windowWidth), newaxis]
+        if self.transform:
+            obs = self.transform(obs)
+        return obs
