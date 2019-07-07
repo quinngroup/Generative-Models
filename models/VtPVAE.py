@@ -63,6 +63,8 @@ parser.add_argument('--gamma', type = float, default=.05, metavar='g',
                     help='Pseudo-loss weight')
 parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
                     help='learning rate')
+parser.add_argument('--plr', type = float, default=4e-6, metavar='lr',
+                    help='learning rate')
 parser.add_argument('--dbscan', action='store_true', default= False,
                     help='to run dbscan clustering')      
 parser.add_argument('--graph', action='store_true', default= False,
@@ -141,7 +143,9 @@ train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args
     
 
 model = NatVampPrior(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device).to(device)
-optimizer = optim.Adam(model.parameters(), lr=args.lr,weight_decay=args.reg2)
+optimizer = optim.Adam([{'params': model.vae.parameters()},
+                        {'params': model.pseudoGen.parameters(), 'lr': args.plr}],
+                        lr=args.lr, weight_decay=args.reg2)
 
 scheduler=None
 if(args.schedule>0):
