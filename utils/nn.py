@@ -89,7 +89,7 @@ class true_spatial_broadcast_decoder(nn.Module):
         
 class spatial_broadcast_decoder_asymmetric(nn.Module):
     def __init__(self,input_height,input_length,device,lsdim,kernel_size=3,channels=[64,64,64,64]):
-        super(spatial_broadcast_decoder,self).__init__()
+        super(spatial_broadcast_decoder_asymmetric,self).__init__()
         self.input_height = input_height
         self.input_length=input_length
         self.device=device
