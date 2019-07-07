@@ -12,7 +12,6 @@ from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 from mMNISTflat import genLoaders
 from datasetTemplate import nonOverlapWindowDataset, overlapWindowDataset
-from vamps.NatVampPrior import log_normal_diag
 from torch.utils.tensorboard import SummaryWriter
 
 import numpy as np
@@ -24,6 +23,7 @@ import sys,os
 
 #os.chdir(os.path.dirname(sys.argv[0]))
 sys.path.insert(0,'../')
+from vamps.NatVampPrior import log_normal_diag
 from utils.nn import spatial_broadcast_decoder_asymmetric
 #print(os.getcwd())
 
