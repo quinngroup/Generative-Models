@@ -64,9 +64,9 @@ parser.add_argument('--dbscan', action='store_true', default= False,
                     help='to run dbscan clustering')      
 parser.add_argument('--graph', action='store_true', default= False,
                     help='flag to determine whether or not to run automatic graphing')      
-parser.add_argument('--input_height', type=int, default=480, metavar='il1',
+parser.add_argument('--input_height', type=int, default=128, metavar='il1',
                     help='height of one image')
-parser.add_argument('--input_length', type=int, default=640, metavar='il2',
+parser.add_argument('--input_length', type=int, default=128, metavar='il2',
                     help='length of one image')
 parser.add_argument('--repeat', action='store_true', default=False,
                     help='determines whether to enact further training after loading weights')
