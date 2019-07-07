@@ -112,8 +112,8 @@ class spatial_broadcast_decoder_asymmetric(nn.Module):
         heightAxisVector = heightStepTensor.view(1,1,self.input_height,1)
         lengthAxisVector = lengthStepTensor.view(1,1,1,self.input_length)
 
-        xPlane = xAxisVector.repeat(z.shape[0],1,1,self.input_length)
-        yPlane = yAxisVector.repeat(z.shape[0],1,self.input_height,1)
+        xPlane = heightAxisVector.repeat(z.shape[0],1,1,self.input_length)
+        yPlane = lengthAxisVector.repeat(z.shape[0],1,self.input_height,1)
 
         base = torch.cat((xPlane, yPlane, base), 1)         
 
