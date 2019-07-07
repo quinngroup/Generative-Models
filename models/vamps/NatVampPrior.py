@@ -121,7 +121,7 @@ class PseudoGen(nn.Module):
         self.idle_input = self.idle_input.to(device)
 
     def forward(self, x):
-        return torch.sigmoid(self.means(x))
+        return (F.leaky_relu((F.leaky_relu(self.means(x)) * -1.) + 1.) - 1.) * -1.
         
 
 class NatVampPrior(nn.Module):
@@ -313,12 +313,6 @@ if __name__ == "__main__":
         print('====> Test set loss: {:.4f}'.format(test_loss))
         if(epoch == max):
             print("--- %s seconds ---" % (time.time() - startTime))
-            if device == torch.device("cuda"):
-                z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
-                z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-            else:   
-                z1 = zTensor[:, 0].numpy()
-                z2 = zTensor[:, 1].numpy()
             cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
             
             #Handling different dimensionalities
@@ -343,7 +337,7 @@ if __name__ == "__main__":
                     plt.colorbar()
 
                 plt.show()
-            temp =model.means(model.idle_input).view(-1,args.input_length,args.input_length).detach().cpu()
+            temp = model.pseudoGen.forward(model.idle_input).view(-1,args.input_length,args.input_length).detach().cpu()
             for x in range(args.pseudos):
                 plt.matshow(temp[x].numpy())
                 plt.show()
