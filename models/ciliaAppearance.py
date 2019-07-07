@@ -197,7 +197,7 @@ class PseudoGen(nn.Module):
         self.idle_input = self.idle_input.to(device)
 
     def forward(self, x):
-        return torch.sigmoid(self.means(x))
+        return (F.leaky_relu((F.leaky_relu(self.means(x)) * -1.) + 1.) - 1.) * -1.
         
 
 class NatVampPrior(nn.Module):
@@ -353,7 +353,7 @@ def test(epoch, max, startTime):
             plt.show()
         if(args.pp>0):
             t=min(args.pp,args.pseudos)
-            temp = model.means(model.idle_input).view(-1,args.input_length,args.input_length).detach().cpu()
+            temp = model.pseudoGen.forward(model.idle_input).view(-1,args.input_length,args.input_length).detach().cpu()
             for x in range(t):
                 plt.matshow(temp[x].numpy())
                 plt.show()
