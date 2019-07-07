@@ -12,7 +12,7 @@ from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 from mMNISTflat import genLoaders
 from datasetTemplate import nonOverlapWindowDataset, overlapWindowDataset
-from NatVampPrior import log_normal_diag
+from vamps.NatVampPrior import log_normal_diag
 from torch.utils.tensorboard import SummaryWriter
 
 import numpy as np
