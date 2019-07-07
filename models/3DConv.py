@@ -136,7 +136,7 @@ class PseudoGen(nn.Module):
         self.means = nn.Linear(pseudos, input_depth*input_length*input_length, bias=False)
         
     def forward(self, x):
-        return torch.sigmoid(self.means(x))
+        return (F.leaky_relu((F.leaky_relu(self.means(x)) * -1.) + 1.) - 1.) * -1.
         
 class Conv3DVAE(nn.Module):
     def __init__(self, input_length, input_depth, lsdim, pseudos, beta, gamma, device):
