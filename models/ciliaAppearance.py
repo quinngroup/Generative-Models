@@ -116,20 +116,20 @@ class VAE(nn.Module):
         self.input_length = input_length
         self.lsdim = lsdim
         self.device = device
-        self.finalConvHeight = ((input_height - 30)//2 - 25)//2 - 90
-        self.finalConvLength = ((input_length - 30)//2 - 25)//2 - 90
+        self.finalConvHeight = ((input_height - 30)//2 - 25)//2 - 10
+        self.finalConvLength = ((input_length - 30)//2 - 25)//2 - 10
 
-        #(1,480,640) -> (8,450,610)
+        #(1,128,128) -> (8,98,98)
         self.conv1 = nn.Conv2d(1, 8, 31)
         
-        #(8,225,305) -> (16,200,280)
+        #(8,49,49) -> (16,24,24)
         self.conv2 = nn.Conv2d(8, 16, 26)
         
-        #(16,100,140) -> (32,50,90)
-        self.conv3 = nn.Conv2d(16, 32, 51)
+        #(16,12,12) -> (32,6,6)
+        self.conv3 = nn.Conv2d(16, 32, 7)
         
-        #(32,50,90) -> (64,10,50)
-        self.conv4 = nn.Conv2d(32, 64, 41)
+        #(32,6,6) -> (64,2,2)
+        self.conv4 = nn.Conv2d(32, 64, 5)
 
         #64*10*50 -> lsdim mean and logvar
         self.mean = nn.Linear(64*self.finalConvHeight*self.finalConvLength, lsdim)
@@ -144,16 +144,16 @@ class VAE(nn.Module):
     # THE MODEL: VARIATIONAL POSTERIOR
     def q_z(self, x):
     
-        #(1,480,640) -> (8,450,610) -> (8,225,305)
+        #(1,128,128) -> (8,98,98) -> (8,49,49)
         x = F.max_pool2d(F.leaky_relu(self.conv1(x)), (2,2))
         
-        #(8,225,305) -> (16,200,280) -> (16,100,140)
+        #(8,49,49) -> (16,24,24) -> (16,12,12)
         x = F.max_pool2d(F.leaky_relu(self.conv2(x)), (2,2))
         
-        #(16,100,140) -> (32,50,90)
+        #(16,12,12) -> (32,6,6)
         x = F.leaky_relu(self.conv3(x))
         
-        #(32,50,90) -> (64,10,50)
+        #(32,6,6) -> (64,2,2)
         x = F.leaky_relu(self.conv4(x))
         x=x.view(-1, 64*self.finalConvHeight*self.finalConvLength)
         
