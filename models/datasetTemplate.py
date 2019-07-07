@@ -1,4 +1,4 @@
-from numpy import load, newaxis, sort
+from numpy import load, newaxis, sort, uint8
 import os
 from torch.utils.data import Dataset
 
@@ -132,7 +132,7 @@ class nonOverlapWindowDataset(Dataset):
         row = ((tempIndex % frameSeparator) // horFrames) * self.windowHeight
         col = (tempIndex % horFrames) * self.windowWidth
         
-        obs = array[tempIndex // frameSeparator, row:(row+self.windowHeight), col:(col+self.windowWidth), newaxis]
+        obs = array[tempIndex // frameSeparator, row:(row+self.windowHeight), col:(col+self.windowWidth), newaxis].astype(uint8)
         if self.transform:
             obs = self.transform(obs)
         return obs
@@ -176,7 +176,7 @@ class overlapWindowDataset(Dataset):
         row = ((tempIndex % frameSeparator) // horFrames)
         col = tempIndex % horFrames
         
-        obs = array[tempIndex // frameSeparator, row:(row+self.windowHeight), col:(col+self.windowWidth), newaxis]
+        obs = array[tempIndex // frameSeparator, row:(row+self.windowHeight), col:(col+self.windowWidth), newaxis].astype(uint8)
         if self.transform:
             obs = self.transform(obs)
         return obs
