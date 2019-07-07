@@ -14,6 +14,7 @@ from mMNISTflat import genLoaders
 from datasetTemplate import nonOverlapWindowDataset, overlapWindowDataset
 from torch.utils.tensorboard import SummaryWriter
 
+import math
 import numpy as np
 
 import matplotlib.pyplot as plt
