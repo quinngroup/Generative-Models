@@ -11,7 +11,7 @@ from sklearn.manifold import TSNE
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 from mMNISTflat import genLoaders
-from datasetTemplate import frameDataset
+from datasetTemplate import nonOverlapWindowDataset, overlapWindowDataset
 from NatVampPrior import log_normal_diag
 from torch.utils.tensorboard import SummaryWriter
 
@@ -78,6 +78,8 @@ parser.add_argument('--schedule', type = int, default=-1, metavar='sp',
                     help='use learning rate scheduler on loss stagnation with input patience')
 parser.add_argument('--reg2', type = float, default=0, metavar='rg2',
                     help='coefficient for L2 weight decay')
+parser.add_argument('--overlap', action='store_true', default=False,
+                    help='allows overlap between windows of frames')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -100,7 +102,7 @@ if(args.log!='!'):
         writer = SummaryWriter(log_dir='runs/'+args.log)
 
 #Constructs Pytorch Dataset from moving MNIST data
-data = frameDataset(args.source, transform=transforms.ToTensor())
+data = overlapWindowDataset(args.source, args.input_height, args.input_length, transforms.ToTensor()) if args.overlap else nonOverlapWindowDataset(args.source, args.input_height, args.input_length, transforms.ToTensor())
 train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args.seed, args.testSplit)
     
 '''
