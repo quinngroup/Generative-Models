@@ -107,7 +107,9 @@ Cilia dataset split into non-overlapping mxn windows of individual frames
 class nonOverlapWindowDataset(Dataset):
     def __init__(self, source, m, n, transform=None):
         self.source = source
+        print('Beginning construction!')
         self.videos = os.listdir(source)
+        print('Sorting')
         sort(self.videos)
         self.windowHeight = m
         self.windowWidth = n
@@ -116,7 +118,7 @@ class nonOverlapWindowDataset(Dataset):
         for i in range(total):
             array = load(source + '/' + self.videos[i],mmap_mode='r')
             self.videoLengths.append(array.shape[0] * (array.shape[1]//m) * (array.shape[2]//n))
-            print('Loading array: ',i,'/',total)
+            print('Loading array: ',i+1,'/',total)
         self.transform = transform
     def __len__(self):
         return sum(self.videoLengths)
