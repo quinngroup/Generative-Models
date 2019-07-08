@@ -31,7 +31,7 @@ from utils.nn import spatial_broadcast_decoder_asymmetric
 #print(os.listdir())
 
 startTime = time.time()
-parser = argparse.ArgumentParser(description='VtPVAE')
+parser = argparse.ArgumentParser(description='ciliaAppearance')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                     help='input batch size for training (default: 128)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
@@ -275,6 +275,7 @@ if(args.schedule>0):
 def train(epoch):
     model.train()
     train_loss = 0
+    dataTime=time.time()
     for batch_idx, data in enumerate(train_loader):
         print('Data Load Time: %s seconds' % (time.time() - dataTime))
         data = data.to(device)
