@@ -273,10 +273,10 @@ if(args.schedule>0):
     scheduler=lr_scheduler.ReduceLROnPlateau(optimizer,verbose=True,patience=args.schedule)
 
 def train(epoch):
-    print('Data Load Time: %s seconds' % (time.time() - startTime))
     model.train()
     train_loss = 0
     for batch_idx, data in enumerate(train_loader):
+        print('Data Load Time: %s seconds' % (time.time() - dataTime))
         data = data.to(device)
         optimizer.zero_grad()
         recon_batch, mu, logvar, z = model(data)
