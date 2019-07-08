@@ -123,7 +123,6 @@ class nonOverlapWindowDataset(Dataset):
     def __len__(self):
         return sum(self.videoLengths)
     def __getitem__(self, index):
-        startTime = time.time()
         tempIndex = index
         currVideo = -1
         while(tempIndex >= 0):
@@ -141,7 +140,6 @@ class nonOverlapWindowDataset(Dataset):
         obs = array[tempIndex // frameSeparator, row:(row+self.windowHeight), col:(col+self.windowWidth), newaxis].astype(uint8)
         if self.transform:
             obs = self.transform(obs)
-        print("--- %s seconds ---" % (time.time() - startTime))
         return obs
         
 '''

@@ -273,6 +273,7 @@ if(args.schedule>0):
     scheduler=lr_scheduler.ReduceLROnPlateau(optimizer,verbose=True,patience=args.schedule)
 
 def train(epoch):
+    print('Data Load Time: %s seconds' % (time.time() - startTime))
     model.train()
     train_loss = 0
     for batch_idx, data in enumerate(train_loader):
@@ -295,6 +296,7 @@ def train(epoch):
         if(args.log!='!'):
             per_item_loss=loss.item()/len(data)
             writer.add_scalar('item_loss',per_item_loss,global_step=step)
+        dataTime=time.time()
 
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
