@@ -40,8 +40,8 @@ parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
 parser.add_argument('--testSplit', type=float, default=.05, metavar='%',
                     help='portion of dataset to test on (default: .2)')
-parser.add_argument('--source', type=str, default='../data/mnist_test_seq.npy', metavar='S',
-                    help = 'path to moving MNIST dataset (default: \'../data/mnist_test_seq.npy\')')
+parser.add_argument('--source', type=str, default=None, metavar='S',
+                    help = 'path to directory containing numpy arrays')
 parser.add_argument('--epochs', type=int, default=10, metavar='N',
                     help='number of epochs to train (default: 10)')
 parser.add_argument('--log-interval', type=int, default=10, metavar='N',
@@ -101,6 +101,8 @@ if(args.log!='!'):
         writer = SummaryWriter()
     else:
         writer = SummaryWriter(log_dir='runs/'+args.log)
+
+assert args.source
 
 #Constructs Pytorch Dataset from moving MNIST data
 data = overlapWindowDataset(args.source, args.input_height, args.input_length, transforms.ToTensor()) if args.overlap else nonOverlapWindowDataset(args.source, args.input_height, args.input_length, transforms.ToTensor())
