@@ -121,7 +121,7 @@ class PseudoGen(nn.Module):
         self.idle_input = self.idle_input.to(device)
 
     def forward(self, x):
-        return (F.leaky_relu((F.leaky_relu(self.means(x)) * -1.) + 1.) - 1.) * -1.
+        return F.sigmoid(self.means(x))
         
 
 class NatVampPrior(nn.Module):
