@@ -81,6 +81,14 @@ parser.add_argument('--schedule', type = int, default=-1, metavar='sp',
                     help='use learning rate scheduler on loss stagnation with input patience')
 parser.add_argument('--reg2', type = float, default=0, metavar='rg2',
                     help='coefficient for L2 weight decay')
+parser.add_argument('--noEarlyStop', action='store_true', default=False,
+                    help='disables early stopping')
+parser.add_argument('--tolerance', type = float, default=100, metavar='tol',
+                    help='tolerance value for early stopping')
+parser.add_argument('--patience', type = int, default = 3, metavar='pat',
+                    help='patience value for early stopping')
+parser.add_argument('--failCount', type=str, default='r', metavar='fc',
+                    help='determines how to reset early-stopping failed epoch counter. Options are \'r\' for reset and \'c\' for cumulative')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -146,6 +154,9 @@ model = NatVampPrior(args.input_length, args.lsdim, args.pseudos, args.beta, arg
 optimizer = optim.Adam([{'params': model.vae.parameters()},
                         {'params': model.pseudoGen.parameters(), 'lr': args.plr}],
                         lr=args.lr, weight_decay=args.reg2)
+stopEarly = False
+failedEpochs=0
+lastLoss = 0
 
 scheduler=None
 if(args.schedule>0):
@@ -184,6 +195,9 @@ def test(epoch, max, startTime):
     model.eval()
     test_loss = 0
     gen_loss = 0
+    global lastLoss
+    global failedEpochs
+    global stopEarly
     zTensor = torch.empty(0,args.lsdim).to(device)
     pseudos=model.pseudoGen.forward(model.idle_input).view(-1,1,args.input_length,args.input_length).to(device)
     recon_pseudos, p_mu, p_logvar, p_z=model(pseudos)
@@ -204,6 +218,15 @@ def test(epoch, max, startTime):
     gen_loss /= len(test_loader.dataset)
     print('====> Test set loss: {:.4f}'.format(test_loss))
     print('====> Generation loss: {:.4f}'.format(gen_loss))
+    if(epoch == 1):
+        lastLoss = test_loss
+    elif not args.noEarlyStop:
+        if lastLoss-test_loss < args.tolerance:
+            failedEpochs += 1
+            if failedEpochs >= args.patience:
+                stopEarly = True
+        elif args.failCount == 'r':
+            failedEpochs = 0
     if(epoch == max):
         if(args.save != ''):
             torch.save({
@@ -262,8 +285,9 @@ if __name__ == "__main__":
     '''
     if(args.load == ''):
         for epoch in range(1, args.epochs + 1):
-            train(epoch)
-            test(epoch, args.epochs, startTime)
+            if(not stopEarly):
+                train(epoch)
+                test(epoch, args.epochs, startTime)
     else:
         checkpoint=torch.load(args.load)
         model.load_state_dict(checkpoint['model_state_dict'])
