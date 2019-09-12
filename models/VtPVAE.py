@@ -83,9 +83,9 @@ parser.add_argument('--reg2', type = float, default=0, metavar='rg2',
                     help='coefficient for L2 weight decay')
 parser.add_argument('--noEarlyStop', action='store_true', default=False,
                     help='disables early stopping')
-parser.add_argument('--tolerance', type = float, default=100, metavar='tol',
+parser.add_argument('--tolerance', type = float, default=.1, metavar='tol',
                     help='tolerance value for early stopping')
-parser.add_argument('--patience', type = int, default = 3, metavar='pat',
+parser.add_argument('--patience', type = int, default = 10, metavar='pat',
                     help='patience value for early stopping')
 parser.add_argument('--failCount', type=str, default='r', metavar='fc',
                     help='determines how to reset early-stopping failed epoch counter. Options are \'r\' for reset and \'c\' for cumulative')
