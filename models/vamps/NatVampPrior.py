@@ -1,4 +1,5 @@
-from __future__ import print_function
+CHECKSUM = 'NatVamp1'
+
 import argparse
 import torch
 import time
@@ -384,7 +385,7 @@ if __name__ == "__main__":
                 train(epoch)
                 test(epoch, args.epochs, startTime)
     if(args.save != ''):
-        torch.save(model.state_dict(), args.save)
+        torch.save(model.state_dict(), CHECKSUM + args.save)
 
         
     
