@@ -1,3 +1,8 @@
+'''
+Script to convert numpy arrays to uint8 data type
+'''
+
+
 import numpy as np
 import os
 import argparse

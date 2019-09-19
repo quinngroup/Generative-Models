@@ -8,7 +8,7 @@ parser.add_argument('--load', type=str, default='', metavar='l',help='loads the 
 args = parser.parse_args()
 
 #Determine FPS and respective ms delay
-fps=50
+fps=10
 delay=int(1000/fps)
 
 
@@ -37,13 +37,13 @@ out = cv2.VideoWriter(name+'.mp4',encoding, fps, frame_shape)
 temp=np.zeros_like(raw[0])
 for i in range(length):
     print(i)    
-    #temp=cv2.cvtColor(raw[i,:,:],cv2.COLOR_GRAY2BGR)
-    #cv2.imshow('frame',temp)
+    temp=cv2.cvtColor(raw[i,:,:],cv2.COLOR_GRAY2BGR)
     #out.write(temp)
-    temp=np.uint8(np.random.rand(frame_shape[0],frame_shape[1])*255)
+    #temp=np.uint8(np.random.rand(frame_shape[0],frame_shape[1])*255)
     out.write(temp)
-    #if cv2.waitKey(delay) & 0xFF == ord('q'):
-    #    break
+    cv2.imshow('frame',temp)
+    if cv2.waitKey(delay) & 0xFF == ord('q'):
+        break
 
 
 #Close
