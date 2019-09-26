@@ -217,12 +217,14 @@ class ResNetBlock(nn.Module):
     @param kernel_size size of a kernel; either an int or tuple of 2 ints
     @param numLayers number of convolutions to perform
     @param activationFunction function to perform on layers; either a lambda function or a tuple of lambda functions
+    @param shortcutInterval number of layers between each shortcut
     '''
-    def __init__(self, channels, kernel_size, numLayers, activationFunction):
+    def __init__(self, channels, kernel_size, numLayers, activationFunction, shortcutInterval):
         super(ResNetBlock, self).__init__()
         if type(activationFunction) == tuple and len(activationFunction) != numLayers:
             raise Exception(f'length of activation function must be same as numLayers {numLayers}, but is instead {len(activationFunction)}')
         self.activationFunction = activationFunction
+        self.shortcutInterval = shortcutInterval
         if type(kernel_size) == int:
             if kernel_size % 2 == 0:
                 raise Exception(f'kernel_size must exclusively have odd values, but has value {kernel_size}')
@@ -236,11 +238,17 @@ class ResNetBlock(nn.Module):
                     return
             self.layers = nn.ModuleList([nn.Conv2d(channels, channels, kernel_size, padding=(kernel_size[0]//2, kernel_size[1]//2)) for i in range(numLayers)])
     def forward(self, x):
+        shortcut = x
         z = x
         for i in range(len(self.layers)):
+            shortcutLayer = ((i+1) % self.shortcutInterval == 0)
             z = self.layers[i](z)
+            if shortcutLayer:
+                z = z + shortcut
             if type(self.activationFunction) == tuple:
                 z = self.activationFunction[i](z)
             else:
                 z = self.activationFunction(z)
-        return z + x
+            if shortcutLayer:
+                shortcut = z
+        return z
