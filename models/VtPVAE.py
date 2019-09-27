@@ -1,3 +1,5 @@
+CHECKSUM = 'VtP-A1'
+
 import argparse
 import torch
 import time
@@ -31,6 +33,12 @@ from vamps.NatVampPrior import NatVampPrior
 
 
 
+'''
+Appearance head for Video-to-Path model
+Implements NatVampPrior on frames of a video dataset
+
+@author Davis Jackson, Quinn Wyner
+'''
 
 startTime = time.time()
 parser = argparse.ArgumentParser(description='VtPVAE')
