@@ -2,6 +2,11 @@ import cv2
 import numpy as np
 import time
 
+'''
+Generates the optical flow for "number.mp4"
+
+@author Meekail Zain
+'''
 cap = cv2.VideoCapture("number.mp4")
 ret, frame1 = cap.read()
 prvs = cv2.cvtColor(frame1,cv2.COLOR_BGR2GRAY)
