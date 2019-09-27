@@ -2,6 +2,11 @@ import cv2
 import numpy as np
 import argparse
 
+'''
+Converts numpy arrays to videos
+
+@author Meekail Zain
+'''
 parser = argparse.ArgumentParser(description='array2vid')
 parser.add_argument('--save', type=str, default='', metavar='s',help='saves video under this name')
 parser.add_argument('--load', type=str, default='', metavar='l',help='loads the given numpy array')
@@ -9,7 +14,7 @@ args = parser.parse_args()
 
 #Determine FPS and respective ms delay
 fps=10
-delay=int(1000/fps)
+delay=1000//fps
 
 
 #Loads raw numpy array (hence there are size-limits) and establishes video dimensions
