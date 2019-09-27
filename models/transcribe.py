@@ -1,5 +1,7 @@
 '''
 Script to convert numpy arrays to uint8 data type
+
+@author Meekail Zain
 '''
 
 
