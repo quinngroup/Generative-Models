@@ -66,14 +66,10 @@ test_loader = torch.utils.data.DataLoader(
     batch_size=args.batch_size, shuffle=True, **kwargs)
     
 """
-Secpmd Convolutional Neural Network Variational Autoencoder with Transpose Convolutional Decoder
-Uses 4 convolutional hidden layers in the encoder before encoding a distribution
-Applies 1 fully-connected and 3 transpose convolutional hidden layers to code before output layer.
+A WIP implementation of deformable convolution in a VampPrior VAE
 
-@author Davis Jackson & Quinn Wyner
+@author Meekail Zain
 """
-    
-    
 class VAE(nn.Module):
     def __init__(self):
         super(VAE, self).__init__()
