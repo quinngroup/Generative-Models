@@ -74,40 +74,8 @@ NETWORKS"
 
 [33](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8600380) B3DF paper
 
+[34](https://arxiv.org/pdf/1901.11390.pdf) MonNet architecture, which is a good look at iterative refinmenet in models, along with a great introduction to the utility of masks
 
+[35](https://arxiv.org/pdf/1903.00450.pdf) IODINE network architecture, which is an evolutoin of 
 
-Descriptions of Uploads:
-
-CNN_T.py  - Uploaded base code from Meekail on a basic Convolution Net using the MNIST Data set
-
-neg-inf-loss-model.py - Early attempt at reproducing CNN from CNN_T.py, resulting in a negative ifinite loss.
-
-testNet2.py - Successful CNN using the MNIST data set
-
-vaeTest1.py - First attempt at implementing a Variational Auto Encoder on  a very basic neural net, using the MNIST data.
-
-vaeTest2.py - First SUCCESSFUL attempt at implementing a Variational Auto Encoder on a very basic neural net, using the MNIST data.
-
-vae4LayerConv.py - A Variational Auto Encoder with 4 hidden convolutional layers in the encoder and 1 hidden fully-connected layer in 
-the decoder, as well as graphical embedding after 10 epochs
-
-vae10LayerConv.py - A Variational Auto Encoder with 10 hidden convolutional layers in the encoder and 1 hidden fully-connected layer in the decoder, as well as graphical embedding after 10 epochs
-
-
-
-1/23/19: Covered basic VAE [3], and beta-vae [5], started implementation of a simple FF-VAE. Discussed goals for next month.
-  February Goals: Establish potential model architectures, run initial tests.
-  
-1/30/19: Uploaded vaeTest2.py, the first successful Feet-Forward Variational Auto Encoder. Finished vae4LayerConv.py and vae10LayerConv.py, 2 Variational Auto Encoders with 4 and 10 hidden convolutional layers in their encoders, respectively. Added graphical embedding functionality to vae4LayerConv.py and vae10LayerConv.py to visualize the constructed latent spaces after 10 epochs. Began attempting to determine how to add legends to the scatter plots used to present the graphical embeddings.
-
-2/6/19: Uploaded 10Conv4TConv.py, the first tutorial model to implement transpose convolutional layers in the decoder. Uploaded more graphical embeddings. Updated models with colorbars to display which color corresponds to which number in the graphical embeddings.
-
-2/13/19: Uploaded 4Conv4TConv.py, which uses 4 convolutional layers instead of 10 in the encoder to increase training rate with minimal change in final result. Uploaded 4C4TTSNE.py, which uses TSNE projection to display a 2-dimensional projection of the graphical embedding of higher-dimensional latent spaces.
-
-2/22/19: Uploaded mnist_test_seq.npy, a numpy array containing 10,000 observations of 20-frame 64x64 videos of moving handwritten digits, called hereafter by the moving MNIST dataset. Uploaded movingMNISTExploration.py, which allows conversion between an observation of the moving MNIST dataset and an mp4 file and constructs training and testing DataLoaders from the moving MNIST dataset.
-
-3/20/19: Began work on a Long Short-Term Memory Variational Autoencoder for the moving MNIST dataset. Constructed a bare-bones cell state stream and began a new encoder to encode 64x64 images. Updated movingMNISTExplorer.py to allow generation of DataLoaders from outside programs. Deleted a redundant model. Reviewed research regarding Two-Stream and VampPrior.
-
-4/7/19: Fixed vanishing gradient problem in models. Finished implementing the spatial braodcast decoder. Finished implementing the vampPrior model. Combined vampPrior with spatial broadcast decoding.
-
-4/11/19: Made a modified vampPrior model which includes a loss term encouraging the maximization of the likelihood that the generative process produces the pseudo inputs. Added a hyper-parameter gamma to allow for dynamic weighting (weight is considered per batch). Need to perform more experiments on the model's sensitivity to gamma
+[36](https://arxiv.org/pdf/1906.00446.pdf) High-fidelity reconstruction using discretized encoding vectors
