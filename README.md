@@ -72,6 +72,8 @@ NETWORKS"
 
 [32](http://www.cs.columbia.edu/~gravano/Papers/2017/tods17.pdf) Paper exploring (fast) time-series clustering
 
+[33](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8600380) B3DF paper
+
 
 
 Descriptions of Uploads:
