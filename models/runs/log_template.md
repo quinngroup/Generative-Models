@@ -1,22 +1,23 @@
 Directory making discussion:
- - create a directory called exp[n] in models/runs/ where n is new greatest number out of all exp directories
+ - create a directory called experimentName in models/runs/ where experimentName is an informative abbreviation for the name of the experiment and the date in which it was performed
+    For example, models/runs/firstExperiment-10-17-19
  - title the logging template log.txt within this directory
- - also include the tenserboard integration vlaues within this directory
+ - also include the tensorboard integration values within this directory
 
-Template for logging expiriments in log.txt:
+Template for logging experiments in log.txt:
 
-Expiriment [Expiriment Name] Log:
+[Experiment Name] Experiment Log:
 =======================================================================================
-Date: [Date expiriment organized/performed]
+Date: [Date experiment organized/performed]
 Model Architecture: [Name of model architecture being trained/tested]
-Non-default arguments: [Description of how expiriment changes default hyperparamater and configuration values]
+Non-default arguments: [Description of how experiment changes default hyperparamater and configuration values]
 [Description of generated file structure]
 =======================================================================================
 Final loss: [final loss]
 Computation Time: [computation time]
 Number trainable paramaters: [number trainable parameters (if can find)]
 [Analytic description of results, i.e. more nuanced quantitative and qualitiative perspective] 
-Conclusion: [Conclusion, or ideas for next expiriment]
+Conclusion: [Conclusion, or ideas for next experiment]
 
 
 
@@ -24,10 +25,10 @@ Conclusion: [Conclusion, or ideas for next expiriment]
 
 Log Example:
 
-Experiment First VTP VAE log
+First VtPVAE Experiment Log
 =======================================================================================
 Date: 10/16/2019
-Model Architecture: vtpvae.py
+Model Architecture: VtPVAE.py
 Non-default arguments: patience = (-1,5,10)
 Weights for model with patience ## are stored as firstVtPVAE##.h5
 =======================================================================================
