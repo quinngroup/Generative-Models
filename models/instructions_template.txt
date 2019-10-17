@@ -1,0 +1,8 @@
+#!/bin/bash
+
+dir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
+
+python modelName1.py --source path/to/dataset.npy --save runs/experimentName/weights1Name.h5 --log runs/experimentName/weights1Name --flag1 flag1Value1 --flag2 flag2Value1 ... --flagN flagNValue1
+python modelName2.py --source path/to/dataset.npy --save runs/experimentName/weights2Name.h5 --log runs/experimentName/weights2Name --flag1 flag1Value2 --flag2 flag2Value2 ... --flagN flagNValue2
+...
+python modelNameM.py --source path/to/dataset.npy --save runs/experimentName/weightsMName.h5 --log runs/experimentName/weightsMName --flag1 flag1ValueM --flag2 flag2ValueM ... --flagN flagNValueM

@@ -1,0 +1,36 @@
+The following is a list of flags for use with the most current model (VtPVAE.py) as of 10/16/2019:
+==================================================================================================
+Common Configs:
+--input_length: The width/height of a single input image. Default = 64
+--load: The filename from which weights should be loaded. Default = ''
+--log: Directory to store tensorboard information for model. Default = '!'
+--repeat: Enacts further training after loading weights.
+--save: The filename to which weights should be saved. Default = ''
+--source: Path to numpy array containing data. Default = '../data/mnist_test_seq.npy'
+
+Common Hyperparameters:
+--batch-size: Batch size for training the model. Default = 128
+--epochs: Number of epochs for which to train the model. Default = 10
+--testSplit: Portion of the dataset to be reserved for testing. Default = .2
+
+Other Hyperparameters:
+--beta: The value of beta for a beta-vae implementation. Default = 1.0
+--failCount: Method for counting failed epochs for early stopping after a successful epoch. Options are 'r' for reset and 'c' for cumulative. Default = 'r'
+--gamma: Coefficient on the NatVampPrior pseudoinput loss term. Default = .05
+--lr: Learning rate for model parameters. Default = 1e-3
+--lsdim: Latent space dimensionality. Default = 2
+--noEarlyStop: Disables early stopping.
+--patience: Early stopping patience value. Default = 10
+--plr: Learning rate for parameters used for pseudoinput construction. Default = 4e-6
+--pseudos: Number of pseudoinputs for VampPrior. Default = 10
+--reg2: Coefficient on L2 weight decay. Default = 0
+--schedule: Patience for learning rate scheduling. If -1, does not use learning rate scheduling. Default = -1
+--tolerance: Early stopping tolerance value. Default = .1
+
+Other Configs:
+--dbscan: Runs DBSCAN clustering.
+--graph: Generates and displays a graphical embedding of the latent space.
+--log-interval: The number of batches to wait before logging training status. Default = 10
+--no-cuda: Disables use of CUDA and enforces that model is run on GPU.
+--pp: The number of pseudoinputs to plot. Default = 0
+--seed: Sets the random seed for use in weight initialization. Default = 1
