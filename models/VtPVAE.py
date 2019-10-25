@@ -1,6 +1,7 @@
-CHECKSUM = 'VtP-A1'
+CHECKSUM = 'VtP-A2'
 
 import argparse
+import mlflow
 import torch
 import time
 from torch import optim
@@ -81,7 +82,7 @@ parser.add_argument('--input_length', type=int, default=64, metavar='il',
                     help='length and height of one image')
 parser.add_argument('--repeat', action='store_true', default=False,
                     help='determines whether to enact further training after loading weights')
-parser.add_argument('--pp', type = int, default=10, metavar='pp',
+parser.add_argument('--pp', type = int, default=0, metavar='pp',
                     help='Plot pseudos. Controls the number of pseudo inputs to be displayed')
 parser.add_argument('--log', type=str, default='!', metavar='lg',
                     help='flag to determine whether to use tensorboard for logging. Default \'!\' is read to mean no logging')      
@@ -97,9 +98,22 @@ parser.add_argument('--patience', type = int, default = 10, metavar='pat',
                     help='patience value for early stopping')
 parser.add_argument('--failCount', type=str, default='r', metavar='fc',
                     help='determines how to reset early-stopping failed epoch counter. Options are \'r\' for reset and \'c\' for cumulative')
+parser.add_argument('--experiment', type=str, default=None,
+                    help='Name of experiment being run. Default = \'\'')
+parser.add_argument('--runName', type=str, default=None,
+                    help='Name of run to be logged. Default = \'\'')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
+
+if args.experiment:
+    mlflow.set_experiment(args.experiment)
+    if args.runName:
+        mlflow.start_run(run_name = args.runName)
+    else:
+        mlflow.start_run()
+    for arg in vars(args):
+        mlflow.log_param(arg, getattr(args, arg))
 
 torch.manual_seed(args.seed)
 
@@ -182,13 +196,18 @@ def train(epoch):
         loss = model.loss_function(recon_batch, data, mu, logvar, z,pseudos,recon_pseudos, p_mu, p_logvar, p_z)
         loss.backward()
         train_loss += loss.item()
+        genLoss = model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0).item() / len(data)
+        if args.experiment:
+            mlflow.log_metric('trainLoss', loss.item()/len(data))
+            mlflow.log_metric('genLoss', genLoss)
+            print('Logged training!')
         optimizer.step()
         if batch_idx % args.log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tGenLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader),
                 loss.item() / len(data),
-                model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0).item() / len(data)))
+                genLoss))
         step=epoch*len(train_loader)+batch_idx
         if(args.log!='!'):
             per_item_loss=loss.item()/len(data)
@@ -216,7 +235,6 @@ def test(epoch, max, startTime):
             test_loss += model.loss_function(recon_batch, data, mu, logvar,z,pseudos,recon_pseudos, p_mu, p_logvar, p_z).item()
             gen_loss += model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0).item()
             zTensor = torch.cat((zTensor, z), 0)
-    
     if (args.dbscan == True) :
         zScaled = StandardScaler().fit_transform((torch.Tensor.cpu(zTensor).numpy())) #re-add StandardScaler().fit_transform
         db = DBSCAN(eps= 0.7, min_samples= 3).fit(zScaled)
@@ -224,6 +242,10 @@ def test(epoch, max, startTime):
         labelTensor = db.labels_
     test_loss /= len(test_loader.dataset)
     gen_loss /= len(test_loader.dataset)
+    if args.experiment:
+        mlflow.log_metric('testLoss', test_loss)
+        mlflow.log_metric('testGenLoss', gen_loss)
+        print('Logged testing!')
     print('====> Test set loss: {:.4f}'.format(test_loss))
     print('====> Generation loss: {:.4f}'.format(gen_loss))
     if(epoch == 1):
@@ -233,6 +255,7 @@ def test(epoch, max, startTime):
             failedEpochs += 1
             if failedEpochs >= args.patience:
                 stopEarly = True
+                epoch = max
         elif args.failCount == 'r':
             failedEpochs = 0
     if(epoch == max):
@@ -270,9 +293,7 @@ def test(epoch, max, startTime):
             for x in range(t):
                 plt.matshow(temp[x].numpy())
                 plt.show()
-            
-        
-         
+      
 def dplot(x):
     img = decode(x)
     plt.imshow(img)
@@ -310,3 +331,6 @@ if __name__ == "__main__":
         #res = torch.autograd.Variable(torch.Tensor(1,1,20,64,64), requires_grad=True).to(device)
         #writer.add_graph(model,res,verbose=True)
         writer.close()
+    if args.experiment:
+        mlflow.end_run()
+    
