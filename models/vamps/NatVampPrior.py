@@ -164,8 +164,8 @@ class NatVampPrior(nn.Module):
         pKL= -(plog_p_z - plog_q_z)
 
         if gamma is None:
-            return (RE + self.beta*KL)+self.gamma*(pRE + self.beta*pKL)
-        else:
+            gamma=self.gamma
+        gamma=self.batch_size*gamma
             return (RE + self.beta*KL)+gamma*(pRE + self.beta*pKL)
 
     def log_p_z(self,z):
@@ -230,7 +230,7 @@ if __name__ == "__main__":
     parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                         help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
                         #current implementation may not be optimal for dims above 4
-    parser.add_argument('--gamma', type = float, default=10, metavar='g',
+    parser.add_argument('--gamma', type = float, default=.05, metavar='g',
                         help='Pseudo-loss weight')
     parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
                         help='learning rate')  
