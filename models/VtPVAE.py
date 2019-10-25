@@ -106,6 +106,14 @@ parser.add_argument('--runName', type=str, default=None,
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
+torch.manual_seed(args.seed)
+
+device = "cuda" if args.cuda else "cpu"
+
+if(args.cuda):
+    with torch.cuda.device(0):
+        torch.tensor([1.]).cuda()
+        
 if args.experiment:
     mlflow.set_experiment(args.experiment)
     if args.runName:
@@ -114,14 +122,6 @@ if args.experiment:
         mlflow.start_run()
     for arg in vars(args):
         mlflow.log_param(arg, getattr(args, arg))
-
-torch.manual_seed(args.seed)
-
-device = "cuda" if args.cuda else "cpu"
-
-if(args.cuda):
-    with torch.cuda.device(0):
-        torch.tensor([1.]).cuda()
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
@@ -200,7 +200,6 @@ def train(epoch):
         if args.experiment:
             mlflow.log_metric('trainLoss', loss.item()/len(data))
             mlflow.log_metric('genLoss', genLoss)
-            print('Logged training!')
         optimizer.step()
         if batch_idx % args.log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tGenLoss: {:.6f}'.format(
@@ -245,7 +244,6 @@ def test(epoch, max, startTime):
     if args.experiment:
         mlflow.log_metric('testLoss', test_loss)
         mlflow.log_metric('testGenLoss', gen_loss)
-        print('Logged testing!')
     print('====> Test set loss: {:.4f}'.format(test_loss))
     print('====> Generation loss: {:.4f}'.format(gen_loss))
     if(epoch == 1):
