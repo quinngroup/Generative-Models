@@ -126,9 +126,10 @@ class PseudoGen(nn.Module):
         
 
 class NatVampPrior(nn.Module):
-    def __init__(self, input_length, lsdim, pseudos, beta, gamma, device):
+    def __init__(self, batch_size, input_length, lsdim, pseudos, beta, gamma, device):
         super(NatVampPrior, self).__init__()
         
+        self.batch_size = batch_size
         self.pseudos = pseudos
         self.beta = beta
         self.gamma = gamma
@@ -272,7 +273,7 @@ if __name__ == "__main__":
         datasets.MNIST('../../data/', train=False, transform=transforms.ToTensor()),
         batch_size=args.batch_size, shuffle=True, **kwargs)
         
-    model = NatVampPrior(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device).to(device)
+    model = NatVampPrior(args.batch_size, args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device).to(device)
     optimizer = optim.Adam([{'params': model.vae.parameters()},
                             {'params': model.pseudoGen.parameters(), 'lr': args.plr}],
                             lr=args.lr, weight_decay=args.reg2)
