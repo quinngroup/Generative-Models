@@ -166,7 +166,7 @@ class NatVampPrior(nn.Module):
         if gamma is None:
             gamma=self.gamma
         gamma=self.batch_size*gamma
-            return (RE + self.beta*KL)+gamma*(pRE + self.beta*pKL)
+        return (RE + self.beta*KL)+gamma*(pRE + self.beta*pKL)
 
     def log_p_z(self,z):
         # calculate params
