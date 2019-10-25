@@ -333,6 +333,7 @@ if __name__ == "__main__":
                 failedEpochs += 1
                 if failedEpochs >= args.patience:
                     stopEarly = True
+                    epoch = max
             elif args.failCount == 'r':
                 failedEpochs = 0
         if(epoch == max):
