@@ -1,0 +1,10 @@
+Experiment Log
+==============
+Varying number of pseudos form 5 to 75 in iterations of 10 training each for 10 epochs at batch size
+128 and 1000 with lsdim 12 at gamma .05, and .15, c.p.
+
+BxPxG == Batch-Size x Pseudos x Gamma
+
+B: 0=>128,1=>1000
+P: n=>n
+G: n=>n/100

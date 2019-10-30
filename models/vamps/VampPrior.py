@@ -48,6 +48,9 @@ parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
+if(args.cuda):
+    with torch.cuda.device(0):
+        torch.tensor([1.]).cuda()
 
 torch.manual_seed(args.seed)
 
@@ -282,6 +285,8 @@ def train(epoch):
         loss.backward()
         train_loss += loss.item()
         optimizer.step()
+        step=epoch*len(train_loader)+batch_idx
+        writer.add_scalar('loss',loss.item(),global_step=step)
         if batch_idx % args.log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
@@ -357,8 +362,7 @@ if __name__ == "__main__":
     temp =model.means(model.idle_input).view(-1,28,28).detach().cpu()
 
     res = torch.autograd.Variable(torch.Tensor(1,1,28,28), requires_grad=True).to(device)
-#    writer.add_graph(model,temp.unsqueeze(1).to(device),verbose=True)
-    writer.add_graph(model,res,verbose=True)
+    #writer.add_graph(model,res,verbose=True)
     
     writer.close()
         

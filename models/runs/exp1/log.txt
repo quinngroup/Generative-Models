@@ -1,0 +1,5 @@
+Experiment log
+===============
+Performing 40 epochs of learning, with batch size at 128 and 1000, lsdim 12, ceteris paribus
+
+NOTE: Made with only model_state_dict()

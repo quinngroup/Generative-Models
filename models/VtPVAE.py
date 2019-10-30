@@ -1,40 +1,45 @@
-from __future__ import print_function
-from __future__ import print_function
+CHECKSUM = 'VtP-A2'
+
 import argparse
+import mlflow
 import torch
-import torch.utils.data
 import time
-from torch import nn, optim
+from torch import optim
 from torch.nn import functional as F
+from torch.optim import lr_scheduler
 from torch.utils.data import Dataset
-from torchvision import datasets, transforms
-from torchvision.utils import save_image
+from torchvision import transforms
 from torchsummary import summary
 from sklearn.manifold import TSNE
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
-from mpl_toolkits.mplot3d import Axes3D
 from mMNISTflat import genLoaders
+
+from torch.utils.tensorboard import SummaryWriter
 
 import numpy as np
 
 import matplotlib.pyplot as plt
-import matplotlib.cbook as cbook
 import matplotlib.colors as colors
 
 import sys,os
 
-#print(os.getcwd())
-#abspath=os.path.abspath(__file__)
-#dname=os.path.dirname(abspath)
-#os.chdir(dname)
-
 #os.chdir(os.path.dirname(sys.argv[0]))
 sys.path.insert(0,'../')
-print(os.getcwd())
+#print(os.getcwd())
 
-print(os.listdir())
-from vamps.NatVampPrior import log_Normal_diag, VAE
+#print(os.listdir())
+from vamps.NatVampPrior import NatVampPrior
+
+
+
+
+'''
+Appearance head for Video-to-Path model
+Implements NatVampPrior on frames of a video dataset
+
+@author Davis Jackson, Quinn Wyner
+'''
 
 startTime = time.time()
 parser = argparse.ArgumentParser(description='VtPVAE')
@@ -63,9 +68,11 @@ parser.add_argument('--pseudos', type=int, default=10, metavar='p',
 parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                     help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
                     #current implementation may not be optimal for dims above 4
-parser.add_argument('--gamma', type = float, default=10, metavar='g',
+parser.add_argument('--gamma', type = float, default=.05, metavar='g',
                     help='Pseudo-loss weight')
 parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
+                    help='learning rate')
+parser.add_argument('--plr', type = float, default=4e-6, metavar='lr',
                     help='learning rate')
 parser.add_argument('--dbscan', action='store_true', default= False,
                     help='to run dbscan clustering')      
@@ -75,19 +82,59 @@ parser.add_argument('--input_length', type=int, default=64, metavar='il',
                     help='length and height of one image')
 parser.add_argument('--repeat', action='store_true', default=False,
                     help='determines whether to enact further training after loading weights')
-
+parser.add_argument('--pp', type = int, default=0, metavar='pp',
+                    help='Plot pseudos. Controls the number of pseudo inputs to be displayed')
+parser.add_argument('--log', type=str, default='!', metavar='lg',
+                    help='flag to determine whether to use tensorboard for logging. Default \'!\' is read to mean no logging')      
+parser.add_argument('--schedule', type = int, default=-1, metavar='sp',
+                    help='use learning rate scheduler on loss stagnation with input patience')
+parser.add_argument('--reg2', type = float, default=0, metavar='rg2',
+                    help='coefficient for L2 weight decay')
+parser.add_argument('--noEarlyStop', action='store_true', default=False,
+                    help='disables early stopping')
+parser.add_argument('--tolerance', type = float, default=.1, metavar='tol',
+                    help='tolerance value for early stopping')
+parser.add_argument('--patience', type = int, default = 10, metavar='pat',
+                    help='patience value for early stopping')
+parser.add_argument('--failCount', type=str, default='r', metavar='fc',
+                    help='determines how to reset early-stopping failed epoch counter. Options are \'r\' for reset and \'c\' for cumulative')
+parser.add_argument('--experiment', type=str, default=None,
+                    help='Name of experiment being run. Default = \'\'')
+parser.add_argument('--runName', type=str, default=None,
+                    help='Name of run to be logged. Default = \'\'')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
 torch.manual_seed(args.seed)
 
-device = torch.device("cuda" if args.cuda else "cpu")
+device = "cuda" if args.cuda else "cpu"
+
+if(args.cuda):
+    with torch.cuda.device(0):
+        torch.tensor([1.]).cuda()
+        
+if args.experiment:
+    mlflow.set_experiment(args.experiment)
+    if args.runName:
+        mlflow.start_run(run_name = args.runName)
+    else:
+        mlflow.start_run()
+    for arg in vars(args):
+        mlflow.log_param(arg, getattr(args, arg))
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
 #Loads moving MNIST dataset
 mnist = np.load(args.source,allow_pickle=True)
+
+writer=None
+if(args.log!='!'):
+    if(args.log=='$'):
+        writer = SummaryWriter()
+    else:
+        writer = SummaryWriter(log_dir='runs/'+args.log)
+
 
 #movingMNISTDataset class    
 class movingMNISTDataset(Dataset):
@@ -125,8 +172,17 @@ data = movingMNISTDataset(npArray=mnist, transform=transforms.ToTensor())
 train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args.seed, args.testSplit)
     
 
-model = VAE(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, args.batch_size, device).to(device)
-optimizer = optim.Adam(model.parameters(), lr=args.lr)
+model = NatVampPrior(args.batch_size, args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device).to(device)
+optimizer = optim.Adam([{'params': model.vae.parameters()},
+                        {'params': model.pseudoGen.parameters(), 'lr': args.plr}],
+                        lr=args.lr, weight_decay=args.reg2)
+stopEarly = False
+failedEpochs=0
+lastLoss = 0
+
+scheduler=None
+if(args.schedule>0):
+    scheduler=lr_scheduler.ReduceLROnPlateau(optimizer,verbose=True,patience=args.schedule)
 
 def train(epoch):
     model.train()
@@ -135,45 +191,77 @@ def train(epoch):
         data = data.to(device)
         optimizer.zero_grad()
         recon_batch, mu, logvar, z = model(data)
-        pseudos=model.means(model.idle_input).view(-1,1,args.input_length,args.input_length).to(device)
+        pseudos=model.pseudoGen.forward(model.idle_input).view(-1,1,args.input_length,args.input_length).to(device)
         recon_pseudos, p_mu, p_logvar, p_z=model(pseudos)
         loss = model.loss_function(recon_batch, data, mu, logvar, z,pseudos,recon_pseudos, p_mu, p_logvar, p_z)
         loss.backward()
         train_loss += loss.item()
+        genLoss = model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0).item() / len(data)
+        if args.experiment:
+            mlflow.log_metric('trainLoss', loss.item()/len(data))
+            mlflow.log_metric('genLoss', genLoss)
         optimizer.step()
         if batch_idx % args.log_interval == 0:
-            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tGenLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader),
-                loss.item() / len(data)))
+                loss.item() / len(data),
+                genLoss))
+        step=epoch*len(train_loader)+batch_idx
+        if(args.log!='!'):
+            per_item_loss=loss.item()/len(data)
+            writer.add_scalar('item_loss',per_item_loss,global_step=step)
 
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
-
+    if(args.schedule>0):
+          scheduler.step(train_loss / len(train_loader.dataset))
 
 def test(epoch, max, startTime):
     model.eval()
     test_loss = 0
+    gen_loss = 0
+    global lastLoss
+    global failedEpochs
+    global stopEarly
     zTensor = torch.empty(0,args.lsdim).to(device)
-    pseudos=model.means(model.idle_input).view(-1,1,args.input_length,args.input_length).to(device)
+    pseudos=model.pseudoGen.forward(model.idle_input).view(-1,1,args.input_length,args.input_length).to(device)
     recon_pseudos, p_mu, p_logvar, p_z=model(pseudos)
     with torch.no_grad():
         for i, data in enumerate(test_loader):
             data = data.to(device)
             recon_batch, mu, logvar, z = model(data)
             test_loss += model.loss_function(recon_batch, data, mu, logvar,z,pseudos,recon_pseudos, p_mu, p_logvar, p_z).item()
+            gen_loss += model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0).item()
             zTensor = torch.cat((zTensor, z), 0)
-    
     if (args.dbscan == True) :
         zScaled = StandardScaler().fit_transform((torch.Tensor.cpu(zTensor).numpy())) #re-add StandardScaler().fit_transform
         db = DBSCAN(eps= 0.7, min_samples= 3).fit(zScaled)
         print(db.labels_)
         labelTensor = db.labels_
     test_loss /= len(test_loader.dataset)
+    gen_loss /= len(test_loader.dataset)
+    if args.experiment:
+        mlflow.log_metric('testLoss', test_loss)
+        mlflow.log_metric('testGenLoss', gen_loss)
     print('====> Test set loss: {:.4f}'.format(test_loss))
+    print('====> Generation loss: {:.4f}'.format(gen_loss))
+    if(epoch == 1):
+        lastLoss = test_loss
+    elif not args.noEarlyStop:
+        if lastLoss-test_loss < args.tolerance:
+            failedEpochs += 1
+            if failedEpochs >= args.patience:
+                stopEarly = True
+                epoch = max
+        elif args.failCount == 'r':
+            failedEpochs = 0
     if(epoch == max):
         if(args.save != ''):
-            torch.save(model.state_dict(), args.save)
+            torch.save({
+                        'model_state_dict':model.state_dict(),
+                        'optimizer_state_dict':optimizer.state_dict()
+                        }, args.save)
         print("--- %s seconds ---" % (time.time() - startTime))
         cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
         
@@ -197,11 +285,13 @@ def test(epoch, max, startTime):
                 scatterPlot = plt.scatter(z1, z2, s = 4) #TSNE projection for >3dim 
 
             plt.show()
-        temp = model.means(model.idle_input).view(-1,args.input_length,args.input_length).detach().cpu()
-        for x in range(args.pseudos):
-            plt.matshow(temp[x].numpy())
-            plt.show()
-         
+        if(args.pp>0):
+            t=min(args.pp,args.pseudos)
+            temp = model.means(model.idle_input).view(-1,args.input_length,args.input_length).detach().cpu()
+            for x in range(t):
+                plt.matshow(temp[x].numpy())
+                plt.show()
+      
 def dplot(x):
     img = decode(x)
     plt.imshow(img)
@@ -222,15 +312,23 @@ if __name__ == "__main__":
     '''
     if(args.load == ''):
         for epoch in range(1, args.epochs + 1):
-            train(epoch)
-            test(epoch, args.epochs, startTime)
+            if(not stopEarly):
+                train(epoch)
+                test(epoch, args.epochs, startTime)
     else:
-        model.load_state_dict(torch.load(args.load))
+        checkpoint=torch.load(args.load)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         test(args.epochs, args.epochs, startTime)
         if(args.repeat==True):
             for epoch in range(1, args.epochs + 1):
                 train(epoch)
                 test(epoch, args.epochs, startTime)
-    if(args.save != ''):
-        torch.save(model.state_dict(), args.save)
+                
+    if(args.log!='!'):
+        #res = torch.autograd.Variable(torch.Tensor(1,1,20,64,64), requires_grad=True).to(device)
+        #writer.add_graph(model,res,verbose=True)
+        writer.close()
+    if args.experiment:
+        mlflow.end_run()
     
