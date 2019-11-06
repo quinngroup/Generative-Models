@@ -34,13 +34,14 @@ VampPrior implementation with Spatial Broadcast Decoder for use with MNIST datas
     
     
 class VAE(nn.Module):
-    def __init__(self, input_length, lsdim, device):
+    def __init__(self, input_length, lsdim, device, logvar_bound):
         super(VAE, self).__init__()
                     
         self.input_length = input_length
         self.lsdim = lsdim
         self.device = device
         self.finalConvLength = ((input_length - 2)//2 - 1)//2 - 4
+        self.logvar_bound = logvar_bound
 
         #(1,28,28) -> (8,26,26)
         self.conv1 = nn.Conv2d(1, 8, 3)
@@ -83,7 +84,9 @@ class VAE(nn.Module):
         x=x.view(-1, 64*self.finalConvLength*self.finalConvLength)
         
         z_q_mean = self.mean(x)
-        z_q_logvar = F.elu(self.logvar(x), 3.0)
+        z_q_logvar = F.elu(self.logvar(x), self.logvar_bound)
+        #print(z_q_mean)
+        #print(z_q_logvar)
         return z_q_mean, z_q_logvar
 
     def reparameterize(self, mu, logvar):
@@ -126,7 +129,7 @@ class PseudoGen(nn.Module):
         
 
 class NatVampPrior(nn.Module):
-    def __init__(self, batch_size, input_length, lsdim, pseudos, beta, gamma, device):
+    def __init__(self, batch_size, input_length, lsdim, pseudos, beta, gamma, device, logvar_bound):
         super(NatVampPrior, self).__init__()
         
         self.batch_size = batch_size
@@ -135,7 +138,7 @@ class NatVampPrior(nn.Module):
         self.gamma = gamma
         self.input_length=input_length
         
-        self.vae = VAE(input_length, lsdim, device)
+        self.vae = VAE(input_length, lsdim, device, logvar_bound)
         self.pseudoGen = PseudoGen(input_length, pseudos,device)
         
         self.idle_input = torch.eye(pseudos, pseudos, requires_grad=True).cuda()
@@ -233,6 +236,8 @@ if __name__ == "__main__":
                         #current implementation may not be optimal for dims above 4
     parser.add_argument('--gamma', type = float, default=.05, metavar='g',
                         help='Pseudo-loss weight')
+    parser.add_argument('--logvar-bound', type=float, default=1.0, metavar='lb',
+                        help='Lower bound on logvar (default: 1.0)')
     parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
                         help='learning rate')  
     parser.add_argument('--graph', action='store_true', default= False,
@@ -273,7 +278,7 @@ if __name__ == "__main__":
         datasets.MNIST('../../data/', train=False, transform=transforms.ToTensor()),
         batch_size=args.batch_size, shuffle=True, **kwargs)
         
-    model = NatVampPrior(args.batch_size, args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device).to(device)
+    model = NatVampPrior(args.batch_size, args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device, args.logvar_bound).to(device)
     optimizer = optim.Adam([{'params': model.vae.parameters()},
                             {'params': model.pseudoGen.parameters(), 'lr': args.plr}],
                             lr=args.lr, weight_decay=args.reg2)
