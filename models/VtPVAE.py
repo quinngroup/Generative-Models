@@ -74,6 +74,8 @@ parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
                     help='learning rate')
 parser.add_argument('--plr', type = float, default=4e-6, metavar='lr',
                     help='learning rate')
+parser.add_argument('--logvar-bound', type=float, default=1.0, metavar='lb',
+                    help='Lower bound on logvar (default: 1.0)')
 parser.add_argument('--dbscan', action='store_true', default= False,
                     help='to run dbscan clustering')      
 parser.add_argument('--graph', action='store_true', default= False,
@@ -172,7 +174,7 @@ data = movingMNISTDataset(npArray=mnist, transform=transforms.ToTensor())
 train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args.seed, args.testSplit)
     
 
-model = NatVampPrior(args.batch_size, args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device).to(device)
+model = NatVampPrior(args.batch_size, args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device, args.logvar_bound).to(device)
 optimizer = optim.Adam([{'params': model.vae.parameters()},
                         {'params': model.pseudoGen.parameters(), 'lr': args.plr}],
                         lr=args.lr, weight_decay=args.reg2)
@@ -253,6 +255,7 @@ def test(epoch, max, startTime):
             failedEpochs += 1
             if failedEpochs >= args.patience:
                 stopEarly = True
+                
                 epoch = max
         elif args.failCount == 'r':
             failedEpochs = 0
