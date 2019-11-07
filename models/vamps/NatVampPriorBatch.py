@@ -49,7 +49,7 @@ class VAE(nn.Module):
         self.conv2 = nn.Conv2d(8, 16, 2)
         
         #(16,12,12) -> (16,12,12)
-        self.batch2 = nn.BatchNorm2d(16)
+        self.batch1 = nn.BatchNorm2d(16, track_running_stats = False)
         
         #(16,6,6) -> (32,4,4)
         self.conv3 = nn.Conv2d(16, 32, 3)
@@ -58,7 +58,7 @@ class VAE(nn.Module):
         self.conv4 = nn.Conv2d(32, 64, 3)
         
         #(64,2,2) -> (64,2,2)
-        self.batch4 = nn.BatchNorm2d(64)
+        self.batch2 = nn.BatchNorm2d(64, track_running_stats = False)
 
         #(80,4,4) -> lsdim mean and logvar
         self.mean = nn.Linear(64*self.finalConvLength*self.finalConvLength, lsdim)
@@ -79,13 +79,13 @@ class VAE(nn.Module):
         x = F.leaky_relu(F.max_pool2d(self.conv1(x), (2,2)))
         
         #(8,13,13) -> (16,12,12) -> (16,6,6)
-        x = F.leaky_relu(F.max_pool2d(self.batch2(self.conv2(x)), (2,2)))
+        x = F.leaky_relu(F.max_pool2d(self.batch1(self.conv2(x)), (2,2)))
         
         #(16,6,6) -> (32,4,4)
         x = F.leaky_relu(self.conv3(x))
         
         #(32,4,4) -> (64,2,2)
-        x = F.leaky_relu(self.batch4(self.conv4(x)))
+        x = F.leaky_relu(self.batch2(self.conv4(x)))
         x=x.view(-1, 64*self.finalConvLength*self.finalConvLength)
         
         z_q_mean = self.mean(x)
@@ -279,9 +279,6 @@ if __name__ == "__main__":
         batch_size=args.batch_size, shuffle=True, **kwargs)
         
     model = NatVampPrior(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device).to(device)
-    for child in model.vae.children():
-        if type(child)==nn.BatchNorm2d:
-                child.track_running_stats = False
     optimizer = optim.Adam([{'params': model.vae.parameters()},
                             {'params': model.pseudoGen.parameters(), 'lr': args.plr}],
                             lr=args.lr, weight_decay=args.reg2)
