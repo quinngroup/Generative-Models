@@ -1,0 +1,12 @@
+exp17 Experiment Log:
+=======================================================================================
+Date: 11/7/2019
+Model Architecture: VtPVAE
+Non-default arguments: plr set to 9 different rates (cartesian product of {2,4,6} x {e-7, e-6, e-5})
+[Description of generated file structure]
+=======================================================================================
+Final loss: [final loss]
+Computation Time: [computation time]
+Number trainable paramaters: [number trainable parameters (if can find)]
+[Analytic description of results, i.e. more nuanced quantitative and qualitiative perspective] 
+Conclusion: [Conclusion, or ideas for next experiment]
