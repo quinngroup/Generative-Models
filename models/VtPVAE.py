@@ -1,4 +1,4 @@
-CHECKSUM = 'VtP-A2'
+CHECKSUM = 'VtP-A3'
 
 import argparse
 import mlflow
@@ -30,6 +30,7 @@ sys.path.insert(0,'../')
 
 #print(os.listdir())
 from vamps.NatVampPrior import NatVampPrior
+from vamps.NatVampPriorBatch import BatchVampPrior
 
 
 
@@ -104,6 +105,10 @@ parser.add_argument('--experiment', type=str, default=None,
                     help='Name of experiment being run. Default = \'\'')
 parser.add_argument('--runName', type=str, default=None,
                     help='Name of run to be logged. Default = \'\'')
+parser.add_argument('--batchNorm', action='store_true', default=False,
+                    help='Use batch normalization')
+parser.add_argument('--batch-tracking', action='store_true', default=False,
+                    help='Tracks running statistics in Batch Normalization layers.')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -174,7 +179,10 @@ data = movingMNISTDataset(npArray=mnist, transform=transforms.ToTensor())
 train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args.seed, args.testSplit)
     
 
-model = NatVampPrior(args.batch_size, args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device, args.logvar_bound).to(device)
+if args.batchNorm:
+    model = BatchVampPrior(args.batch_size, args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device, args.logvar_bound, args.batch_tracking).to(device)
+else:
+    model = NatVampPrior(args.batch_size, args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device, args.logvar_bound).to(device)
 optimizer = optim.Adam([{'params': model.vae.parameters()},
                         {'params': model.pseudoGen.parameters(), 'lr': args.plr}],
                         lr=args.lr, weight_decay=args.reg2)
