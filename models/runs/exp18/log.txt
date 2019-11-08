@@ -1,0 +1,14 @@
+exp18 Experiment Log:
+=======================================================================================
+Date: 11/8/2019
+Model Architecture: VtPVAE
+Non-default arguments: cartesian product of epochs and batch normalization ({30,60,90} x {default, --batchNorm, --batchNorm --batch-tracking})
+Weights for models without batch normalization stored as unnormedxx.h5 where xx is the number of epochs
+Weights for models with batch normalization without tracking running statistics stored as notrackingxx.h5 where xx is the number of epochs
+Weights for models with batch normalization and tracking running statistics stored as runningxx.h5 where xx is the number of epochs
+=======================================================================================
+Final loss: [final loss]
+Computation Time: [computation time]
+Number trainable paramaters: [number trainable parameters (if can find)]
+[Analytic description of results, i.e. more nuanced quantitative and qualitiative perspective] 
+Conclusion: [Conclusion, or ideas for next experiment]
