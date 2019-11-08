@@ -1,4 +1,4 @@
-CHECKSUM = 'BatchVamp1'
+CHECKSUM = 'BatchVamp2'
 
 import argparse
 import torch
@@ -27,29 +27,30 @@ import matplotlib.colors as colors
     
     
 """
-VampPrior implementation with BatchNormalization
+VampPrior implementation with Spatial Broadcast Decoder for use with MNIST dataset
 
-@author Quinn Wyner
+@author Meekail Zain
 """
     
     
-class VAE(nn.Module):
-    def __init__(self, input_length, lsdim, device):
-        super(VAE, self).__init__()
+class BatchVAE(nn.Module):
+    def __init__(self, input_length, lsdim, device, logvar_bound, tracking):
+        super(BatchVAE, self).__init__()
                     
         self.input_length = input_length
         self.lsdim = lsdim
         self.device = device
         self.finalConvLength = ((input_length - 2)//2 - 1)//2 - 4
+        self.logvar_bound = logvar_bound
 
         #(1,28,28) -> (8,26,26)
         self.conv1 = nn.Conv2d(1, 8, 3)
-             
+        
         #(8,13,13) -> (16,12,12)
         self.conv2 = nn.Conv2d(8, 16, 2)
         
         #(16,12,12) -> (16,12,12)
-        self.batch1 = nn.BatchNorm2d(16, track_running_stats = False)
+        self.batch1 = nn.BatchNorm2d(16, track_running_stats = tracking)
         
         #(16,6,6) -> (32,4,4)
         self.conv3 = nn.Conv2d(16, 32, 3)
@@ -58,9 +59,9 @@ class VAE(nn.Module):
         self.conv4 = nn.Conv2d(32, 64, 3)
         
         #(64,2,2) -> (64,2,2)
-        self.batch2 = nn.BatchNorm2d(64, track_running_stats = False)
+        self.batch2 = nn.BatchNorm2d(64, track_running_stats = tracking)
 
-        #(80,4,4) -> lsdim mean and logvar
+        #(64,2,2) -> lsdim mean and logvar
         self.mean = nn.Linear(64*self.finalConvLength*self.finalConvLength, lsdim)
         self.logvar = nn.Linear(64*self.finalConvLength*self.finalConvLength, lsdim)
 
@@ -76,10 +77,10 @@ class VAE(nn.Module):
     def q_z(self, x):
     
         #(1,28,28) -> (8,26,26) -> (8,13,13)
-        x = F.leaky_relu(F.max_pool2d(self.conv1(x), (2,2)))
+        x = F.max_pool2d(F.leaky_relu(self.conv1(x)), (2,2))
         
         #(8,13,13) -> (16,12,12) -> (16,6,6)
-        x = F.leaky_relu(F.max_pool2d(self.batch1(self.conv2(x)), (2,2)))
+        x = F.max_pool2d(F.leaky_relu(self.batch1(self.conv2(x))), (2,2))
         
         #(16,6,6) -> (32,4,4)
         x = F.leaky_relu(self.conv3(x))
@@ -89,7 +90,9 @@ class VAE(nn.Module):
         x=x.view(-1, 64*self.finalConvLength*self.finalConvLength)
         
         z_q_mean = self.mean(x)
-        z_q_logvar = F.elu(self.logvar(x), 3.0)
+        z_q_logvar = F.elu(self.logvar(x), self.logvar_bound)
+        #print(z_q_mean)
+        #print(z_q_logvar)
         return z_q_mean, z_q_logvar
 
     def reparameterize(self, mu, logvar):
@@ -131,16 +134,17 @@ class PseudoGen(nn.Module):
         return torch.sigmoid(self.means(x))
         
 
-class NatVampPrior(nn.Module):
-    def __init__(self, input_length, lsdim, pseudos, beta, gamma, device):
-        super(NatVampPrior, self).__init__()
+class BatchVampPrior(nn.Module):
+    def __init__(self, batch_size, input_length, lsdim, pseudos, beta, gamma, device, logvar_bound, tracking):
+        super(BatchVampPrior, self).__init__()
         
+        self.batch_size = batch_size
         self.pseudos = pseudos
         self.beta = beta
         self.gamma = gamma
         self.input_length=input_length
         
-        self.vae = VAE(input_length, lsdim, device)
+        self.vae = BatchVAE(input_length, lsdim, device, logvar_bound, tracking)
         self.pseudoGen = PseudoGen(input_length, pseudos,device)
         
         self.idle_input = torch.eye(pseudos, pseudos, requires_grad=True).cuda()
@@ -170,9 +174,9 @@ class NatVampPrior(nn.Module):
         pKL= -(plog_p_z - plog_q_z)
 
         if gamma is None:
-            return (RE + self.beta*KL)+self.gamma*(pRE + self.beta*pKL)
-        else:
-            return (RE + self.beta*KL)+gamma*(pRE + self.beta*pKL)
+            gamma=self.gamma
+        gamma=self.batch_size*gamma
+        return (RE + self.beta*KL)+gamma*(pRE + self.beta*pKL)
 
     def log_p_z(self,z):
         # calculate params
@@ -236,8 +240,10 @@ if __name__ == "__main__":
     parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
                         help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
                         #current implementation may not be optimal for dims above 4
-    parser.add_argument('--gamma', type = float, default=10, metavar='g',
+    parser.add_argument('--gamma', type = float, default=.05, metavar='g',
                         help='Pseudo-loss weight')
+    parser.add_argument('--logvar-bound', type=float, default=1.0, metavar='lb',
+                        help='Lower bound on logvar (default: 1.0)')
     parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
                         help='learning rate')  
     parser.add_argument('--graph', action='store_true', default= False,
@@ -258,6 +264,8 @@ if __name__ == "__main__":
                         help='patience value for early stopping')
     parser.add_argument('--failCount', type=str, default='r', metavar='fc',
                         help='determines how to reset early-stopping failed epoch counter. Options are \'r\' for reset and \'c\' for cumulative')
+    parser.add_argument('--batch-tracking', action='store_true', default=False,
+                        help='Tracks running statistics in Batch Normalization layers.')
 
     args = parser.parse_args()
     args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -278,7 +286,7 @@ if __name__ == "__main__":
         datasets.MNIST('../../data/', train=False, transform=transforms.ToTensor()),
         batch_size=args.batch_size, shuffle=True, **kwargs)
         
-    model = NatVampPrior(args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device).to(device)
+    model = BatchVampPrior(args.batch_size, args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device, args.logvar_bound, args.batch_tracking).to(device)
     optimizer = optim.Adam([{'params': model.vae.parameters()},
                             {'params': model.pseudoGen.parameters(), 'lr': args.plr}],
                             lr=args.lr, weight_decay=args.reg2)
@@ -339,6 +347,7 @@ if __name__ == "__main__":
                 failedEpochs += 1
                 if failedEpochs >= args.patience:
                     stopEarly = True
+                    epoch = max
             elif args.failCount == 'r':
                 failedEpochs = 0
         if(epoch == max):
@@ -392,6 +401,3 @@ if __name__ == "__main__":
                 test(epoch, args.epochs, startTime)
     if(args.save != ''):
         torch.save(model.state_dict(), CHECKSUM + args.save)
-
-        
-    
