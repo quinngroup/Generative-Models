@@ -1,7 +1,6 @@
 CHECKSUM = 'VtP-A3'
 
 import argparse
-import mlflow
 import torch
 import time
 from torch import optim
@@ -101,10 +100,6 @@ parser.add_argument('--patience', type = int, default = 10, metavar='pat',
                     help='patience value for early stopping')
 parser.add_argument('--failCount', type=str, default='r', metavar='fc',
                     help='determines how to reset early-stopping failed epoch counter. Options are \'r\' for reset and \'c\' for cumulative')
-parser.add_argument('--experiment', type=str, default=None,
-                    help='Name of experiment being run. Default = \'\'')
-parser.add_argument('--runName', type=str, default=None,
-                    help='Name of run to be logged. Default = \'\'')
 parser.add_argument('--batchNorm', action='store_true', default=False,
                     help='Use batch normalization')
 parser.add_argument('--batch-tracking', action='store_true', default=False,
@@ -120,15 +115,6 @@ device = "cuda" if args.cuda else "cpu"
 if(args.cuda):
     with torch.cuda.device(0):
         torch.tensor([1.]).cuda()
-        
-if args.experiment:
-    mlflow.set_experiment(args.experiment)
-    if args.runName:
-        mlflow.start_run(run_name = args.runName)
-    else:
-        mlflow.start_run()
-    for arg in vars(args):
-        mlflow.log_param(arg, getattr(args, arg))
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
@@ -207,9 +193,6 @@ def train(epoch):
         loss.backward()
         train_loss += loss.item()
         genLoss = model.loss_function(recon_batch, data, mu, logvar, z, pseudos, recon_pseudos, p_mu, p_logvar, p_z, gamma=0).item() / len(data)
-        if args.experiment:
-            mlflow.log_metric('trainLoss', loss.item()/len(data))
-            mlflow.log_metric('genLoss', genLoss)
         optimizer.step()
         if batch_idx % args.log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tGenLoss: {:.6f}'.format(
@@ -251,9 +234,6 @@ def test(epoch, max, startTime):
         labelTensor = db.labels_
     test_loss /= len(test_loader.dataset)
     gen_loss /= len(test_loader.dataset)
-    if args.experiment:
-        mlflow.log_metric('testLoss', test_loss)
-        mlflow.log_metric('testGenLoss', gen_loss)
     print('====> Test set loss: {:.4f}'.format(test_loss))
     print('====> Generation loss: {:.4f}'.format(gen_loss))
     if(epoch == 1):
@@ -339,7 +319,4 @@ if __name__ == "__main__":
     if(args.log!='!'):
         #res = torch.autograd.Variable(torch.Tensor(1,1,20,64,64), requires_grad=True).to(device)
         #writer.add_graph(model,res,verbose=True)
-        writer.close()
-    if args.experiment:
-        mlflow.end_run()
-    
+        writer.close() 
