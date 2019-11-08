@@ -27,9 +27,9 @@ import matplotlib.colors as colors
     
     
 """
-VampPrior implementation with Spatial Broadcast Decoder for use with MNIST dataset
+VampPrior implementation with Batch Normalization
 
-@author Meekail Zain
+@author Quinn Wyner
 """
     
     
