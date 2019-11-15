@@ -12,8 +12,8 @@ Treats 0th axis as time, 1st axis as height, 2nd as width
 def cropper(filename, patchHeight, patchWidth):
     data = np.load(filename, mmap_mode='r')
     
-    heightStart = randint(0, shape[2] - patchHeight)
-    widthStart = randint(0, shape[3] - patchWidth)
+    heightStart = randint(0, shape[1] - patchHeight)
+    widthStart = randint(0, shape[2] - patchWidth)
     
     return data[:, heightStart:heightStart+patchHeight, widthStart:widthStart+patchWidth]
     
