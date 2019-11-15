@@ -4,7 +4,7 @@ from random import randint
 
 '''
 Generates a cropped dataset from a video dataset focusing on an m x n patch of each video
-Treats 0th axis as time, 1st axis as batch, 2nd as height, 3rd as width
+Treats 0th axis as time, 1st axis as height, 2nd as width
 
 @author Quinn Wyner
 '''
