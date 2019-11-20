@@ -78,7 +78,7 @@ class frameDataset(Dataset):
         self.source = source
         self.videos = os.listdir(source)
         sort(self.videos)
-        self.videoLengths = [load(source + '/' + self.videos[n],mmap_mode='r').shape[0] for n in range(len(self.videos))]
+        self.videoLengths = [load(source + self.videos[n],mmap_mode='r').shape[0] for n in range(len(self.videos))]
         self.transform = transform
     def __len__(self):
         return sum(self.videoLengths)
@@ -89,7 +89,7 @@ class frameDataset(Dataset):
             currVideo += 1
             tempIndex -= self.videoLengths[currVideo]
         tempIndex += self.videoLengths[currVideo]
-        obs = load(self.source + '/' + self.videos[currVideo],mmap_mode='r+')[tempIndex, :, :, newaxis]
+        obs = load(self.source + self.videos[currVideo],mmap_mode='r+')[tempIndex, :, :, newaxis]
         if self.transform:
             obs = self.transform(obs)
         return obs
