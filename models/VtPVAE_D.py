@@ -17,7 +17,7 @@ class VTP_D(nn.Module):
         self.enc_mu = nn.Linear(10, 2)
         self.enc_logvar = nn.Linear(10, 2)
         
-        self.decoder_obs = vtp_decoders.Observation(self.NUM_POINTS)
+        self.decoder_seq = vtp_decoders.Sequential(self.NUM_POINTS)
         self.decoder_hid = vtp_decoders.HiddenState(self.NUM_POINTS)
         self.decoder_rec = vtp_decoders.Recurrent(self.NUM_POINTS)
         
@@ -43,18 +43,19 @@ class VTP_D(nn.Module):
         return mu + eps * std_dev
         
      
-    def forward(self, input, decoder_type="recurrent"):
+    def forward(self, input, decoder_type="sequential"):
         mu, logvar = self.encoder(input)
         w = self.sample_from(mu, logvar)
         if decoder_type == "sequential":
-            return self.decoder_obs(w)
+            return self.decoder_seq(w)
         elif decoder_type == "hidden state":
             return self.decoder_hid(w)
         elif decoder_type == "recurrent":
             return self.decoder_rec(w)
 
 model = VTP_D()
-print(model(torch.randn((7, 20, 2))).size())
+summary(model, (20, 2))
+#print(model(torch.randn((7, 20, 2))).size())
         
     
         
