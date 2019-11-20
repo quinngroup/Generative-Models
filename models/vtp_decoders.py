@@ -2,6 +2,11 @@ import torch
 from torch import nn
 import torch.nn.functional as f
 
+# Number of paramaters for decoder (using torch.summary)
+#  Sequential: 110,108
+#  Hidden State: 33,484
+#  Recurrent: 51,194
+
 class ObservationModule(nn.Module):
     def __init__(self):
         super(ObservationModule, self).__init__()
@@ -15,19 +20,19 @@ class ObservationModule(nn.Module):
         h = torch.sigmoid(self.lin3(h))
         return h
 
-class Observation(nn.Module):
+class Sequential(nn.Module):
     def __init__(self, num_points):
-        super(Observation, self).__init__()
+        super(Sequential, self).__init__()
         self.NUM_POINTS = num_points
         self.lin1 = nn.Linear(2, 2)
-        self.modules = [ObservationModule() for _ in range(self.NUM_POINTS - 1)]
+        self.mods = nn.ModuleList([ObservationModule() for _ in range(self.NUM_POINTS - 1)])
     
     def forward(self, w):
         z_1 = torch.sigmoid(self.lin1(w))
         recon_path_list = [z_1]
-        for module in self.modules:
+        for module in self.mods:
             module_input = torch.cat((w, recon_path_list[-1]), dim=1)
-            new_z = torch.sigmoid(module(module_input))
+            new_z = module(module_input)
             recon_path_list.append(new_z)
         recon_path = torch.stack(recon_path_list, dim=1)
         return recon_path
