@@ -18,7 +18,7 @@ def clipper(filename, clipLength):
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='clippedDataGen')
-    parser.add_argument('--loadDirectory', type=str, default='.', metavar='ld',
+    parser.add_argument('--loadDirectory', type=str, default='./', metavar='ld',
                         help = 'Name of numpy array file to load (default=\'.\')')
     parser.add_argument('--clipLength', type=int, default=40, metavar='cl',
                         help = 'Length of a single clip (default=40)')
