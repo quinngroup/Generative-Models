@@ -1,7 +1,7 @@
 import argparse
 import numpy as np
 from random import randint
-
+import os
 '''
 Generates a clipped dataset from a video dataset focusing on a clip of n frames of each video
 Treats 0th axis as time, 1st axis as height, 2nd as width
