@@ -9,9 +9,11 @@ from torch.optim import lr_scheduler
 from torch.utils.data import Dataset
 from torchvision import transforms
 from torchsummary import summary
+import umap
 from sklearn.manifold import TSNE
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
+from datasetTemplate import frameDataset
 from mMNISTflat import genLoaders
 
 from torch.utils.tensorboard import SummaryWriter
@@ -104,6 +106,8 @@ parser.add_argument('--batchNorm', action='store_true', default=False,
                     help='Use batch normalization')
 parser.add_argument('--batch-tracking', action='store_true', default=False,
                     help='Tracks running statistics in Batch Normalization layers.')
+parser.add_argument('--tsne', action='store_true', default=False,
+                    help='Uses TSNE projection instead of UMAP.')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -161,7 +165,10 @@ class movingMNISTDataset(Dataset):
         return obs
 
 #Constructs Pytorch Dataset from moving MNIST data
-data = movingMNISTDataset(npArray=mnist, transform=transforms.ToTensor())
+if args.source.endswith('.npy'):
+    data = movingMNISTDataset(npArray=mnist, transform=transforms.ToTensor())
+else:
+    data = frameDataset(source=args.source, transform=transforms.ToTensor())
 train_loader, test_loader = genLoaders(data, args.batch_size, args.no_cuda, args.seed, args.testSplit)
     
 
@@ -269,11 +276,15 @@ def test(epoch, max, startTime):
                 z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
                 z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
                 scatterPlot = ax.scatter(z1, z2, z3, s = 4) #Regular 3dim plot
-            else:    
+            elif args.tsne:    
                 Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())        
                 z1 = Z_embedded[:, 0]
                 z2 = Z_embedded[:, 1]
                 scatterPlot = plt.scatter(z1, z2, s = 4) #TSNE projection for >3dim 
+            else:
+                reducer = umap.UMAP()
+                Z_embedded = reducer.fit_transform(zTensor.cpu())
+                scatterPlot = plt.scatter(Z_embedded[:, 0], Z_embedded[:, 1], s = 4)
 
             plt.show()
         if(args.pp>0):
