@@ -12,7 +12,7 @@ Treats 0th axis as time, 1st axis as height, 2nd as width
 def clipper(filename, clipLength):
     data = np.load(args.loadDirectory+filename, mmap_mode='r')
     
-    clipStart = randint(0, shape[0] - clipLength)
+    clipStart = randint(0, data.shape[0] - clipLength)
     
     return data[clipStart:clipStart+clipLength]
     
