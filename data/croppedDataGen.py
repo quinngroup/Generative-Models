@@ -10,16 +10,16 @@ Treats 0th axis as time, 1st axis as height, 2nd as width
 '''
 
 def cropper(filename, patchHeight, patchWidth):
-    data = np.load(filename, mmap_mode='r')
+    data = np.load(args.loadDirectory+filename, mmap_mode='r')
     
-    heightStart = randint(0, shape[1] - patchHeight)
-    widthStart = randint(0, shape[2] - patchWidth)
+    heightStart = randint(0, data.shape[1] - patchHeight)
+    widthStart = randint(0, data.shape[2] - patchWidth)
     
     return data[:, heightStart:heightStart+patchHeight, widthStart:widthStart+patchWidth]
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='croppedDataGen')
-    parser.add_argument('--loadDirectory', type=str, default='.', metavar='ld',
+    parser.add_argument('--loadDirectory', type=str, default='./', metavar='ld',
                         help = 'Name of numpy array file to load (default=\'.\')')
     parser.add_argument('--patchHeight', type=int, default=128, metavar='ph',
                         help = 'Height of a single patch (default=128)')
