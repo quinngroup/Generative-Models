@@ -65,17 +65,17 @@ parser.add_argument('--beta', type=float, default=1.0, metavar='b',
                     help='sets the value of beta for a beta-vae implementation')
 parser.add_argument('--pseudos', type=int, default=10, metavar='p',
                     help='Number of pseudo-inputs (default: 10)')
-parser.add_argument('--lsdim', type = int, default=2, metavar='ld',
+parser.add_argument('--lsdim', type = int, default=10, metavar='ld',
                     help='sets the number of dimensions in the latent space. should be >1. If  <3, will generate graphical representation of latent without TSNE projection')
                     #current implementation may not be optimal for dims above 4
 parser.add_argument('--gamma', type = float, default=.05, metavar='g',
                     help='Pseudo-loss weight')
 parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
                     help='learning rate')
-parser.add_argument('--plr', type = float, default=4e-6, metavar='lr',
-                    help='learning rate')
-parser.add_argument('--logvar-bound', type=float, default=1.0, metavar='lb',
-                    help='Lower bound on logvar (default: 1.0)')
+parser.add_argument('--plr', type = float, default=4e-6, metavar='plr',
+                    help='pseudoinput learning rate')
+parser.add_argument('--logvar-bound', type=float, default=-1.0, metavar='lb',
+                    help='Lower bound on logvar (default: -1.0)')
 parser.add_argument('--dbscan', action='store_true', default= False,
                     help='to run dbscan clustering')      
 parser.add_argument('--graph', action='store_true', default= False,
@@ -126,7 +126,7 @@ if(args.log!='!'):
     if(args.log=='$'):
         writer = SummaryWriter()
     else:
-        writer = SummaryWriter(log_dir='runs/'+args.log)
+        writer = SummaryWriter(log_dir=args.log)
 
 
 #movingMNISTDataset class    
