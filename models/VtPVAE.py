@@ -123,7 +123,8 @@ if(args.cuda):
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
 #Loads moving MNIST dataset
-mnist = np.load(args.source,allow_pickle=True)
+if args.source.endswith('.npy'):
+    mnist = np.load(args.source,allow_pickle=True)
 
 writer=None
 if(args.log!='!'):
