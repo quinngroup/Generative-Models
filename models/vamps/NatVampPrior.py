@@ -84,7 +84,7 @@ class VAE(nn.Module):
         x=x.view(-1, 64*self.finalConvLength*self.finalConvLength)
         
         z_q_mean = self.mean(x)
-        z_q_logvar = F.elu(self.logvar(x), self.logvar_bound)
+        z_q_logvar = F.elu(self.logvar(x), -1.*self.logvar_bound)
         #print(z_q_mean)
         #print(z_q_logvar)
         return z_q_mean, z_q_logvar
@@ -98,7 +98,7 @@ class VAE(nn.Module):
     # THE MODEL: GENERATIVE DISTRIBUTION
     def p_x(self, z):
         
-        return self.sbd(z)
+        return torch.sigmoid(self.sbd(z))
             
     
     def forward(self, x):
@@ -236,8 +236,8 @@ if __name__ == "__main__":
                         #current implementation may not be optimal for dims above 4
     parser.add_argument('--gamma', type = float, default=.05, metavar='g',
                         help='Pseudo-loss weight')
-    parser.add_argument('--logvar-bound', type=float, default=1.0, metavar='lb',
-                        help='Lower bound on logvar (default: 1.0)')
+    parser.add_argument('--logvar-bound', type=float, default=-1.0, metavar='lb',
+                        help='Lower bound on logvar (default: -1.0)')
     parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
                         help='learning rate')  
     parser.add_argument('--graph', action='store_true', default= False,
