@@ -184,19 +184,32 @@ class NatVampPrior(nn.Module):
         means = z_p_mean.unsqueeze(0)
         logvars = z_p_logvar.unsqueeze(0)
         
+        #T: (batch-size, num-pseudos)
+        #T[i,j]: log probability that element i originates from posterior j scaled by num-pseudos
         a = log_Normal_diag(z_expand, means, logvars, dim=2) - math.log(self.pseudos)  # MB x C
-        a_max, _ = torch.max(a, 1)  # MB x 1
+        
+        #T: (batch-size)
+        #T[i] maximum log likelihood achieved by some posterior for element i
+        a_max, _ = torch.max(a, 1)  # MB
 
         # calculate log-sum-exp
+        #T: (batch-size)
+        #T[i] log of sum of probabilities that element i originates from each posterior
         log_prior = a_max + torch.log(torch.sum(torch.exp(a - a_max.unsqueeze(1)), 1))  # MB x 1
+        
+        #return sum of log of sum of probabilities that each element originates from each posterior
         return torch.sum(log_prior, 0)
 
 
 
 def log_Normal_diag(x, mean, log_var, average=False, dim=None):
     #print(log_var)
+    #T:(batch-size, num-pseudos, lsdim) 
+    #T[i,j,k]=element i, marginal probability along axis k for posterior j
     log_normal = -0.5 * ( log_var + torch.pow( x - mean, 2 ) / torch.exp( log_var ) )
 
+    #T: (batch-size, num-pseudos)
+    #T[i,j]=log probability that element i originates from posterior j
     if average:
 
         return torch.mean( log_normal, dim )
