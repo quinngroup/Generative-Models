@@ -1,7 +1,7 @@
 import argparse
 import numpy as np
 from random import randint
-
+import os
 '''
 Generates a clipped dataset from a video dataset focusing on a clip of n frames of each video
 Treats 0th axis as time, 1st axis as height, 2nd as width
@@ -10,15 +10,15 @@ Treats 0th axis as time, 1st axis as height, 2nd as width
 '''
 
 def clipper(filename, clipLength):
-    data = np.load(filename, mmap_mode='r')
+    data = np.load(args.loadDirectory+filename, mmap_mode='r')
     
-    clipStart = randint(0, shape[0] - clipLength)
+    clipStart = randint(0, data.shape[0] - clipLength)
     
     return data[clipStart:clipStart+clipLength]
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='clippedDataGen')
-    parser.add_argument('--loadDirectory', type=str, default='.', metavar='ld',
+    parser.add_argument('--loadDirectory', type=str, default='./', metavar='ld',
                         help = 'Name of numpy array file to load (default=\'.\')')
     parser.add_argument('--clipLength', type=int, default=40, metavar='cl',
                         help = 'Length of a single clip (default=40)')
