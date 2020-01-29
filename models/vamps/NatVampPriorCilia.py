@@ -1,4 +1,4 @@
-CHECKSUM = 'NatVamp1'
+CHECKSUM = 'NatVampC1'
 
 import argparse
 import torch
@@ -43,21 +43,31 @@ class VAE(nn.Module):
         self.finalConvLength = ((input_length - 2)//2 - 1)//2 - 4
         self.logvar_bound = logvar_bound
 
-        #(1,28,28) -> (8,26,26)
-        self.conv1 = nn.Conv2d(1, 8, 3)
+        #(1,128,128) -> (64,128,128)
+        self.conv1 = nn.Conv2d(1, 64, 7,padding=3)
         
-        #(8,13,13) -> (16,12,12)
-        self.conv2 = nn.Conv2d(8, 16, 2)
+        #(64,128,128) -> (64,128,128)
+        self.conv2 = nn.Conv2d(64, 64, 7,padding=3)
         
-        #(16,6,6) -> (32,4,4)
-        self.conv3 = nn.Conv2d(16, 32, 3)
+        #MaxPool (64,128,128) -> (64,64,64)
         
-        #(32,4,4) -> (64,2,2)
-        self.conv4 = nn.Conv2d(32, 64, 3)
+        #(64,64,64) -> (64,64,64)
+        self.conv3 = nn.Conv2d(64, 64, 7,padding=3)
+        
+        #(64,64,64) -> (64,64,64)
+        self.conv4 = nn.Conv2d(64, 64, 7,padding=3)
+        
+        #MaxPool (64,64,64) -> (64,32,32)
+    
+        #(64,32,32) -> (64,32,32)
+        self.conv5 = nn.Conv2d(64, 64, 7,padding=3)
+
+        #(64,32,32) -> (64,32,32)
+        self.conv6 = nn.Conv2d(64, 64, 7,padding=3)
 
         #(80,4,4) -> lsdim mean and logvar
-        self.mean = nn.Linear(64*self.finalConvLength*self.finalConvLength, lsdim)
-        self.logvar = nn.Linear(64*self.finalConvLength*self.finalConvLength, lsdim)
+        self.mean = nn.Linear(64*32*32, lsdim)
+        self.logvar = nn.Linear(64*32*32, lsdim)
 
         self.sbd=spatial_broadcast_decoder(input_length=self.input_length,device=self.device,lsdim=self.lsdim)
         # create an idle input for calling pseudo-inputs
@@ -70,21 +80,21 @@ class VAE(nn.Module):
     # THE MODEL: VARIATIONAL POSTERIOR
     def q_z(self, x):
     
-        #(1,28,28) -> (8,26,26) -> (8,13,13)
-        x = F.max_pool2d(F.leaky_relu(self.conv1(x)), (2,2))
+        x=F.leaky_relu(self.conv1(x))
+        x=F.leaky_relu(self.conv2(x))
+        x = F.max_pool2d(x,(2,2))
         
-        #(8,13,13) -> (16,12,12) -> (16,6,6)
-        x = F.max_pool2d(F.leaky_relu(self.conv2(x)), (2,2))
+        x=F.leaky_relu(self.conv3(x))
+        x=F.leaky_relu(self.conv4(x))
+        x = F.max_pool2d(x,(2,2))
         
-        #(16,6,6) -> (32,4,4)
-        x = F.leaky_relu(self.conv3(x))
-        
-        #(32,4,4) -> (64,2,2)
-        x = F.leaky_relu(self.conv4(x))
-        x=x.view(-1, 64*self.finalConvLength*self.finalConvLength)
-        
+        x=F.leaky_relu(self.conv5(x))
+        x=F.leaky_relu(self.conv6(x))
+        x = x.view(-1,64*32*32)
+                
         z_q_mean = self.mean(x)
-        z_q_logvar = F.elu(self.logvar(x), -1.*self.logvar_bound)
+        z_q_logvar = F.elu(self.logvar(x), self.logvar_bound)
+        
         #print(z_q_mean)
         #print(z_q_logvar)
         return z_q_mean, z_q_logvar
@@ -98,7 +108,7 @@ class VAE(nn.Module):
     # THE MODEL: GENERATIVE DISTRIBUTION
     def p_x(self, z):
         
-        return torch.sigmoid(self.sbd(z))
+        return self.sbd(z)
             
     
     def forward(self, x):
@@ -128,9 +138,9 @@ class PseudoGen(nn.Module):
         return torch.sigmoid(self.means(x))
         
 
-class NatVampPrior(nn.Module):
+class NatVampPriorCilia(nn.Module):
     def __init__(self, batch_size, input_length, lsdim, pseudos, beta, gamma, device, logvar_bound):
-        super(NatVampPrior, self).__init__()
+        super(NatVampPriorCilia, self).__init__()
         
         self.batch_size = batch_size
         self.pseudos = pseudos
@@ -184,32 +194,19 @@ class NatVampPrior(nn.Module):
         means = z_p_mean.unsqueeze(0)
         logvars = z_p_logvar.unsqueeze(0)
         
-        #T: (batch-size, num-pseudos)
-        #T[i,j]: log probability that element i originates from posterior j scaled by num-pseudos
         a = log_Normal_diag(z_expand, means, logvars, dim=2) - math.log(self.pseudos)  # MB x C
-        
-        #T: (batch-size)
-        #T[i] maximum log likelihood achieved by some posterior for element i
-        a_max, _ = torch.max(a, 1)  # MB
+        a_max, _ = torch.max(a, 1)  # MB x 1
 
         # calculate log-sum-exp
-        #T: (batch-size)
-        #T[i] log of sum of probabilities that element i originates from each posterior
         log_prior = a_max + torch.log(torch.sum(torch.exp(a - a_max.unsqueeze(1)), 1))  # MB x 1
-        
-        #return sum of log of sum of probabilities that each element originates from each posterior
         return torch.sum(log_prior, 0)
 
 
 
 def log_Normal_diag(x, mean, log_var, average=False, dim=None):
     #print(log_var)
-    #T:(batch-size, num-pseudos, lsdim) 
-    #T[i,j,k]=element i, marginal probability along axis k for posterior j
     log_normal = -0.5 * ( log_var + torch.pow( x - mean, 2 ) / torch.exp( log_var ) )
 
-    #T: (batch-size, num-pseudos)
-    #T[i,j]=log probability that element i originates from posterior j
     if average:
 
         return torch.mean( log_normal, dim )
@@ -249,13 +246,13 @@ if __name__ == "__main__":
                         #current implementation may not be optimal for dims above 4
     parser.add_argument('--gamma', type = float, default=.05, metavar='g',
                         help='Pseudo-loss weight')
-    parser.add_argument('--logvar-bound', type=float, default=-1.0, metavar='lb',
-                        help='Lower bound on logvar (default: -1.0)')
+    parser.add_argument('--logvar-bound', type=float, default=1.0, metavar='lb',
+                        help='Lower bound on logvar (default: 1.0)')
     parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
                         help='learning rate')  
     parser.add_argument('--graph', action='store_true', default= False,
                         help='flag to determine whether or not to run automatic graphing')      
-    parser.add_argument('--input_length', type=int, default=28, metavar='il',
+    parser.add_argument('--input_length', type=int, default=128, metavar='il',
                         help='length and height of one image')
     parser.add_argument('--repeat', action='store_true', default=False,
                         help='determines whether to enact further training after loading weights')
