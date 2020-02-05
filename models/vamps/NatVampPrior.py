@@ -277,7 +277,7 @@ if __name__ == "__main__":
 
 
     device = "cuda" if args.cuda else "cpu"
-    
+
     if(args.cuda):
         with torch.cuda.device(0):
             torch.tensor([1.]).cuda()
