@@ -21,8 +21,8 @@ if(__name__=="__main__"):
 #print(os.getcwd())
 from utils.nn import spatial_broadcast_decoder
 import math
-import matplotlib.pyplot as plt
-import matplotlib.colors as colors
+import plotly.graph_objects as go
+import matplotlib.express as px
 
 
 
@@ -232,7 +232,7 @@ if __name__ == "__main__":
                         help='portion of dataset to test on (default: .2)')
     parser.add_argument('--source', type=str, default='../data/mnist_test_seq.npy', metavar='S',
                         help = 'path to moving MNIST dataset (default: \'../data/mnist_test_seq.npy\')')
-    parser.add_argument('--epochs', type=int, default=10, metavar='N',
+    parser.add_argument('--epochs', type=int, default=1, metavar='N',
                         help='number of epochs to train (default: 10)')
     parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                         help='how many batches to wait before logging training status')
@@ -361,7 +361,7 @@ if __name__ == "__main__":
 
             #Handling different dimensionalities
             if(args.graph):
-                if (args.lsdim < 3) :
+                if (args.lsdim == 2) :
                     z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
                     z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
                     scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #Regular 2dim plot, RE-ADD CMAP = CMAP
@@ -377,10 +377,9 @@ if __name__ == "__main__":
                     Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())
                     z1 = Z_embedded[:, 0]
                     z2 = Z_embedded[:, 1]
-                    scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #TSNE projection for >3dim
-                    plt.colorbar()
+                    scatterPlot = px.scatter(z1, z2) #TSNE projection for >3dim
+                    scatterPlot.show();
 
-                plt.show()
             temp = model.pseudoGen.forward(model.idle_input).view(-1,args.input_length,args.input_length).detach().cpu()
             for x in range(args.pseudos):
                 plt.matshow(temp[x].numpy())
