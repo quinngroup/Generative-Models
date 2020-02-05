@@ -23,20 +23,20 @@ from utils.nn import spatial_broadcast_decoder
 import math
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
-    
-    
-    
+
+
+
 """
 VampPrior implementation with Spatial Broadcast Decoder for use with MNIST dataset
 
 @author Meekail Zain
 """
-    
-    
+
+
 class VAE(nn.Module):
     def __init__(self, input_length, lsdim, device, logvar_bound):
         super(VAE, self).__init__()
-                    
+
         self.input_length = input_length
         self.lsdim = lsdim
         self.device = device
@@ -45,13 +45,13 @@ class VAE(nn.Module):
 
         #(1,28,28) -> (8,26,26)
         self.conv1 = nn.Conv2d(1, 8, 3)
-        
+
         #(8,13,13) -> (16,12,12)
         self.conv2 = nn.Conv2d(8, 16, 2)
-        
+
         #(16,6,6) -> (32,4,4)
         self.conv3 = nn.Conv2d(16, 32, 3)
-        
+
         #(32,4,4) -> (64,2,2)
         self.conv4 = nn.Conv2d(32, 64, 3)
 
@@ -66,23 +66,23 @@ class VAE(nn.Module):
     def reconstruct_x(self, x):
         x_mean, _, _, _ = self.forward(x)
         return x_mean
-    
+
     # THE MODEL: VARIATIONAL POSTERIOR
     def q_z(self, x):
-    
+
         #(1,28,28) -> (8,26,26) -> (8,13,13)
         x = F.max_pool2d(F.leaky_relu(self.conv1(x)), (2,2))
-        
+
         #(8,13,13) -> (16,12,12) -> (16,6,6)
         x = F.max_pool2d(F.leaky_relu(self.conv2(x)), (2,2))
-        
+
         #(16,6,6) -> (32,4,4)
         x = F.leaky_relu(self.conv3(x))
-        
+
         #(32,4,4) -> (64,2,2)
         x = F.leaky_relu(self.conv4(x))
         x=x.view(-1, 64*self.finalConvLength*self.finalConvLength)
-        
+
         z_q_mean = self.mean(x)
         z_q_logvar = F.elu(self.logvar(x), -1.*self.logvar_bound)
         #print(z_q_mean)
@@ -97,10 +97,10 @@ class VAE(nn.Module):
     # p(x|z)
     # THE MODEL: GENERATIVE DISTRIBUTION
     def p_x(self, z):
-        
+
         return torch.sigmoid(self.sbd(z))
-            
-    
+
+
     def forward(self, x):
 
         #z~q(z|x)
@@ -111,41 +111,41 @@ class VAE(nn.Module):
         #decode code
         return x_mean, mu, logvar, z
 
-    
-    
-        
- 
- 
+
+
+
+
+
 class PseudoGen(nn.Module):
     def __init__(self, input_length, pseudos,device):
         super(PseudoGen, self).__init__()
-        
+
         self.means = nn.Linear(pseudos, input_length*input_length, bias=False)
         self.idle_input = torch.eye(pseudos,pseudos,requires_grad=True)
         self.idle_input = self.idle_input.to(device)
 
     def forward(self, x):
         return torch.sigmoid(self.means(x))
-        
+
 
 class NatVampPrior(nn.Module):
     def __init__(self, batch_size, input_length, lsdim, pseudos, beta, gamma, device, logvar_bound):
         super(NatVampPrior, self).__init__()
-        
+
         self.batch_size = batch_size
         self.pseudos = pseudos
         self.beta = beta
         self.gamma = gamma
         self.input_length=input_length
-        
+
         self.vae = VAE(input_length, lsdim, device, logvar_bound)
         self.pseudoGen = PseudoGen(input_length, pseudos,device)
-        
-        self.idle_input = torch.eye(pseudos, pseudos, requires_grad=True).cuda()
+
+        self.idle_input = torch.eye(pseudos, pseudos, requires_grad=True).to(device)
 
     def forward(self, x):
         return self.vae.forward(x)
-  
+
     # Reconstruction + KL divergence losses summed over all elements and batch
     def loss_function(self, recon_x, x, mu, logvar, z_q, pseudo,recon_pseudo, p_mu, p_logvar, p_z, gamma=None):
         RE = F.mse_loss(recon_x.view(-1,self.input_length*self.input_length), x.view(-1, self.input_length*self.input_length), reduction = 'sum')
@@ -154,7 +154,7 @@ class NatVampPrior(nn.Module):
         # Kingma and Welling. Auto-Encoding Variational Bayes. ICLR, 2014
         # https://arxiv.org/abs/1312.6114
         # 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
-        
+
         # KL
         log_p_z = self.log_p_z(z_q)
         log_q_z = torch.sum(log_Normal_diag(z_q, mu, logvar, dim=1),0)
@@ -183,11 +183,11 @@ class NatVampPrior(nn.Module):
         z_expand = z.unsqueeze(1)
         means = z_p_mean.unsqueeze(0)
         logvars = z_p_logvar.unsqueeze(0)
-        
+
         #T: (batch-size, num-pseudos)
         #T[i,j]: log probability that element i originates from posterior j scaled by num-pseudos
         a = log_Normal_diag(z_expand, means, logvars, dim=2) - math.log(self.pseudos)  # MB x C
-        
+
         #T: (batch-size)
         #T[i] maximum log likelihood achieved by some posterior for element i
         a_max, _ = torch.max(a, 1)  # MB
@@ -196,7 +196,7 @@ class NatVampPrior(nn.Module):
         #T: (batch-size)
         #T[i] log of sum of probabilities that element i originates from each posterior
         log_prior = a_max + torch.log(torch.sum(torch.exp(a - a_max.unsqueeze(1)), 1))  # MB x 1
-        
+
         #return sum of log of sum of probabilities that each element originates from each posterior
         return torch.sum(log_prior, 0)
 
@@ -204,7 +204,7 @@ class NatVampPrior(nn.Module):
 
 def log_Normal_diag(x, mean, log_var, average=False, dim=None):
     #print(log_var)
-    #T:(batch-size, num-pseudos, lsdim) 
+    #T:(batch-size, num-pseudos, lsdim)
     #T[i,j,k]=element i, marginal probability along axis k for posterior j
     log_normal = -0.5 * ( log_var + torch.pow( x - mean, 2 ) / torch.exp( log_var ) )
 
@@ -252,9 +252,9 @@ if __name__ == "__main__":
     parser.add_argument('--logvar-bound', type=float, default=-1.0, metavar='lb',
                         help='Lower bound on logvar (default: -1.0)')
     parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
-                        help='learning rate')  
+                        help='learning rate')
     parser.add_argument('--graph', action='store_true', default= False,
-                        help='flag to determine whether or not to run automatic graphing')      
+                        help='flag to determine whether or not to run automatic graphing')
     parser.add_argument('--input_length', type=int, default=28, metavar='il',
                         help='length and height of one image')
     parser.add_argument('--repeat', action='store_true', default=False,
@@ -290,15 +290,15 @@ if __name__ == "__main__":
     test_loader = torch.utils.data.DataLoader(
         datasets.MNIST('../../data/', train=False, transform=transforms.ToTensor()),
         batch_size=args.batch_size, shuffle=True, **kwargs)
-        
+
     model = NatVampPrior(args.batch_size, args.input_length, args.lsdim, args.pseudos, args.beta, args.gamma, device, args.logvar_bound).to(device)
     optimizer = optim.Adam([{'params': model.vae.parameters()},
                             {'params': model.pseudoGen.parameters(), 'lr': args.plr}],
                             lr=args.lr, weight_decay=args.reg2)
     stopEarly = False
     failedEpochs=0
-    lastLoss = 0            
-    
+    lastLoss = 0
+
     def train(epoch):
         model.train()
         train_loss = 0
@@ -320,10 +320,10 @@ if __name__ == "__main__":
                     epoch, batch_idx * len(data), len(train_loader.dataset),
                     100. * batch_idx / len(train_loader),
                     loss.item() / len(data)))
-            
+
         print('====> Epoch: {} Average loss: {:.4f}'.format(
               epoch, train_loss / len(train_loader.dataset)))
-     
+
 
     def test(epoch, max, startTime):
         model.eval()
@@ -358,7 +358,7 @@ if __name__ == "__main__":
         if(epoch == max):
             print("--- %s seconds ---" % (time.time() - startTime))
             cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
-            
+
             #Handling different dimensionalities
             if(args.graph):
                 if (args.lsdim < 3) :
@@ -373,11 +373,11 @@ if __name__ == "__main__":
                     z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
                     z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
                     scatterPlot = ax.scatter(z1, z2, z3, s = 4, c = labelTensor, cmap = cmap) #Regular 3dim plot
-                else:    
-                    Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())        
+                else:
+                    Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())
                     z1 = Z_embedded[:, 0]
                     z2 = Z_embedded[:, 1]
-                    scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #TSNE projection for >3dim 
+                    scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #TSNE projection for >3dim
                     plt.colorbar()
 
                 plt.show()
@@ -385,8 +385,8 @@ if __name__ == "__main__":
             for x in range(args.pseudos):
                 plt.matshow(temp[x].numpy())
                 plt.show()
-            
-            
+
+
     def dplot(x):
         img = p_x(x)
         plt.imshow(img)
@@ -406,6 +406,3 @@ if __name__ == "__main__":
                 test(epoch, args.epochs, startTime)
     if(args.save != ''):
         torch.save(model.state_dict(), CHECKSUM + args.save)
-
-        
-    
