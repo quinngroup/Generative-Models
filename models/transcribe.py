@@ -20,4 +20,4 @@ assert args.dest is not None, 'Please provide a destination directory'
 
 for file in os.listdir(args.source):
     print(file)
-    np.save(args.dest+'/'+file,np.load(args.source+'/'+file,mmap_mode='r+').astype(np.uint8))
+    np.save(args.dest+'/'+file,np.load(args.source+'/'+file,mmap_mode='r').astype(np.uint8))
