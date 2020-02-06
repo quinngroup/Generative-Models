@@ -16,7 +16,8 @@ parser.add_argument('--dest', type=str, default=None, metavar='S',
 args = parser.parse_args()
 
 assert args.source is not None, 'Please provide a source directory'
-assert args.source is not None, 'Please provide a destination directory'
+assert args.dest is not None, 'Please provide a destination directory'
+
 for file in os.listdir(args.source):
     print(file)
-    np.save(args.dest+'/'+file,np.load(args.source+'/'+file).astype(np.uint8))
+    np.save(args.dest+'/'+file,np.load(args.source+'/'+file,mmap_mode='r+').astype(np.uint8))
