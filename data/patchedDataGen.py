@@ -26,5 +26,5 @@ for file in os.listdir(args.source):
         index = 1
         for i in range(data.shape[1] // args.patchHeight):
             for j in range(data.shape[2] // args.patchWidth):
-                np.save(args.dest + file + '_' + index, data[:, i*args.patchHeight:(i+1)*args.patchHeight, j*args.patchWidth:(j+1)*args.patchWidth])
+                np.save(args.dest + file + '_' + str(index), data[:, i*args.patchHeight:(i+1)*args.patchHeight, j*args.patchWidth:(j+1)*args.patchWidth])
                 index += 1
