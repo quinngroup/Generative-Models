@@ -24,7 +24,7 @@ for file in os.listdir(args.source):
     if file.endswith('.npy'):
         data = np.load(args.source+file, mmap_mode='r')
         index = 1
-        for i in range(data.shape[1] // self.patchHeight):
-            for j in range(data.shape[2] // self.patchWidth):
-                np.save(args.saveDirectory + file + '_' + index, data[:, i*self.patchHeight:(i+1)*self.patchHeight, j*self.patchWidth:(j+1)*self.patchWidth])
+        for i in range(data.shape[1] // args.patchHeight):
+            for j in range(data.shape[2] // args.patchWidth):
+                np.save(args.saveDirectory + file + '_' + index, data[:, i*args.patchHeight:(i+1)*args.patchHeight, j*args.patchWidth:(j+1)*args.patchWidth])
                 index += 1
