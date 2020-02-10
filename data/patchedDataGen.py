@@ -26,5 +26,5 @@ for file in os.listdir(args.loadDirectory):
         index = 1
         for i in range(data.shape[1] // patchHeight):
             for j in range(data.shape[2] // patchWidth):
-                np.save(args.saveDirectory + file + '_' + index, data[:, i*patchHeight:(i+1)*patchHeight, j*patchWidth:(j+1)*patchWidth])
+                np.save(args.saveDirectory + file.replace('.npy', '') + '_' + index, data[:, i*patchHeight:(i+1)*patchHeight, j*patchWidth:(j+1)*patchWidth])
                 index += 1
