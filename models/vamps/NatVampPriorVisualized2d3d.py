@@ -22,7 +22,7 @@ if(__name__=="__main__"):
 from utils.nn import spatial_broadcast_decoder
 import math
 import plotly.graph_objects as go
-import plotly.express as px
+import matplotlib.express as px
 
 
 
@@ -84,7 +84,7 @@ class VAE(nn.Module):
         x=x.view(-1, 64*self.finalConvLength*self.finalConvLength)
 
         z_q_mean = self.mean(x)
-        z_q_logvar = F.elu(self.logvar(x), self.logvar_bound)
+        z_q_logvar = F.elu(self.logvar(x), -1.*self.logvar_bound)
         #print(z_q_mean)
         #print(z_q_logvar)
         return z_q_mean, z_q_logvar
@@ -98,7 +98,7 @@ class VAE(nn.Module):
     # THE MODEL: GENERATIVE DISTRIBUTION
     def p_x(self, z):
 
-        return self.sbd(z)
+        return torch.sigmoid(self.sbd(z))
 
 
     def forward(self, x):
@@ -184,19 +184,32 @@ class NatVampPrior(nn.Module):
         means = z_p_mean.unsqueeze(0)
         logvars = z_p_logvar.unsqueeze(0)
 
+        #T: (batch-size, num-pseudos)
+        #T[i,j]: log probability that element i originates from posterior j scaled by num-pseudos
         a = log_Normal_diag(z_expand, means, logvars, dim=2) - math.log(self.pseudos)  # MB x C
-        a_max, _ = torch.max(a, 1)  # MB x 1
+
+        #T: (batch-size)
+        #T[i] maximum log likelihood achieved by some posterior for element i
+        a_max, _ = torch.max(a, 1)  # MB
 
         # calculate log-sum-exp
+        #T: (batch-size)
+        #T[i] log of sum of probabilities that element i originates from each posterior
         log_prior = a_max + torch.log(torch.sum(torch.exp(a - a_max.unsqueeze(1)), 1))  # MB x 1
+
+        #return sum of log of sum of probabilities that each element originates from each posterior
         return torch.sum(log_prior, 0)
 
 
 
 def log_Normal_diag(x, mean, log_var, average=False, dim=None):
     #print(log_var)
+    #T:(batch-size, num-pseudos, lsdim)
+    #T[i,j,k]=element i, marginal probability along axis k for posterior j
     log_normal = -0.5 * ( log_var + torch.pow( x - mean, 2 ) / torch.exp( log_var ) )
 
+    #T: (batch-size, num-pseudos)
+    #T[i,j]=log probability that element i originates from posterior j
     if average:
 
         return torch.mean( log_normal, dim )
@@ -219,7 +232,7 @@ if __name__ == "__main__":
                         help='portion of dataset to test on (default: .2)')
     parser.add_argument('--source', type=str, default='../data/mnist_test_seq.npy', metavar='S',
                         help = 'path to moving MNIST dataset (default: \'../data/mnist_test_seq.npy\')')
-    parser.add_argument('--epochs', type=int, default=10, metavar='N',
+    parser.add_argument('--epochs', type=int, default=1, metavar='N',
                         help='number of epochs to train (default: 10)')
     parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                         help='how many batches to wait before logging training status')
@@ -236,8 +249,8 @@ if __name__ == "__main__":
                         #current implementation may not be optimal for dims above 4
     parser.add_argument('--gamma', type = float, default=.05, metavar='g',
                         help='Pseudo-loss weight')
-    parser.add_argument('--logvar-bound', type=float, default=1.0, metavar='lb',
-                        help='Lower bound on logvar (default: 1.0)')
+    parser.add_argument('--logvar-bound', type=float, default=-1.0, metavar='lb',
+                        help='Lower bound on logvar (default: -1.0)')
     parser.add_argument('--lr', type = float, default=1e-3, metavar='lr',
                         help='learning rate')
     parser.add_argument('--graph', action='store_true', default= False,
@@ -344,33 +357,38 @@ if __name__ == "__main__":
                 failedEpochs = 0
         if(epoch == max):
             print("--- %s seconds ---" % (time.time() - startTime))
-            #cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
+            cmap = colors.ListedColormap(['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabebe'])
 
             #Handling different dimensionalities
             if(args.graph):
-                if (args.lsdim == 2):
-                    df = px.data.iris()
+                if (args.lsdim == 2) :
                     z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
                     z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
-                    scatterPlot = px.scatter(df, z1, z2) #Regular 2dim plot, RE-ADD CMAP = CMAP
-                  #  plt.colorbar()
-                if (args.lsdim == 3):
-                    df = px.data.iris()
+                    scatterPlot = plt.scatter(z1, z2, s = 4, c = labelTensor, cmap = cmap) #Regular 2dim plot, RE-ADD CMAP = CMAP
+                    plt.colorbar()
+                elif (args.lsdim == 3) :
+                    fig=plt.figure()
+                    ax=fig.gca(projection='3d')
                     z1 = torch.Tensor.cpu(zTensor[:, 0]).numpy()
                     z2 = torch.Tensor.cpu(zTensor[:, 1]).numpy()
                     z3 = torch.Tensor.cpu(zTensor[:, 2]).numpy()
-                    surfacePlot = px.scatter_3d(df, z1, z2, z3) #Regular 3dim plot
+                    scatterPlot = ax.scatter(z1, z2, z3, s = 4, c = labelTensor, cmap = cmap) #Regular 3dim plot
+                else:
+                    Z_embedded = TSNE(n_components=2, verbose=1).fit_transform(zTensor.cpu())
+                    z1 = Z_embedded[:, 0]
+                    z2 = Z_embedded[:, 1]
+                    scatterPlot = px.scatter(z1, z2) #TSNE projection for >3dim
+                    scatterPlot.show();
 
-                surfacePlot.show()
             temp = model.pseudoGen.forward(model.idle_input).view(-1,args.input_length,args.input_length).detach().cpu()
-            #for x in range(args.pseudos):
-             #   plt.matshow(temp[x].numpy())
-              #  plt.show()
+            for x in range(args.pseudos):
+                plt.matshow(temp[x].numpy())
+                plt.show()
 
 
     def dplot(x):
         img = p_x(x)
-        px.imshow(img)
+        plt.imshow(img)
     print(device)
     summary(model,(1,args.input_length,args.input_length),device=device)
     if(args.load == ''):

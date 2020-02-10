@@ -277,7 +277,7 @@ if __name__ == "__main__":
 
 
     device = "cuda" if args.cuda else "cpu"
-    
+
     if(args.cuda):
         with torch.cuda.device(0):
             torch.tensor([1.]).cuda()
@@ -398,7 +398,7 @@ if __name__ == "__main__":
                 train(epoch)
                 test(epoch, args.epochs, startTime)
     else:
-        model.load_state_dict(torch.load(args.load))
+        model.load_state_dict(torch.load(args.load, map_location=torch.device('cpu')))
         test(args.epochs, args.epochs, startTime)
         if(args.repeat==True):
             for epoch in range(1, args.epochs + 1):

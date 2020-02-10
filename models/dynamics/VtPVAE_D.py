@@ -17,9 +17,10 @@ class VTP_D(nn.Module):
         self.enc_mu = nn.Linear(10, 2)
         self.enc_logvar = nn.Linear(10, 2)
         
-        self.decoder_seq = vtp_decoders.Sequential(self.NUM_POINTS)
-        self.decoder_hid = vtp_decoders.HiddenState(self.NUM_POINTS)
-        self.decoder_rec = vtp_decoders.Recurrent(self.NUM_POINTS)
+        self.decoder_seq = vtp_decoders.Sequential()
+        self.decoder_hid = vtp_decoders.HiddenState()
+        self.decoder_rec = vtp_decoders.Recurrent()
+        self.decoder_ode = vtp_decoders.NeuralIntegrator()
         
     def encoder(self, input):
     
@@ -52,6 +53,8 @@ class VTP_D(nn.Module):
             return self.decoder_hid(w)
         elif decoder_type == "recurrent":
             return self.decoder_rec(w)
+        elif decoder_type == "neural integrator":
+            return self.decoder_ode(w)
 
 model = VTP_D()
 summary(model, (20, 2))

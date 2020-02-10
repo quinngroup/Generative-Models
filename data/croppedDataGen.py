@@ -11,7 +11,7 @@ Treats 0th axis as time, 1st axis as height, 2nd as width
 '''
 
 def cropper(filename, patchHeight, patchWidth):
-    data = np.load(args.loadDirectory+filename, mmap_mode='r')
+    data = np.load(args.source+filename, mmap_mode='r')
     
     heightStart = randint(0, data.shape[1] - patchHeight)
     widthStart = randint(0, data.shape[2] - patchWidth)
@@ -20,16 +20,16 @@ def cropper(filename, patchHeight, patchWidth):
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='croppedDataGen')
-    parser.add_argument('--loadDirectory', type=str, default='./', metavar='ld',
+    parser.add_argument('--source', type=str, default='./', metavar='s',
                         help = 'Name of numpy array file to load (default=\'.\')')
     parser.add_argument('--patchHeight', type=int, default=128, metavar='ph',
                         help = 'Height of a single patch (default=128)')
     parser.add_argument('--patchWidth', type=int, default=128, metavar='pw',
                         help = 'Width of a single patch (default=128)')
-    parser.add_argument('--saveDirectory', type=str, default='cropped/', metavar='sd',
+    parser.add_argument('--dest', type=str, default='cropped/', metavar='d',
                         help = 'Directory in which to save files (default=\'cropped/\')')
     args = parser.parse_args()
     
-    for file in os.listdir(args.loadDirectory):
+    for file in os.listdir(args.source):
         if file.endswith('.npy'):
-            np.save(args.saveDirectory + file, cropper(file, args.patchHeight, args.patchWidth))
+            np.save(args.dest + file, cropper(file, args.patchHeight, args.patchWidth))
